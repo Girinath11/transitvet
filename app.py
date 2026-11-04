@@ -1,5 +1,6 @@
 """TransitVet dashboard.  Run:  streamlit run app.py"""
 import json, os, sys, io, zipfile
+os.environ.setdefault('TV_LAZY_MODELS', '1')   # load only the networks a star needs (less memory, e.g. on Streamlit Cloud)
 import numpy as np, pandas as pd, streamlit as st
 
 sys.path.insert(0, os.path.dirname(__file__))

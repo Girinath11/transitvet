@@ -279,13 +279,21 @@ class Scorer:
         self.conf = joblib.load(cf) if os.path.exists(cf) else {}
         cp = os.path.join(model_dir, 'combiner.joblib')
         self.comb = joblib.load(cp) if os.path.exists(cp) else {}
+        self.model_dir = model_dir
+        lazy = os.environ.get('TV_LAZY_MODELS') == '1'   # dashboard: load a mission's networks only when first needed (saves memory)
         for m in MISSIONS:
             self.gb[m] = joblib.load(os.path.join(model_dir, f'{m}_gb.joblib'))
-            for kind, cls in (('cnn', M.AstroNet), ('tf', M.PatchTransformer)):
-                nets = []
-                for sd in torch.load(os.path.join(model_dir, f'{m}_{kind}.pt')):
-                    net = cls(); net.load_state_dict(sd); net.eval(); nets.append(net)
-                self.nets[(m, kind)] = nets
+            if not lazy:
+                self._load_nets(m)
+
+    def _load_nets(self, m):
+        for kind, cls in (('cnn', self.M.AstroNet), ('tf', self.M.PatchTransformer)):
+            if (m, kind) in self.nets:
+                continue
+            nets = []
+            for sd in self.torch.load(os.path.join(self.model_dir, f'{m}_{kind}.pt')):
+                net = cls(); net.load_state_dict(sd); net.eval(); nets.append(net)
+            self.nets[(m, kind)] = nets
 
     def feature_row(self, rec):
         x = np.array([float(rec.get(k, np.nan)) if rec.get(k) is not None else np.nan for k in self.feats], float)
@@ -298,6 +306,7 @@ class Scorer:
         X = np.stack([self.feature_row(r) for r in recs])
         g = torch.tensor(np.stack([r['global_astronet'] for r in recs]))
         l = torch.tensor(np.stack([r['local_astronet'] for r in recs]))
+        self._load_nets(mission)
         raw = {'gb': np.mean([m.predict_proba(X)[:, 1] for m in self.gb[mission]], 0)}
         with torch.no_grad():
             for kind in ('cnn', 'tf'):

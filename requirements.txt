@@ -1,3 +1,5 @@
+# CPU-only PyTorch (much smaller than the default GPU build; works on Windows, Linux, macOS and Streamlit Cloud)
+--extra-index-url https://download.pytorch.org/whl/cpu
 # Versions the tool was built and tested with (Python 3.13).
 # scikit-learn must match closely: the gradient-boosting models and calibrators are saved with joblib.
 numpy>=2.0
