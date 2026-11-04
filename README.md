@@ -1,6 +1,6 @@
 # TransitVet
 
-**Website:** https://girinath11.github.io/transitvet/ · **Live dashboard:** coming soon
+**Website:** https://girinath11.github.io/transitvet/ · **Live dashboard:** https://transitvet.streamlit.app/ (nothing to install)
 
 TransitVet looks at a star's brightness over time (its **light curve**), finds small dips that repeat, and scores how likely each dip is a **planet candidate**. A candidate still needs follow-up by astronomers: TransitVet never confirms a planet.
 

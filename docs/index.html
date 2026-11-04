@@ -77,6 +77,7 @@ header.nav .wrap { display: flex; align-items: baseline; gap: 26px; padding-bloc
 .btn:hover { border-color: var(--star) }
 .btn.primary:hover { filter: brightness(1.1) }
 .nav .btn { padding: 7px 14px; font-size: 14px }
+.live-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 18px 0 22px } .live-cta span { color: var(--soft); font-size: 15px; max-width: 52ch }
 
 /* plates: full-bleed photographic bands */
 .plate { position: relative; background-size: cover; background-position: center; isolation: isolate }
@@ -390,7 +391,7 @@ html.reveal header.nav, html.reveal main, html.reveal footer { transition: trans
     <nav aria-label="Sections">
       <a href="#method">The dip</a><a href="#pipeline">How we check</a><a href="#explore">The signals</a><a href="#game">Play</a><a href="#results">Results</a><button type="button" id="replay" onclick="tvReplayIntro()">Watch intro</button>
     </nav>
-    <a class="btn" href="#run">Get it</a>
+    <a class="btn primary" href="https://transitvet.streamlit.app/" target="_blank" rel="noopener">Open the dashboard</a>
   </div>
 </header>
 
@@ -405,8 +406,8 @@ html.reveal header.nav, html.reveal main, html.reveal footer { transition: trans
         <h1>Somewhere in this starlight, <em>a planet just went by.</em></h1>
         <p class="lede">When a planet passes in front of its star, the star gets a little dimmer. NASA's Kepler and TESS telescopes recorded that brightness for a huge number of stars. We built TransitVet to go through the data, find dips that repeat, and then do the harder part: question every dip until we can say whether it could be a planet.</p>
         <div class="cta-row">
-          <a class="btn primary" href="#explore">Look at 70 real signals</a>
-          <a class="btn" href="#method">Start with the basics</a>
+          <a class="btn primary" href="https://transitvet.streamlit.app/" target="_blank" rel="noopener">Try it on a star</a>
+          <a class="btn" href="#explore">Look at 70 real signals</a>
         </div>
       </div>
       <div class="theatre">
@@ -621,6 +622,7 @@ html.reveal header.nav, html.reveal main, html.reveal footer { transition: trans
     <div class="kicker">Seven · try it yourself</div>
     <h2>Pick a star. <em>See what's going round it.</em></h2>
     <p class="lede">Give it a Kepler (KIC) or TESS (TIC) number, or upload a FITS or CSV light curve. It runs on an ordinary laptop, no GPU needed.</p>
+    <p class="live-cta"><a class="btn primary" href="https://transitvet.streamlit.app/" target="_blank" rel="noopener">Open the live dashboard</a><span>Nothing to install. The first star after a quiet spell can take an extra minute while the app wakes up. Or run it on your own machine:</span></p>
     <div class="tabs" role="tablist" aria-label="Operating system">
       <button type="button" role="tab" aria-selected="true" data-t="win">Windows</button>
       <button type="button" role="tab" aria-selected="false" data-t="nix">Mac / Linux</button>
@@ -639,7 +641,7 @@ html.reveal header.nav, html.reveal main, html.reveal footer { transition: trans
     <div>
       <div class="sig">Transit<i>Vet</i></div>
       <p style="margin-top:10px">Find and vet planet candidates in Kepler and TESS light curves. Open models, a plain-language report for every signal, and a stated guarantee on how many real planets it keeps.</p>
-      <p style="margin-top:14px"><a href="#explore">Signals</a> · <a href="#results">Results</a> · <a href="#run">Get it</a></p>
+      <p style="margin-top:14px"><a href="#explore">Signals</a> · <a href="#results">Results</a> · <a href="#run">Get it</a> · <a href="https://transitvet.streamlit.app/" target="_blank" rel="noopener">Live dashboard</a></p>
     </div>
     <div>
       <p>Everything this tool finds is a planet candidate until someone confirms it with more observations.</p>
