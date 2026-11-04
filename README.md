@@ -116,3 +116,7 @@ See `validation/VALIDATION.md`. In short: Kepler planet candidates were found 16
 ## Website source
 
 `docs/index.html` is the published website (GitHub Pages). It is built from `website-src/` with `python build_space.py` (background images: `python make_space.py`; they are computer-generated, not telescope photos).
+
+## Licence
+
+MIT, see `LICENSE`.
