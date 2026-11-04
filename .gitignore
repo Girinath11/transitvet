@@ -5,3 +5,4 @@ results/
 transitvet/models/*_cnn.pt
 *.part
 .pytest_cache/
+website-src/build/
