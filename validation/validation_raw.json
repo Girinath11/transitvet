@@ -1,0 +1,2366 @@
+[
+ {
+  "target": "KIC 10090854",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   12.6306
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 12.630672244945206,
+    "verdict": "candidate",
+    "p_main": 0.9089917030330719,
+    "scores": {
+     "gb": 0.75,
+     "cnn": 0.8840579986572266,
+     "tf": 0.6818182468414307,
+     "combined": 0.9089917030330719
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 12.6306,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9089917030330719
+   }
+  ],
+  "seconds": 437.4330883026123
+ },
+ {
+  "target": "KIC 9847239",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   28.5079
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 28.507928239230345,
+    "verdict": "candidate",
+    "p_main": 0.8434210074902478,
+    "scores": {
+     "gb": 0.9572649572649573,
+     "cnn": 0.4482758641242981,
+     "tf": 0.4000000059604645,
+     "combined": 0.8434210074902478
+    }
+   },
+   {
+    "period": 226.04488406700446,
+    "verdict": "false alarm",
+    "p_main": 0.022990330633022586,
+    "scores": {
+     "gb": 0.7222222222222222,
+     "cnn": 0.0012195120798423886,
+     "tf": 0.0,
+     "combined": 0.022990330633022586
+    }
+   },
+   {
+    "period": 2.3309784369932323,
+    "verdict": "false alarm",
+    "p_main": 0.0016860044434311766,
+    "scores": {
+     "gb": 0.017793594306049824,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.004065040498971939,
+     "combined": 0.0016860044434311766
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 28.5079,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.8434210074902478
+   }
+  ],
+  "seconds": 624.1974334716797
+ },
+ {
+  "target": "KIC 4736569",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   10.132,
+   7.0739
+  ],
+  "cat_labels": [
+   "PC",
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 10.132079837168927,
+    "verdict": "candidate",
+    "p_main": 0.9821761565974451,
+    "scores": {
+     "gb": 0.9473684210526315,
+     "cnn": 1.0,
+     "tf": 0.9919999837875366,
+     "combined": 0.9821761565974451
+    }
+   },
+   {
+    "period": 269.1916769196226,
+    "verdict": "false alarm",
+    "p_main": 0.05108462674070097,
+    "scores": {
+     "gb": 0.828125,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.0037174723111093044,
+     "combined": 0.05108462674070097
+    }
+   },
+   {
+    "period": 184.63361241178282,
+    "verdict": "false alarm",
+    "p_main": 0.05492306626622424,
+    "scores": {
+     "gb": 0.3827101298229307,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.0755770206451416,
+     "combined": 0.05492306626622424
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 10.132,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9821761565974451
+   },
+   {
+    "cat_period": 7.0739,
+    "cat_label": "PC",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   }
+  ],
+  "seconds": 638.0577661991119
+ },
+ {
+  "target": "KIC 3632089",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   31.7788,
+   5.3279
+  ],
+  "cat_labels": [
+   "PC",
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 31.77717678469642,
+    "verdict": "candidate",
+    "p_main": 0.9133920815849738,
+    "scores": {
+     "gb": 0.75,
+     "cnn": 0.8840579986572266,
+     "tf": 0.6717098355293274,
+     "combined": 0.9133920815849738
+    }
+   },
+   {
+    "period": 5.327902733583868,
+    "verdict": "candidate",
+    "p_main": 0.918179321306158,
+    "scores": {
+     "gb": 0.9473684210526315,
+     "cnn": 0.7804877758026123,
+     "tf": 0.24242424964904785,
+     "combined": 0.918179321306158
+    }
+   },
+   {
+    "period": 258.76814543889935,
+    "verdict": "false alarm",
+    "p_main": 0.08232829395288405,
+    "scores": {
+     "gb": 0.1590909090909091,
+     "cnn": 0.0833333358168602,
+     "tf": 0.5806451439857483,
+     "combined": 0.08232829395288405
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 31.7788,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9133920815849738
+   },
+   {
+    "cat_period": 5.3279,
+    "cat_label": "PC",
+    "found_index": 1,
+    "verdict": "candidate",
+    "p_main": 0.918179321306158
+   }
+  ],
+  "seconds": 676.27290558815
+ },
+ {
+  "target": "KIC 6206214",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   13.5397
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 13.53951582182474,
+    "verdict": "candidate",
+    "p_main": 0.8888462365575767,
+    "scores": {
+     "gb": 0.5714285714285714,
+     "cnn": 0.9210525751113892,
+     "tf": 0.9285714030265808,
+     "combined": 0.8888462365575767
+    }
+   },
+   {
+    "period": 298.0064697003441,
+    "verdict": "false alarm",
+    "p_main": 0.10341949533585476,
+    "scores": {
+     "gb": 0.22727272727272727,
+     "cnn": 0.03448275849223137,
+     "tf": 0.24242424964904785,
+     "combined": 0.10341949533585476
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 13.5397,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.8888462365575767
+   }
+  ],
+  "seconds": 606.5907621383667
+ },
+ {
+  "target": "KIC 11192235",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   1.61536
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 1.615356471653503,
+    "verdict": "candidate",
+    "p_main": 0.8848346340280183,
+    "scores": {
+     "gb": 0.99375,
+     "cnn": 0.4482758641242981,
+     "tf": 0.24242424964904785,
+     "combined": 0.8848346340280183
+    }
+   },
+   {
+    "period": 246.0361745434555,
+    "verdict": "false alarm",
+    "p_main": 0.014262211972858279,
+    "scores": {
+     "gb": 0.19072322144675352,
+     "cnn": 0.0012195120798423886,
+     "tf": 0.004065040498971939,
+     "combined": 0.014262211972858279
+    }
+   },
+   {
+    "period": 139.78747422522764,
+    "verdict": "false alarm",
+    "p_main": 0.13073292230927097,
+    "scores": {
+     "gb": 0.22727272727272727,
+     "cnn": 0.11363636702299118,
+     "tf": 0.0494803711771965,
+     "combined": 0.13073292230927097
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 1.61536,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.8848346340280183
+   }
+  ],
+  "seconds": 599.1982698440552
+ },
+ {
+  "target": "KIC 10190777",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   1.41122
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 1.411228678188836,
+    "verdict": "candidate",
+    "p_main": 0.9684307499434994,
+    "scores": {
+     "gb": 0.99375,
+     "cnn": 0.8840579390525818,
+     "tf": 0.5806451439857483,
+     "combined": 0.9684307499434994
+    }
+   },
+   {
+    "period": 267.4760490033359,
+    "verdict": "false alarm",
+    "p_main": 0.017098625279809952,
+    "scores": {
+     "gb": 0.6666666666666666,
+     "cnn": 0.0012195120798423886,
+     "tf": 0.004065040033310652,
+     "combined": 0.017098625279809952
+    }
+   },
+   {
+    "period": 278.60889435451213,
+    "verdict": "false alarm",
+    "p_main": 0.0207142515680154,
+    "scores": {
+     "gb": 0.5714285714285714,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.004065040498971939,
+     "combined": 0.0207142515680154
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 1.41122,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9684307499434994
+   }
+  ],
+  "seconds": 582.0037667751312
+ },
+ {
+  "target": "KIC 5966322",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   60.9283
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 60.928426056319296,
+    "verdict": "candidate",
+    "p_main": 0.9854617134469871,
+    "scores": {
+     "gb": 0.99375,
+     "cnn": 0.9868420362472534,
+     "tf": 0.9919999837875366,
+     "combined": 0.9854617134469871
+    }
+   },
+   {
+    "period": 252.7808002950359,
+    "verdict": "candidate",
+    "p_main": 0.6700387235643683,
+    "scores": {
+     "gb": 0.828125,
+     "cnn": 0.28125,
+     "tf": 0.5806450843811035,
+     "combined": 0.6700387235643683
+    }
+   },
+   {
+    "period": 285.556651904976,
+    "verdict": "false alarm",
+    "p_main": 0.1171999506855695,
+    "scores": {
+     "gb": 0.22727272727272727,
+     "cnn": 0.03448276221752167,
+     "tf": 0.24242424964904785,
+     "combined": 0.1171999506855695
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 60.9283,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9854617134469871
+   }
+  ],
+  "seconds": 594.8745560646057
+ },
+ {
+  "target": "KIC 7772914",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   23.1335
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 2.9639617926095623,
+    "verdict": "false alarm",
+    "p_main": 0.0006592374691436676,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.0,
+     "combined": 0.0006592374691436676
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 23.1335,
+    "cat_label": "PC",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   }
+  ],
+  "seconds": 381.6666045188904
+ },
+ {
+  "target": "KIC 6584273",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   51.1108
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 51.11179999211284,
+    "verdict": "candidate",
+    "p_main": 0.9340866784500175,
+    "scores": {
+     "gb": 0.7222222222222222,
+     "cnn": 0.9210526347160339,
+     "tf": 0.6818181872367859,
+     "combined": 0.9340866784500175
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 51.1108,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9340866784500175
+   }
+  ],
+  "seconds": 384.1904938220978
+ },
+ {
+  "target": "KIC 3218908",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   18.9255,
+   1.4753,
+   4.15245
+  ],
+  "cat_labels": [
+   "PC",
+   "PC",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 18.92554383885617,
+    "verdict": "candidate",
+    "p_main": 0.9688076985440623,
+    "scores": {
+     "gb": 0.828125,
+     "cnn": 0.9868420362472534,
+     "tf": 0.5806451439857483,
+     "combined": 0.9688076985440623
+    }
+   },
+   {
+    "period": 1.4753148675466292,
+    "verdict": "candidate",
+    "p_main": 0.7843618925052337,
+    "scores": {
+     "gb": 0.5714285714285714,
+     "cnn": 0.7804877758026123,
+     "tf": 0.5806451439857483,
+     "combined": 0.7843618925052337
+    }
+   },
+   {
+    "period": 4.152430644161637,
+    "verdict": "candidate",
+    "p_main": 0.9502474544404793,
+    "scores": {
+     "gb": 0.99375,
+     "cnn": 0.7804877758026123,
+     "tf": 0.6818181872367859,
+     "combined": 0.9502474544404793
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 18.9255,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9688076985440623
+   },
+   {
+    "cat_period": 1.4753,
+    "cat_label": "PC",
+    "found_index": 1,
+    "verdict": "candidate",
+    "p_main": 0.7843618925052337
+   },
+   {
+    "cat_period": 4.15245,
+    "cat_label": "AFP",
+    "found_index": 2,
+    "verdict": "candidate",
+    "p_main": 0.9502474544404793
+   }
+  ],
+  "seconds": 609.570214509964
+ },
+ {
+  "target": "KIC 9992325",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   24.0862
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 24.086345115388692,
+    "verdict": "candidate",
+    "p_main": 0.9733378487640216,
+    "scores": {
+     "gb": 0.99375,
+     "cnn": 0.9166666865348816,
+     "tf": 0.8780487775802612,
+     "combined": 0.9733378487640216
+    }
+   },
+   {
+    "period": 143.34234743006778,
+    "verdict": "uncertain",
+    "p_main": 0.4319730729412133,
+    "scores": {
+     "gb": 0.7272727272727273,
+     "cnn": 0.11363635957241058,
+     "tf": 0.04273504391312599,
+     "combined": 0.4319730729412133
+    }
+   },
+   {
+    "period": 234.84260661226568,
+    "verdict": "false alarm",
+    "p_main": 0.051281837172350374,
+    "scores": {
+     "gb": 0.1875,
+     "cnn": 0.029411762952804565,
+     "tf": 0.04273504391312599,
+     "combined": 0.051281837172350374
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 24.0862,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9733378487640216
+   }
+  ],
+  "seconds": 518.7915952205658
+ },
+ {
+  "target": "KIC 6869184",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   43.3171
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 43.317279009218254,
+    "verdict": "candidate",
+    "p_main": 0.9622620220544039,
+    "scores": {
+     "gb": 0.828125,
+     "cnn": 0.9830508828163147,
+     "tf": 0.8780487775802612,
+     "combined": 0.9622620220544039
+    }
+   },
+   {
+    "period": 284.82405789872564,
+    "verdict": "false alarm",
+    "p_main": 0.13992604864139738,
+    "scores": {
+     "gb": 0.32142857142857145,
+     "cnn": 0.029411762952804565,
+     "tf": 0.5806451439857483,
+     "combined": 0.13992604864139738
+    }
+   },
+   {
+    "period": 200.8935937455367,
+    "verdict": "false alarm",
+    "p_main": 0.047024027263083926,
+    "scores": {
+     "gb": 0.5714285714285714,
+     "cnn": 0.0012195120798423886,
+     "tf": 0.004065040498971939,
+     "combined": 0.047024027263083926
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 43.3171,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9622620220544039
+   }
+  ],
+  "seconds": 597.561625957489
+ },
+ {
+  "target": "KIC 5978170",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   5.68872
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 5.6888336768128145,
+    "verdict": "candidate",
+    "p_main": 0.9733460662881662,
+    "scores": {
+     "gb": 0.84,
+     "cnn": 0.9830508828163147,
+     "tf": 0.9130434989929199,
+     "combined": 0.9733460662881662
+    }
+   },
+   {
+    "period": 203.88268165638982,
+    "verdict": "uncertain",
+    "p_main": 0.39935591180723157,
+    "scores": {
+     "gb": 0.7272727272727273,
+     "cnn": 0.11363636702299118,
+     "tf": 0.04273504391312599,
+     "combined": 0.39935591180723157
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 5.68872,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9733460662881662
+   }
+  ],
+  "seconds": 593.890561580658
+ },
+ {
+  "target": "KIC 8639908",
+  "mission": "kepler",
+  "label": "PC",
+  "cat_periods": [
+   0.910045
+  ],
+  "cat_labels": [
+   "PC"
+  ],
+  "found": [
+   {
+    "period": 0.9100129635815338,
+    "verdict": "false alarm",
+    "p_main": 0.25798840842730875,
+    "scores": {
+     "gb": 0.32142857142857145,
+     "cnn": 0.28125,
+     "tf": 0.04273504391312599,
+     "combined": 0.25798840842730875
+    }
+   },
+   {
+    "period": 280.72984329347383,
+    "verdict": "false alarm",
+    "p_main": 0.026787684614090597,
+    "scores": {
+     "gb": 0.32142857142857145,
+     "cnn": 0.0012195120798423886,
+     "tf": 0.0,
+     "combined": 0.026787684614090597
+    }
+   },
+   {
+    "period": 240.14195746105165,
+    "verdict": "false alarm",
+    "p_main": 0.01724137674253547,
+    "scores": {
+     "gb": 0.5,
+     "cnn": 0.0012195120798423886,
+     "tf": 0.004065040498971939,
+     "combined": 0.01724137674253547
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 0.910045,
+    "cat_label": "PC",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.25798840842730875
+   }
+  ],
+  "seconds": 559.5853304862976
+ },
+ {
+  "target": "KIC 8177798",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   1.4502
+  ],
+  "cat_labels": [
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 1.4502080631292384,
+    "verdict": "false alarm",
+    "p_main": 0.019990068170460864,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.125,
+     "tf": 0.01123595517128706,
+     "combined": 0.019990068170460864
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 1.4502,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.019990068170460864
+   }
+  ],
+  "seconds": 278.4605586528778
+ },
+ {
+  "target": "KIC 8559589",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   223.112,
+   223.113
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 223.11436278721217,
+    "verdict": "false alarm",
+    "p_main": 0.06842461657954359,
+    "scores": {
+     "gb": 0.7564479218725848,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.4123270511627197,
+     "combined": 0.06842461657954359
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 223.112,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.06842461657954359
+   },
+   {
+    "cat_period": 223.113,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.06842461657954359
+   }
+  ],
+  "seconds": 388.22150182724
+ },
+ {
+  "target": "KIC 10621643",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   1.48047,
+   1.48064
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 0.6141554327557034,
+    "verdict": "false alarm",
+    "p_main": 0.00025619399090754194,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0,
+     "tf": 0.004065040498971939,
+     "combined": 0.00025619399090754194
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 1.48047,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   },
+   {
+    "cat_period": 1.48064,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   }
+  ],
+  "seconds": 338.33066987991333
+ },
+ {
+  "target": "KIC 6877871",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   0.533676,
+   0.536852,
+   0.533381
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 1.0751524854932397,
+    "verdict": "false alarm",
+    "p_main": 0.0022064787548651686,
+    "scores": {
+     "gb": 0.017793594306049824,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.004065040498971939,
+     "combined": 0.0022064787548651686
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 0.533676,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.0022064787548651686
+   },
+   {
+    "cat_period": 0.536852,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.0022064787548651686
+   },
+   {
+    "cat_period": 0.533381,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.0022064787548651686
+   }
+  ],
+  "seconds": 371.3122773170471
+ },
+ {
+  "target": "KIC 7732461",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   4.2117,
+   4.21203,
+   4.21159
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 2.105851247662414,
+    "verdict": "false alarm",
+    "p_main": 0.0008709143759206486,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.004065040964633226,
+     "combined": 0.0008709143759206486
+    }
+   },
+   {
+    "period": 0.7019502929828618,
+    "verdict": "false alarm",
+    "p_main": 0.00018797540154994065,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0,
+     "tf": 0.0037174720782786608,
+     "combined": 0.00018797540154994065
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 4.2117,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.0008709143759206486
+   },
+   {
+    "cat_period": 4.21203,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.0008709143759206486
+   },
+   {
+    "cat_period": 4.21159,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.0008709143759206486
+   }
+  ],
+  "seconds": 390.5673155784607
+ },
+ {
+  "target": "KIC 5894825",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   1.36297,
+   1.36305
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 1.4313969834655955,
+    "verdict": "false alarm",
+    "p_main": 0.0006054519886001905,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.004065040498971939,
+     "combined": 0.0006054519886001905
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 1.36297,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   },
+   {
+    "cat_period": 1.36305,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   }
+  ],
+  "seconds": 362.63498520851135
+ },
+ {
+  "target": "KIC 6717417",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   0.697843,
+   0.697816
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 0.6974627374942363,
+    "verdict": "false alarm",
+    "p_main": 0.000577639215260686,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0,
+     "tf": 0.0,
+     "combined": 0.000577639215260686
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 0.697843,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.000577639215260686
+   },
+   {
+    "cat_period": 0.697816,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.000577639215260686
+   }
+  ],
+  "seconds": 409.7237300872803
+ },
+ {
+  "target": "KIC 5622759",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   1.86832,
+   1.86788
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 1.8692136241628408,
+    "verdict": "false alarm",
+    "p_main": 0.00027818973675352166,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0,
+     "tf": 0.0,
+     "combined": 0.00027818973675352166
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 1.86832,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.00027818973675352166
+   },
+   {
+    "cat_period": 1.86788,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.00027818973675352166
+   }
+  ],
+  "seconds": 377.60590505599976
+ },
+ {
+  "target": "KIC 10259029",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   7.06115,
+   7.06113
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 7.06112913714698,
+    "verdict": "false alarm",
+    "p_main": 0.0744081860175581,
+    "scores": {
+     "gb": 0.32142857142857145,
+     "cnn": 0.0012195121962577105,
+     "tf": 0.06451612710952759,
+     "combined": 0.0744081860175581
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 7.06115,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.0744081860175581
+   },
+   {
+    "cat_period": 7.06113,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.0744081860175581
+   }
+  ],
+  "seconds": 250.1855239868164
+ },
+ {
+  "target": "KIC 3238073",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   0.734063,
+   0.734105
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 0.7565625333328323,
+    "verdict": "false alarm",
+    "p_main": 0.0001891063881011551,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0,
+     "tf": 0.004065040498971939,
+     "combined": 0.0001891063881011551
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 0.734063,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   },
+   {
+    "cat_period": 0.734105,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   }
+  ],
+  "seconds": 209.59923553466797
+ },
+ {
+  "target": "KIC 6614492",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   0.584219,
+   0.584211
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 1.1683583435097187,
+    "verdict": "false alarm",
+    "p_main": 0.00023863779198218018,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0,
+     "tf": 0.004065040498971939,
+     "combined": 0.00023863779198218018
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 0.584219,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.00023863779198218018
+   },
+   {
+    "cat_period": 0.584211,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.00023863779198218018
+   }
+  ],
+  "seconds": 354.2799289226532
+ },
+ {
+  "target": "KIC 5036037",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   0.544645,
+   0.544645
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 0.6798642998997363,
+    "verdict": "false alarm",
+    "p_main": 0.000709721865160867,
+    "scores": {
+     "gb": 0.017793594306049824,
+     "cnn": 0.0,
+     "tf": 0.0037174720782786608,
+     "combined": 0.000709721865160867
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 0.544645,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   },
+   {
+    "cat_period": 0.544645,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   }
+  ],
+  "seconds": 397.8703763484955
+ },
+ {
+  "target": "KIC 2852528",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   11.9616
+  ],
+  "cat_labels": [
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 11.961714262122829,
+    "verdict": "uncertain",
+    "p_main": 0.4033682909670806,
+    "scores": {
+     "gb": 0.1875,
+     "cnn": 0.7727272510528564,
+     "tf": 0.24242424964904785,
+     "combined": 0.4033682909670806
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 11.9616,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "uncertain",
+    "p_main": 0.4033682909670806
+   }
+  ],
+  "seconds": 377.6346070766449
+ },
+ {
+  "target": "KIC 10798605",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   56.0481,
+   56.0485
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 56.04783839993806,
+    "verdict": "false alarm",
+    "p_main": 0.02443277851419621,
+    "scores": {
+     "gb": 0.017793594306049824,
+     "cnn": 0.029411764815449715,
+     "tf": 0.5806451439857483,
+     "combined": 0.02443277851419621
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 56.0481,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.02443277851419621
+   },
+   {
+    "cat_period": 56.0485,
+    "cat_label": "AFP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.02443277851419621
+   }
+  ],
+  "seconds": 392.18088030815125
+ },
+ {
+  "target": "KIC 6842139",
+  "mission": "kepler",
+  "label": "AFP",
+  "cat_periods": [
+   1.44762,
+   1.44767
+  ],
+  "cat_labels": [
+   "AFP",
+   "AFP"
+  ],
+  "found": [
+   {
+    "period": 0.7846243847000887,
+    "verdict": "false alarm",
+    "p_main": 0.0006355516773403526,
+    "scores": {
+     "gb": 0.017793594306049824,
+     "cnn": 0.0,
+     "tf": 0.0037174723111093044,
+     "combined": 0.0006355516773403526
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 1.44762,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   },
+   {
+    "cat_period": 1.44767,
+    "cat_label": "AFP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   }
+  ],
+  "seconds": 373.4239206314087
+ },
+ {
+  "target": "TIC 288735205",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   3.4779776
+  ],
+  "cat_labels": [
+   "CP"
+  ],
+  "found": [
+   {
+    "period": 3.4779842435456363,
+    "verdict": "candidate",
+    "p_main": 0.9881115830411117,
+    "scores": {
+     "gb": 1.0,
+     "cnn": 0.9285714030265808,
+     "tf": 0.8295454382896423,
+     "combined": 0.9881115830411117
+    }
+   },
+   {
+    "period": 220.93884485403984,
+    "verdict": "uncertain",
+    "p_main": 0.6184372990398678,
+    "scores": {
+     "gb": 0.8461538461538461,
+     "cnn": 0.0625,
+     "tf": 0.384615421295166,
+     "combined": 0.6184372990398678
+    }
+   },
+   {
+    "period": 244.95487879324523,
+    "verdict": "false alarm",
+    "p_main": 0.24556852863582734,
+    "scores": {
+     "gb": 0.1,
+     "cnn": 0.3333333134651184,
+     "tf": 0.21739131212234497,
+     "combined": 0.24556852863582734
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 3.4779776,
+    "cat_label": "CP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9881115830411117
+   }
+  ],
+  "seconds": 480.441290140152
+ },
+ {
+  "target": "TIC 260004324",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   3.8143136
+  ],
+  "cat_labels": [
+   "CP"
+  ],
+  "found": [
+   {
+    "period": 3.814305702152657,
+    "verdict": "candidate",
+    "p_main": 0.9585023556609628,
+    "scores": {
+     "gb": 0.8461538461538461,
+     "cnn": 0.928571343421936,
+     "tf": 0.5625,
+     "combined": 0.9585023556609628
+    }
+   },
+   {
+    "period": 263.6372944477906,
+    "verdict": "uncertain",
+    "p_main": 0.8794526803220503,
+    "scores": {
+     "gb": 0.9545454545454546,
+     "cnn": 0.23333333432674408,
+     "tf": 0.5625,
+     "combined": 0.8794526803220503
+    }
+   },
+   {
+    "period": 250.62839040484639,
+    "verdict": "uncertain",
+    "p_main": 0.8777925604002261,
+    "scores": {
+     "gb": 0.9545454545454546,
+     "cnn": 0.5625,
+     "tf": 0.5625,
+     "combined": 0.8777925604002261
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 3.8143136,
+    "cat_label": "CP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9585023556609628
+   }
+  ],
+  "seconds": 536.6896784305573
+ },
+ {
+  "target": "TIC 138294130",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   3.0565259
+  ],
+  "cat_labels": [
+   "KP"
+  ],
+  "found": [
+   {
+    "period": 3.0565232965008278,
+    "verdict": "candidate",
+    "p_main": 0.990006740998293,
+    "scores": {
+     "gb": 1.0,
+     "cnn": 0.9642857313156128,
+     "tf": 0.8295453786849976,
+     "combined": 0.990006740998293
+    }
+   },
+   {
+    "period": 23.954909456676578,
+    "verdict": "uncertain",
+    "p_main": 0.4880473180211644,
+    "scores": {
+     "gb": 0.7727272727272727,
+     "cnn": 0.0625,
+     "tf": 0.21739131212234497,
+     "combined": 0.4880473180211644
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 3.0565259,
+    "cat_label": "KP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.990006740998293
+   }
+  ],
+  "seconds": 212.2612669467926
+ },
+ {
+  "target": "TIC 4610830",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   8.2616616
+  ],
+  "cat_labels": [
+   "KP"
+  ],
+  "found": [
+   {
+    "period": 16.524547279199762,
+    "verdict": "candidate",
+    "p_main": 0.9051787229537,
+    "scores": {
+     "gb": 0.8461538461538461,
+     "cnn": 0.7941176891326904,
+     "tf": 0.8295454978942871,
+     "combined": 0.9051787229537
+    }
+   },
+   {
+    "period": 3.558827895102913,
+    "verdict": "candidate",
+    "p_main": 0.9448131517259049,
+    "scores": {
+     "gb": 0.9743589743589743,
+     "cnn": 0.555555522441864,
+     "tf": 0.5625,
+     "combined": 0.9448131517259049
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 8.2616616,
+    "cat_label": "KP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9051787229537
+   }
+  ],
+  "seconds": 150.02326583862305
+ },
+ {
+  "target": "TIC 169461816",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   17.8552322
+  ],
+  "cat_labels": [
+   "KP"
+  ],
+  "found": [
+   {
+    "period": 17.855180403735417,
+    "verdict": "uncertain",
+    "p_main": 0.44776506336067784,
+    "scores": {
+     "gb": 0.5,
+     "cnn": 0.695652186870575,
+     "tf": 0.8295453786849976,
+     "combined": 0.44776506336067784
+    }
+   },
+   {
+    "period": 0.6357235501844795,
+    "verdict": "false alarm",
+    "p_main": 0.13430364089907698,
+    "scores": {
+     "gb": 0.5,
+     "cnn": 0.0625,
+     "tf": 0.21739131212234497,
+     "combined": 0.13430364089907698
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 17.8552322,
+    "cat_label": "KP",
+    "found_index": 0,
+    "verdict": "uncertain",
+    "p_main": 0.44776506336067784
+   }
+  ],
+  "seconds": 329.4055631160736
+ },
+ {
+  "target": "TIC 234523599",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   3.7955178
+  ],
+  "cat_labels": [
+   "CP"
+  ],
+  "found": [
+   {
+    "period": 3.795521416705382,
+    "verdict": "candidate",
+    "p_main": 0.9360641328934419,
+    "scores": {
+     "gb": 0.9743589743589743,
+     "cnn": 0.695652186870575,
+     "tf": 0.6341475248336792,
+     "combined": 0.9360641328934419
+    }
+   },
+   {
+    "period": 201.89344296222876,
+    "verdict": "uncertain",
+    "p_main": 0.42444113358948204,
+    "scores": {
+     "gb": 0.5483870967741935,
+     "cnn": 0.23333331942558289,
+     "tf": 0.2222222238779068,
+     "combined": 0.42444113358948204
+    }
+   },
+   {
+    "period": 180.79252382629772,
+    "verdict": "false alarm",
+    "p_main": 0.3211995345743863,
+    "scores": {
+     "gb": 0.5,
+     "cnn": 0.23333333432674408,
+     "tf": 0.2222222238779068,
+     "combined": 0.3211995345743863
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 3.7955178,
+    "cat_label": "CP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9360641328934419
+   }
+  ],
+  "seconds": 366.5842442512512
+ },
+ {
+  "target": "TIC 1333933",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   3.2757945
+  ],
+  "cat_labels": [
+   "KP"
+  ],
+  "found": [
+   {
+    "period": 3.2761367697522528,
+    "verdict": "candidate",
+    "p_main": 0.983253491608174,
+    "scores": {
+     "gb": 1.0,
+     "cnn": 0.7941176295280457,
+     "tf": 0.8295454978942871,
+     "combined": 0.983253491608174
+    }
+   },
+   {
+    "period": 32.8627762852676,
+    "verdict": "uncertain",
+    "p_main": 0.6252455185089677,
+    "scores": {
+     "gb": 0.7727272727272727,
+     "cnn": 0.3333333134651184,
+     "tf": 0.38461539149284363,
+     "combined": 0.6252455185089677
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 3.2757945,
+    "cat_label": "KP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.983253491608174
+   }
+  ],
+  "seconds": 61.20515513420105
+ },
+ {
+  "target": "TIC 395393265",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   3.3773562
+  ],
+  "cat_labels": [
+   "CP"
+  ],
+  "found": [
+   {
+    "period": 3.3773389325553906,
+    "verdict": "candidate",
+    "p_main": 0.9755004298897821,
+    "scores": {
+     "gb": 0.9545454545454546,
+     "cnn": 0.9642857313156128,
+     "tf": 0.8295454382896423,
+     "combined": 0.9755004298897821
+    }
+   },
+   {
+    "period": 75.04965750881864,
+    "verdict": "false alarm",
+    "p_main": 0.1583070071224329,
+    "scores": {
+     "gb": 0.5,
+     "cnn": 0.0625,
+     "tf": 0.21739129722118378,
+     "combined": 0.1583070071224329
+    }
+   },
+   {
+    "period": 103.75691540664573,
+    "verdict": "false alarm",
+    "p_main": 0.1672595603430512,
+    "scores": {
+     "gb": 0.2857142857142857,
+     "cnn": 0.0625,
+     "tf": 0.21739131212234497,
+     "combined": 0.1672595603430512
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 3.3773562,
+    "cat_label": "CP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9755004298897821
+   }
+  ],
+  "seconds": 302.7920615673065
+ },
+ {
+  "target": "TIC 270380593",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   3.8361623
+  ],
+  "cat_labels": [
+   "KP"
+  ],
+  "found": [
+   {
+    "period": 3.8361559415311546,
+    "verdict": "candidate",
+    "p_main": 0.9917764458252896,
+    "scores": {
+     "gb": 1.0,
+     "cnn": 0.9285714030265808,
+     "tf": 0.8295454382896423,
+     "combined": 0.9917764458252896
+    }
+   },
+   {
+    "period": 52.515586807530255,
+    "verdict": "candidate",
+    "p_main": 0.7207308073864501,
+    "scores": {
+     "gb": 0.7727272727272727,
+     "cnn": 0.23333331942558289,
+     "tf": 0.21739128232002258,
+     "combined": 0.7207308073864501
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 3.8361623,
+    "cat_label": "KP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9917764458252896
+   }
+  ],
+  "seconds": 303.17875599861145
+ },
+ {
+  "target": "TIC 243185500",
+  "mission": "tess",
+  "label": "planet",
+  "cat_periods": [
+   15.5324385,
+   1.880531
+  ],
+  "cat_labels": [
+   "CP",
+   "CP"
+  ],
+  "found": [
+   {
+    "period": 15.53249586015737,
+    "verdict": "candidate",
+    "p_main": 0.984163647442241,
+    "scores": {
+     "gb": 0.9743589743589743,
+     "cnn": 0.9285714030265808,
+     "tf": 0.8295454382896423,
+     "combined": 0.984163647442241
+    }
+   },
+   {
+    "period": 1.880531341268129,
+    "verdict": "candidate",
+    "p_main": 0.9854933459864434,
+    "scores": {
+     "gb": 1.0,
+     "cnn": 0.7941176295280457,
+     "tf": 0.6868288516998291,
+     "combined": 0.9854933459864434
+    }
+   },
+   {
+    "period": 16.970091254705263,
+    "verdict": "candidate",
+    "p_main": 0.6822316748793344,
+    "scores": {
+     "gb": 0.5,
+     "cnn": 0.9285714030265808,
+     "tf": 0.38461539149284363,
+     "combined": 0.6822316748793344
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 15.5324385,
+    "cat_label": "CP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.984163647442241
+   },
+   {
+    "cat_period": 1.880531,
+    "cat_label": "CP",
+    "found_index": 1,
+    "verdict": "candidate",
+    "p_main": 0.9854933459864434
+   }
+  ],
+  "seconds": 289.04947304725647
+ },
+ {
+  "target": "TIC 143526444",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   15.3050693
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 15.304679353519782,
+    "verdict": "false alarm",
+    "p_main": 0.09833412693697896,
+    "scores": {
+     "gb": 0.5,
+     "cnn": 0.0625,
+     "tf": 0.8295454382896423,
+     "combined": 0.09833412693697896
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 15.3050693,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.09833412693697896
+   }
+  ],
+  "seconds": 157.4161138534546
+ },
+ {
+  "target": "TIC 319735319",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   2.9038027
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 2.9063665452509055,
+    "verdict": "uncertain",
+    "p_main": 0.5577399174522558,
+    "scores": {
+     "gb": 0.5483870967741935,
+     "cnn": 0.5625,
+     "tf": 0.8295454978942871,
+     "combined": 0.5577399174522558
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 2.9038027,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "uncertain",
+    "p_main": 0.5577399174522558
+   }
+  ],
+  "seconds": 21.460833311080933
+ },
+ {
+  "target": "TIC 233569098",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   23.48522
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 23.48417144059103,
+    "verdict": "candidate",
+    "p_main": 0.7223927543162741,
+    "scores": {
+     "gb": 0.8461538461538461,
+     "cnn": 0.3333333730697632,
+     "tf": 0.8295453786849976,
+     "combined": 0.7223927543162741
+    }
+   },
+   {
+    "period": 64.5243688905137,
+    "verdict": "uncertain",
+    "p_main": 0.5619302152461133,
+    "scores": {
+     "gb": 0.5483870967741935,
+     "cnn": 0.23333333432674408,
+     "tf": 0.21739129722118378,
+     "combined": 0.5619302152461133
+    }
+   },
+   {
+    "period": 113.60452737003111,
+    "verdict": "false alarm",
+    "p_main": 0.10788678874408615,
+    "scores": {
+     "gb": 0.2857142857142857,
+     "cnn": 0.0625,
+     "tf": 0.21739129722118378,
+     "combined": 0.10788678874408615
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 23.48522,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.7223927543162741
+   }
+  ],
+  "seconds": 140.95589351654053
+ },
+ {
+  "target": "TIC 291013124",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   6.0368213
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 6.037328382496266,
+    "verdict": "false alarm",
+    "p_main": 0.026642209663630758,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0625,
+     "tf": 0.21739129722118378,
+     "combined": 0.026642209663630758
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 6.0368213,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.026642209663630758
+   }
+  ],
+  "seconds": 53.561763763427734
+ },
+ {
+  "target": "TIC 265077027",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   4.79586
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 4.795250022571226,
+    "verdict": "uncertain",
+    "p_main": 0.5630459830269754,
+    "scores": {
+     "gb": 0.5483870967741935,
+     "cnn": 0.6702038049697876,
+     "tf": 0.8295454382896423,
+     "combined": 0.5630459830269754
+    }
+   },
+   {
+    "period": 2.25306825840283,
+    "verdict": "false alarm",
+    "p_main": 0.11445452908488274,
+    "scores": {
+     "gb": 0.1,
+     "cnn": 0.0625,
+     "tf": 0.21739129722118378,
+     "combined": 0.11445452908488274
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 4.79586,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "uncertain",
+    "p_main": 0.5630459830269754
+   }
+  ],
+  "seconds": 16.01653528213501
+ },
+ {
+  "target": "TIC 4294779",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   0.3438892
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 0.6806536554402017,
+    "verdict": "false alarm",
+    "p_main": 0.06625059943707616,
+    "scores": {
+     "gb": 0.2857142857142857,
+     "cnn": 0.0625,
+     "tf": 0.1538461595773697,
+     "combined": 0.06625059943707616
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 0.3438892,
+    "cat_label": "FP",
+    "found_index": null,
+    "verdict": null,
+    "p_main": null
+   }
+  ],
+  "seconds": 18.746680974960327
+ },
+ {
+  "target": "TIC 268371979",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   2.78102
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 2.7802319678597245,
+    "verdict": "false alarm",
+    "p_main": 0.034042416604831996,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.6691741347312927,
+     "tf": 0.5625,
+     "combined": 0.034042416604831996
+    }
+   },
+   {
+    "period": 0.8968607846293432,
+    "verdict": "false alarm",
+    "p_main": 0.05348421363334796,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.0625,
+     "tf": 0.21739129722118378,
+     "combined": 0.05348421363334796
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 2.78102,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.034042416604831996
+   }
+  ],
+  "seconds": 16.174876928329468
+ },
+ {
+  "target": "TIC 441334829",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   4.4433921
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 4.447403497665865,
+    "verdict": "uncertain",
+    "p_main": 0.5151360307106585,
+    "scores": {
+     "gb": 0.5483870967741935,
+     "cnn": 0.23333333432674408,
+     "tf": 0.5625,
+     "combined": 0.5151360307106585
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 4.4433921,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "uncertain",
+    "p_main": 0.5151360307106585
+   }
+  ],
+  "seconds": 9.886799573898315
+ },
+ {
+  "target": "TIC 394509844",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   6.89132
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 6.895428521446745,
+    "verdict": "candidate",
+    "p_main": 0.9202565633202129,
+    "scores": {
+     "gb": 0.8461538461538461,
+     "cnn": 0.7941176295280457,
+     "tf": 0.5625,
+     "combined": 0.9202565633202129
+    }
+   },
+   {
+    "period": 1.4974715471678737,
+    "verdict": "false alarm",
+    "p_main": 0.0649526775122196,
+    "scores": {
+     "gb": 0.1,
+     "cnn": 0.1666666865348816,
+     "tf": 0.21739131212234497,
+     "combined": 0.0649526775122196
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 6.89132,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "candidate",
+    "p_main": 0.9202565633202129
+   }
+  ],
+  "seconds": 13.726200580596924
+ },
+ {
+  "target": "TIC 179159972",
+  "mission": "tess",
+  "label": "FP",
+  "cat_periods": [
+   1.37101
+  ],
+  "cat_labels": [
+   "FP"
+  ],
+  "found": [
+   {
+    "period": 1.3715566006110826,
+    "verdict": "false alarm",
+    "p_main": 0.04829082699949105,
+    "scores": {
+     "gb": 0.0,
+     "cnn": 0.23333333432674408,
+     "tf": 0.5625,
+     "combined": 0.04829082699949105
+    }
+   },
+   {
+    "period": 0.7525013447180566,
+    "verdict": "false alarm",
+    "p_main": 0.006401621546730655,
+    "scores": {
+     "gb": 0.1,
+     "cnn": 0.0,
+     "tf": 0.0,
+     "combined": 0.006401621546730655
+    }
+   }
+  ],
+  "match": [
+   {
+    "cat_period": 1.37101,
+    "cat_label": "FP",
+    "found_index": 0,
+    "verdict": "false alarm",
+    "p_main": 0.04829082699949105
+   }
+  ],
+  "seconds": 10.628544807434082
+ }
+]

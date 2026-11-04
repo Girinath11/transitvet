@@ -1,0 +1,39 @@
+{
+ "stars_total": 170,
+ "stars_done": 170,
+ "stars_failed": 0,
+ "errors": {},
+ "kepler_seconds_median": 362.95000000000005,
+ "kepler_seconds_p90": 554.5,
+ "kepler_planet": {
+  "n": 10,
+  "found": 9,
+  "candidate": 7,
+  "uncertain": 1,
+  "false alarm": 1
+ },
+ "kepler_false": {
+  "n": 24,
+  "found": 10,
+  "candidate": 1,
+  "uncertain": 0,
+  "false alarm": 9
+ },
+ "tess_seconds_median": 184.3,
+ "tess_seconds_p90": 328.84999999999997,
+ "tess_planet": {
+  "n": 84,
+  "found": 81,
+  "candidate": 64,
+  "uncertain": 14,
+  "false alarm": 3
+ },
+ "tess_false": {
+  "n": 70,
+  "found": 58,
+  "candidate": 11,
+  "uncertain": 13,
+  "false alarm": 34
+ },
+ "wall_line": "2026-11-04 07:33:54,307 INFO done: 86 ok, 0 failed in 4305 s; 359 signals in /home/user/tv/scale/results/summary.csv"
+}

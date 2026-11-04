@@ -1,0 +1,21 @@
+{
+ "test_signals": 1000,
+ "matched": 542,
+ "matched_planets": 347,
+ "matched_fp": 195,
+ "ours_pr_auc": 0.9668383885673255,
+ "ours_roc_auc": 0.9456883174462425,
+ "exominer_pr_auc": 0.9731779614761354,
+ "exominer_roc_auc": 0.9626099165004063,
+ "ours_all_test_pr_auc": 0.9457391065458689,
+ "ours_at_0.5": {
+  "planets_kept": "321/347",
+  "false_alarms_caught": "160/195"
+ },
+ "exominer_at_0.5": {
+  "planets_kept": "322/347",
+  "false_alarms_caught": "172/195"
+ },
+ "label_disagreement": 2,
+ "average_ours_exominer_pr_auc": 0.9810182585172744
+}

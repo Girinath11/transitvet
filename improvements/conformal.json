@@ -1,0 +1,108 @@
+{
+ "kepler": {
+  "n_calib": 1157,
+  "n_calib_planets": 298,
+  "n_test": 2373,
+  "alpha_0.05": {
+   "coverage_planets": 0.9576107899807321,
+   "coverage_false": 0.9573894282632147,
+   "share_sure": 0.9907290349768226,
+   "share_needs_human": 0.009270965023177412,
+   "sure_candidate": 559,
+   "sure_false_alarm": 1792,
+   "needs_human": 22,
+   "errors_among_sure": 79,
+   "error_rate_among_sure": 0.033602722245852826,
+   "planets_lost_as_sure_false": 17,
+   "thresholds": {
+    "candidate_if_p_ge": 0.3465937167610562,
+    "false_if_p_le": 0.2271855856726657
+   }
+  },
+  "alpha_0.1": {
+   "coverage_planets": 0.9075144508670521,
+   "coverage_false": 0.9110032362459547,
+   "share_sure": 0.9275179098187948,
+   "share_needs_human": 0.07248209018120523,
+   "sure_candidate": 506,
+   "sure_false_alarm": 1695,
+   "needs_human": 172,
+   "errors_among_sure": 41,
+   "error_rate_among_sure": 0.0186278964107224,
+   "planets_lost_as_sure_false": 6,
+   "thresholds": {
+    "candidate_if_p_ge": 0.6237122048250627,
+    "false_if_p_le": 0.049523513005425436
+   }
+  },
+  "alpha_0.2": {
+   "coverage_planets": 0.8246628131021194,
+   "coverage_false": 0.8106796116504854,
+   "share_sure": 0.820480404551201,
+   "share_needs_human": 0.179519595448799,
+   "sure_candidate": 443,
+   "sure_false_alarm": 1504,
+   "needs_human": 426,
+   "errors_among_sure": 16,
+   "error_rate_among_sure": 0.008217770929635337,
+   "planets_lost_as_sure_false": 1,
+   "thresholds": {
+    "candidate_if_p_ge": 0.8329867315348911,
+    "false_if_p_le": 0.008435247340703823
+   }
+  }
+ },
+ "tess": {
+  "n_calib": 129,
+  "n_calib_planets": 76,
+  "n_test": 1000,
+  "alpha_0.05": {
+   "coverage_planets": 0.977859778597786,
+   "coverage_false": 0.980349344978166,
+   "share_sure": 0.552,
+   "share_needs_human": 0.448,
+   "sure_candidate": 284,
+   "sure_false_alarm": 268,
+   "needs_human": 448,
+   "errors_among_sure": 21,
+   "error_rate_among_sure": 0.03804347826086957,
+   "planets_lost_as_sure_false": 12,
+   "thresholds": {
+    "candidate_if_p_ge": 0.16878184324459333,
+    "false_if_p_le": 0.9585504391362017
+   }
+  },
+  "alpha_0.1": {
+   "coverage_planets": 0.9428044280442804,
+   "coverage_false": 0.9519650655021834,
+   "share_sure": 0.773,
+   "share_needs_human": 0.227,
+   "sure_candidate": 418,
+   "sure_false_alarm": 355,
+   "needs_human": 227,
+   "errors_among_sure": 53,
+   "error_rate_among_sure": 0.0685640362225097,
+   "planets_lost_as_sure_false": 31,
+   "thresholds": {
+    "candidate_if_p_ge": 0.3357317768363324,
+    "false_if_p_le": 0.8686110441208204
+   }
+  },
+  "alpha_0.2": {
+   "coverage_planets": 0.8228782287822878,
+   "coverage_false": 0.8427947598253275,
+   "share_sure": 0.937,
+   "share_needs_human": 0.063,
+   "sure_candidate": 489,
+   "sure_false_alarm": 448,
+   "needs_human": 63,
+   "errors_among_sure": 105,
+   "error_rate_among_sure": 0.11205976520811099,
+   "planets_lost_as_sure_false": 62,
+   "thresholds": {
+    "candidate_if_p_ge": 0.7540828257219108,
+    "false_if_p_le": 0.5606751655625167
+   }
+  }
+ }
+}

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+results/
+transitvet/models/*_cnn.pt
+*.part
+.pytest_cache/

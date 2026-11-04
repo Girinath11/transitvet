@@ -1,0 +1,87 @@
+{
+ "kepler": {
+  "n": {
+   "train": 11053,
+   "val": 2311,
+   "test": 2373
+  },
+  "rows": [
+   {
+    "model": "gb_old",
+    "pr_auc": 0.8879,
+    "roc_auc": 0.9722,
+    "precision": 0.82,
+    "recall": 0.902,
+    "false_alarms_caught": "1751/1854",
+    "planets_kept": "468/519"
+   },
+   {
+    "model": "gb_new",
+    "pr_auc": 0.9474,
+    "roc_auc": 0.9864,
+    "precision": 0.883,
+    "recall": 0.915,
+    "false_alarms_caught": "1791/1854",
+    "planets_kept": "475/519"
+   },
+   {
+    "model": "cnn",
+    "pr_auc": 0.9467,
+    "roc_auc": 0.9855,
+    "precision": 0.893,
+    "recall": 0.904,
+    "false_alarms_caught": "1798/1854",
+    "planets_kept": "469/519"
+   },
+   {
+    "model": "tf",
+    "pr_auc": 0.9321,
+    "roc_auc": 0.9793,
+    "precision": 0.848,
+    "recall": 0.873,
+    "false_alarms_caught": "1773/1854",
+    "planets_kept": "453/519"
+   },
+   {
+    "model": "combined_old (gb_old+cnn+tf)",
+    "pr_auc": 0.9476,
+    "roc_auc": 0.987,
+    "precision": 0.879,
+    "recall": 0.923,
+    "false_alarms_caught": "1788/1854",
+    "planets_kept": "479/519"
+   },
+   {
+    "model": "combined_new (gb_new+cnn+tf)",
+    "pr_auc": 0.9675,
+    "roc_auc": 0.9919,
+    "precision": 0.915,
+    "recall": 0.954,
+    "false_alarms_caught": "1808/1854",
+    "planets_kept": "495/519"
+   }
+  ],
+  "drop_one_gb_new_pr_auc": {
+   "cen_sigma": 0.9439,
+   "cen_offset_arcsec": 0.95,
+   "rp_est_re": 0.9365,
+   "contratio": 0.9459
+  },
+  "combiner_coef": {
+   "combined_old (gb_old+cnn+tf)_coef": [
+    [
+     0.307,
+     0.548,
+     0.188
+    ]
+   ],
+   "combined_new (gb_new+cnn+tf)_coef": [
+    [
+     0.537,
+     0.499,
+     0.052
+    ]
+   ]
+  }
+ }
+}

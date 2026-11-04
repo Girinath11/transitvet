@@ -1,0 +1,56 @@
+50 stars
+KIC 10090854 PC  [('PC', 12.631, 'candidate')] 437
+KIC 9847239 PC  [('PC', 28.508, 'candidate')] 624
+KIC 4736569 PC  [('PC', 10.132, 'candidate'), ('PC', 7.074, None)] 638
+KIC 3632089 PC  [('PC', 31.779, 'candidate'), ('PC', 5.328, 'candidate')] 676
+KIC 6206214 PC  [('PC', 13.54, 'candidate')] 607
+KIC 11192235 PC  [('PC', 1.615, 'candidate')] 599
+KIC 10190777 PC  [('PC', 1.411, 'candidate')] 582
+KIC 5966322 PC  [('PC', 60.928, 'candidate')] 595
+KIC 7772914 PC  [('PC', 23.134, None)] 382
+KIC 6584273 PC  [('PC', 51.111, 'candidate')] 384
+KIC 3218908 PC  [('PC', 18.925, 'candidate'), ('PC', 1.475, 'candidate'), ('AFP', 4.152, 'candidate')] 610
+KIC 9992325 PC  [('PC', 24.086, 'candidate')] 519
+KIC 6869184 PC  [('PC', 43.317, 'candidate')] 598
+KIC 5978170 PC  [('PC', 5.689, 'candidate')] 594
+KIC 8639908 PC  [('PC', 0.91, 'false alarm')] 560
+KIC 8177798 AFP  [('AFP', 1.45, 'false alarm')] 278
+KIC 8559589 AFP  [('AFP', 223.112, 'false alarm'), ('AFP', 223.113, 'false alarm')] 388
+KIC 10621643 AFP  [('AFP', 1.48, None), ('AFP', 1.481, None)] 338
+KIC 6877871 AFP  [('AFP', 0.534, 'false alarm'), ('AFP', 0.537, 'false alarm'), ('AFP', 0.533, 'false alarm')] 371
+KIC 7732461 AFP  [('AFP', 4.212, 'false alarm'), ('AFP', 4.212, 'false alarm'), ('AFP', 4.212, 'false alarm')] 391
+KIC 5894825 AFP  [('AFP', 1.363, None), ('AFP', 1.363, None)] 363
+KIC 6717417 AFP  [('AFP', 0.698, 'false alarm'), ('AFP', 0.698, 'false alarm')] 410
+KIC 5622759 AFP  [('AFP', 1.868, 'false alarm'), ('AFP', 1.868, 'false alarm')] 378
+KIC 10259029 AFP  [('AFP', 7.061, 'false alarm'), ('AFP', 7.061, 'false alarm')] 250
+KIC 3238073 AFP  [('AFP', 0.734, None), ('AFP', 0.734, None)] 210
+KIC 6614492 AFP  [('AFP', 0.584, 'false alarm'), ('AFP', 0.584, 'false alarm')] 354
+KIC 5036037 AFP  [('AFP', 0.545, None), ('AFP', 0.545, None)] 398
+KIC 2852528 AFP  [('AFP', 11.962, 'uncertain')] 378
+Warning: 30% (5871/19412) of the cadences will be ignored due to the quality mask (quality_bitmask=17087).
+KIC 10798605 AFP  [('AFP', 56.048, 'false alarm'), ('AFP', 56.048, 'false alarm')] 392
+Warning: 21% (3718/18126) of the cadences will be ignored due to the quality mask (quality_bitmask=17087).
+Warning: 34% (5720/16999) of the cadences will be ignored due to the quality mask (quality_bitmask=17087).
+Warning: 26% (3359/12904) of the cadences will be ignored due to the quality mask (quality_bitmask=17087).
+KIC 6842139 AFP  [('AFP', 1.448, None), ('AFP', 1.448, None)] 373
+TIC 288735205 planet  [('CP', 3.478, 'candidate')] 480
+TIC 260004324 planet  [('CP', 3.814, 'candidate')] 537
+TIC 138294130 planet  [('KP', 3.057, 'candidate')] 212
+TIC 4610830 planet  [('KP', 8.262, 'candidate')] 150
+TIC 169461816 planet  [('KP', 17.855, 'uncertain')] 329
+TIC 234523599 planet  [('CP', 3.796, 'candidate')] 367
+TIC 1333933 planet  [('KP', 3.276, 'candidate')] 61
+TIC 395393265 planet  [('CP', 3.377, 'candidate')] 303
+TIC 270380593 planet  [('KP', 3.836, 'candidate')] 303
+TIC 243185500 planet  [('CP', 15.532, 'candidate'), ('CP', 1.881, 'candidate')] 289
+TIC 143526444 FP  [('FP', 15.305, 'false alarm')] 157
+TIC 319735319 FP  [('FP', 2.904, 'uncertain')] 21
+TIC 233569098 FP  [('FP', 23.485, 'candidate')] 141
+TIC 291013124 FP  [('FP', 6.037, 'false alarm')] 54
+TIC 265077027 FP  [('FP', 4.796, 'uncertain')] 16
+TIC 4294779 FP  [('FP', 0.344, None)] 19
+TIC 268371979 FP  [('FP', 2.781, 'false alarm')] 16
+TIC 441334829 FP  [('FP', 4.443, 'uncertain')] 10
+TIC 394509844 FP  [('FP', 6.891, 'candidate')] 14
+TIC 179159972 FP  [('FP', 1.371, 'false alarm')] 11
+ALLDONE

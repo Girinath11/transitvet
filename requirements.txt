@@ -1,0 +1,17 @@
+# Versions the tool was built and tested with (Python 3.13).
+# scikit-learn must match closely: the gradient-boosting models and calibrators are saved with joblib.
+numpy>=2.0
+pandas>=2.2
+scipy>=1.13
+scikit-learn==1.9.1
+torch>=2.4
+astropy>=6.1
+lightkurve==2.6.0
+wotan
+pydl>=1.0
+matplotlib>=3.8
+streamlit>=1.40
+joblib>=1.4
+batman-package
+astroquery
+pytest>=8

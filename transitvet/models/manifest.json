@@ -1,0 +1,67 @@
+{
+ "built": "2026-11-03",
+ "models": {
+  "kepler_gb": {
+   "val_pr_auc": 0.9518973196324688,
+   "n_val": 2311,
+   "feats": "FEATS + new checks"
+  },
+  "kepler_cnn": {
+   "val_pr_auc": 0.9524310386729562,
+   "n_val": 2311
+  },
+  "kepler_tf": {
+   "val_pr_auc": 0.9405320185776074,
+   "n_val": 2311
+  },
+  "tess_gb": {
+   "val_pr_auc": 0.9422832451280118,
+   "n_val": 259,
+   "feats": "FEATS + new checks"
+  },
+  "tess_cnn": {
+   "val_pr_auc": 0.8828425782989477,
+   "n_val": 259
+  },
+  "tess_tf": {
+   "val_pr_auc": 0.8588159005695974,
+   "n_val": 259
+  },
+  "kepler_combined": {
+   "val_pr_auc": 0.9712452814196777,
+   "n_val": 2311,
+   "coef_gb_cnn_tf": [
+    0.537,
+    0.499,
+    0.052
+   ]
+  },
+  "tess_combined": {
+   "val_pr_auc": 0.9469862142173727,
+   "n_val": 259,
+   "coef_gb_cnn_tf": [
+    0.873,
+    0.493,
+    -0.146
+   ]
+  }
+ },
+ "feats": [
+  "depth_ppm",
+  "snr",
+  "odd_even_sigma",
+  "secondary_ppm",
+  "secondary_sigma",
+  "shape_ratio",
+  "n_transits",
+  "tce_period",
+  "tce_duration",
+  "local_cover_biweight",
+  "cen_sigma",
+  "cen_offset_arcsec",
+  "rp_est_re",
+  "contratio"
+ ],
+ "note": "Kepler models trained on Kepler DR24 training stars (70%); TESS models on TESS training stars (50%). Calibrators: isotonic on validation stars. v2: GB retrained with light-position (centroid), planet-size and crowding features; combined score = logistic regression on GB, CNN, Transformer log-odds, fitted on validation stars.",
+ "built_v2": "2026-11-03"
+}

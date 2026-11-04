@@ -1,0 +1,829 @@
+<title>TransitVet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a printed-journal feel laid over deep-space plates. Big serif headlines, left-aligned text
+   columns, hairline rules instead of glass boxes, full-bleed sky photographs between chapters. */
+:root {
+  --void: #03050b;
+  --paper: #0a0e19;
+  --line: rgba(214, 222, 240, 0.14);
+  --line-2: rgba(214, 222, 240, 0.28);
+  --ink: #ece9e1;
+  --soft: #c9c6bd;
+  --mute: #8f93a0;
+  --dim: #5d6372;
+  --star: #a78bfa;
+  --pink: #ff8bd1;
+  --warn: #ffc861;
+  --ice: #5ee7ff;
+  --good: #66d19e;
+  --bad: #f07b6c;
+  --f-display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+html { scroll-behavior: smooth }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto } }
+body { margin: 0; background: linear-gradient(rgba(3,5,11,0.55), rgba(3,5,11,0.55)) fixed, var(--void) url(__IMG_DEEP__) center / cover fixed; color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.65; overflow-x: hidden }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--void) }
+#sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.75 }
+@keyframes drift { 0% { transform: scale(1.06) translate3d(0, 0, 0) } 100% { transform: scale(1.16) translate3d(-2.5%, 1.5%, 0) } }
+@keyframes pan { 0% { background-position: 40% 50% } 100% { background-position: 60% 46% } }
+.plate.interlude { animation: pan 40s ease-in-out infinite alternate }
+@media (prefers-reduced-motion: reduce) { .hero .plate-bg, .plate.interlude { animation: none !important } }
+.wrap { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)) }
+a { color: var(--ice); text-underline-offset: 3px }
+:focus-visible { outline: 2px solid var(--star); outline-offset: 3px }
+p { margin: 0 }
+h1, h2, h3 { margin: 0; font-weight: 400; text-wrap: balance }
+h1, h2 { font-family: var(--f-display); font-weight: 600; line-height: 1.08; letter-spacing: -0.035em }
+h1 { font-size: clamp(40px, 6vw, 84px) }
+h2 { font-size: clamp(30px, 4vw, 52px) }
+h1 em, h2 em { font-style: normal; font-weight: 400; background: linear-gradient(90deg, #b69cff, #5ee7ff 55%, #ff8bd1); -webkit-background-clip: text; background-clip: text; color: transparent }
+h3 { font-family: var(--f-body); font-weight: 600; font-size: 17px; line-height: 1.3 }
+.kicker { font-family: var(--f-body); font-weight: 600; font-size: 14px; color: var(--soft); display: flex; align-items: center; gap: 12px }
+.kicker::before { content: ""; flex: 0 0 22px; height: 2px; background: linear-gradient(90deg, var(--star), var(--ice)) }
+.lede { color: var(--soft); max-width: 58ch; font-size: 18px }
+.muted { color: var(--mute) }
+.mono { font-family: var(--f-mono) }
+.num { font-variant-numeric: tabular-nums }
+.small { font-size: 14px; color: var(--mute); line-height: 1.55 }
+
+/* nav */
+header.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: linear-gradient(rgba(3,5,11,0.92), rgba(3,5,11,0.78)); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line) }
+header.nav .wrap { display: flex; align-items: baseline; gap: 26px; padding-block: 12px }
+.logo { font-family: var(--f-display); font-weight: 600; letter-spacing: -0.03em; font-size: 22px; color: var(--ink); text-decoration: none; line-height: 1 }
+.logo i { color: var(--star); font-style: normal }
+.nav nav { display: flex; gap: 22px; margin-left: auto; flex-wrap: wrap }
+.nav nav a { color: var(--soft); text-decoration: none; font-size: 15px }
+.nav nav a:hover { color: var(--star) }
+@media (max-width: 760px) { .nav nav { display: none } header.nav .wrap { justify-content: space-between } }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 22px; font-family: var(--f-body); font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; border: 1px solid var(--line-2); background: rgba(3,5,11,0.4); color: var(--ink); border-radius: 8px }
+.btn.primary { background: linear-gradient(90deg, #a78bfa, #5ee7ff); color: #0a0820; border-color: transparent }
+.btn:hover { border-color: var(--star) }
+.btn.primary:hover { filter: brightness(1.1) }
+.nav .btn { padding: 7px 14px; font-size: 14px }
+
+/* plates: full-bleed photographic bands */
+.plate { position: relative; background-size: cover; background-position: center; isolation: isolate }
+.plate::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, var(--void) 0%, rgba(3,5,11,0) 18%, rgba(3,5,11,0) 78%, var(--void) 100%) }
+.plate-cap { position: absolute; right: max(18px, env(safe-area-inset-right, 0px)); bottom: 14px; font-family: var(--f-mono); font-size: 11px; color: rgba(236,233,225,0.45); z-index: 1 }
+
+section { position: relative; padding-block: clamp(64px, 10vw, 128px) }
+.chapter-head { display: grid; gap: 18px; margin-bottom: 44px; max-width: 860px }
+
+/* hero */
+.hero { min-height: min(100svh, 980px); display: grid; align-items: center; padding-block: clamp(72px, 9vw, 120px) 40px }
+.hero { overflow: hidden }
+.hero .plate-bg { position: absolute; inset: -4%; z-index: -1; background: url(__IMG_HERO__) 65% center / cover; animation: drift 45s ease-in-out infinite alternate; will-change: transform }
+.hero .plate-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3,5,11,0.92) 0%, rgba(3,5,11,0.55) 45%, rgba(3,5,11,0.05) 75%), linear-gradient(180deg, rgba(3,5,11,0) 70%, var(--void) 100%) }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr); gap: 40px; align-items: end }
+@media (max-width: 920px) { .hero-grid { grid-template-columns: 1fr } }
+.hero-copy { display: grid; gap: 26px; min-width: 0 }
+.hero-copy h1 em { display: block }
+.cta-row { display: flex; gap: 12px; flex-wrap: wrap }
+.theatre { min-width: 0; max-width: 420px; justify-self: end; width: 100% }
+@media (max-width: 920px) { .theatre { justify-self: start } }
+#transitCv { width: 100%; display: block }
+.theatre-cap { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--mute); border-top: 1px solid var(--line); padding-top: 8px; flex-wrap: wrap }
+.theatre-cap .flux { color: var(--ice); font-family: var(--f-mono) }
+.facts-line { margin-top: 64px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line-2) }
+.facts-line > div { padding: 16px 18px 0 0; display: grid; gap: 2px; min-width: 0 }
+.facts-line b { font-family: var(--f-display); font-weight: 600; letter-spacing: -0.03em; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums }
+.facts-line span { font-size: 14px; color: var(--mute); line-height: 1.45 }
+@media (max-width: 760px) { .facts-line { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 18px } }
+
+/* panels: flat, square, thin rule */
+.panel { border: 1px solid var(--line); border-radius: 10px; background: rgba(10, 14, 25, 0.72); padding: 20px 22px 22px; min-width: 0; backdrop-filter: blur(3px) }
+.panel-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: 14px; color: var(--mute); margin-bottom: 12px }
+.panel-top b { color: var(--ink); font-weight: 600 }
+.chip { display: inline-flex; align-items: center; gap: 7px; font-family: var(--f-mono); font-size: 12.5px; color: var(--star) }
+.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--star) }
+canvas.plot { width: 100%; display: block }
+.readouts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 14px; border-top: 1px solid var(--line) }
+.readouts > div { padding: 10px 12px 0 0; min-width: 0 }
+.readouts .k { font-size: 13px; color: var(--mute) }
+.readouts .v { font-family: var(--f-display); font-weight: 500; letter-spacing: -0.02em; font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums }
+@media (max-width: 760px) { .readouts { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+.sliders { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 18px }
+@media (max-width: 760px) { .sliders { grid-template-columns: 1fr } }
+.sl { display: grid; gap: 6px; min-width: 0 }
+.sl label { display: flex; justify-content: space-between; font-size: 14px; color: var(--mute); gap: 8px }
+.sl label output { color: var(--ink); font-family: var(--f-mono); font-size: 13px }
+input[type=range] { width: 100%; accent-color: var(--star) }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px }
+@media (max-width: 900px) { .two { grid-template-columns: 1fr } }
+.lock { font-size: 14.5px; color: var(--mute); min-height: 2.8em }
+.lock.on { color: var(--good) }
+.src { font-size: 14px; color: var(--mute); margin-top: 12px; line-height: 1.55; max-width: 70ch }
+
+/* interlude */
+.interlude { min-height: 78vh; display: grid; align-items: center; padding-block: 120px }
+.interlude blockquote { margin: 0; max-width: 760px }
+.interlude blockquote p:first-child { font-family: var(--f-display); font-weight: 600; letter-spacing: -0.04em; font-size: clamp(40px, 6vw, 80px); line-height: 1.05; text-shadow: 0 2px 30px rgba(0,0,0,0.6) }
+.interlude blockquote p + p { margin-top: 22px; font-size: 19px; color: var(--soft); max-width: 52ch; text-shadow: 0 1px 12px rgba(0,0,0,0.8) }
+.interlude.right blockquote { margin-left: auto; text-align: right }
+.interlude.right blockquote p + p { margin-left: auto }
+
+/* pipeline as a numbered list */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 56px }
+@media (max-width: 820px) { .steps { grid-template-columns: 1fr } }
+.steps li { display: grid; grid-template-columns: 50px minmax(0, 1fr); gap: 14px; padding: 20px 0; border-top: 1px solid var(--line) }
+.steps .n { font-family: var(--f-display); font-weight: 600; font-size: 15px; line-height: 1; color: var(--star); border: 1px solid rgba(167,139,250,0.55); border-radius: 50%; width: 34px; height: 34px; display: grid; place-items: center }
+.steps p { color: var(--soft); font-size: 16px; margin-top: 4px }
+
+/* checks */
+.checks-title { margin: 72px 0 8px; font-family: var(--f-display); font-weight: 600; letter-spacing: -0.03em; font-size: clamp(26px, 3vw, 36px) }
+.checks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 40px }
+@media (max-width: 960px) { .checks { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 600px) { .checks { grid-template-columns: 1fr } }
+.check { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 16px; align-items: start; padding: 20px 0; border-top: 1px solid var(--line) }
+.check canvas { width: 74px; height: 54px; background: rgba(3,5,11,0.6) }
+.check h3 { margin-bottom: 4px }
+.check p { font-size: 15px; color: var(--soft); line-height: 1.55 }
+.check.trust h3 { color: var(--star) }
+
+/* explore */
+.filters { display: flex; gap: 6px 18px; flex-wrap: wrap; margin-bottom: 18px; border-bottom: 1px solid var(--line) }
+.filters button { font: inherit; font-size: 15px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--mute); padding: 8px 0; cursor: pointer; margin-bottom: -1px }
+.filters button:hover { color: var(--ink) }
+.filters button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--star) }
+.explore { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 24px; align-items: start }
+@media (max-width: 960px) { .explore { grid-template-columns: 1fr } }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1px; background: var(--line); max-height: 760px; overflow-y: auto; min-width: 0; border: 1px solid var(--line) }
+.card { text-align: left; border: 0; background: rgba(8, 11, 20, 0.92); color: var(--ink); padding: 10px; cursor: pointer; display: grid; gap: 6px; font: inherit; min-width: 0 }
+.card:hover { background: rgba(20, 24, 38, 0.95) }
+.card[aria-current="true"] { background: rgba(242, 179, 90, 0.10); box-shadow: inset 0 -2px 0 var(--star) }
+.card canvas { width: 100%; height: 46px }
+.card .nm { font-family: var(--f-mono); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.card .row { display: flex; justify-content: space-between; align-items: center; gap: 6px }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; white-space: nowrap }
+.pill::before { content: "● "; font-size: 9px; vertical-align: 1px }
+.pill.candidate { color: var(--good) } .pill.false { color: var(--bad) } .pill.uncertain { color: var(--warn) }
+.mis { font-size: 12px; color: var(--mute) }
+.detail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 72px); display: grid; gap: 14px }
+.detail h3 { font-family: var(--f-display); font-weight: 600; letter-spacing: -0.03em; font-size: 28px }
+.views { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px }
+@media (max-width: 560px) { .views { grid-template-columns: 1fr } }
+.views > div { min-width: 0 }
+.cap { font-size: 13px; color: var(--mute); margin-bottom: 4px }
+.bars { display: grid; gap: 7px }
+.bar { display: grid; grid-template-columns: 140px minmax(0, 1fr) 46px; gap: 10px; align-items: center; font-size: 14px }
+.bar .track { height: 6px; background: rgba(255, 255, 255, 0.07); position: relative; overflow: hidden }
+.bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--ice) }
+.bar.main .fill { background: var(--star) }
+.bar .mid { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--line-2) }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line) }
+.facts > div { padding: 8px 10px 8px 0; min-width: 0; border-bottom: 1px solid var(--line) }
+.facts .k { font-size: 12.5px; color: var(--mute) }
+.facts .v { font-family: var(--f-mono); font-size: 14px; font-variant-numeric: tabular-nums }
+
+/* game */
+.game { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start }
+@media (max-width: 900px) { .game { grid-template-columns: 1fr } }
+.answer { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px }
+.answer .btn { flex: 1 1 160px; justify-content: center }
+.btn.yes:hover { border-color: var(--good) } .btn.no:hover { border-color: var(--bad) }
+.reveal { margin-top: 14px; min-height: 3.2em; font-size: 15.5px }
+.score { display: grid; gap: 16px }
+.score .big { display: flex; gap: 28px }
+.score .big div { display: grid }
+.score .big b { font-family: var(--f-display); font-weight: 600; letter-spacing: -0.04em; font-size: 56px; line-height: 1; font-variant-numeric: tabular-nums }
+.score .big span { font-size: 14px; color: var(--mute) }
+
+/* spotlight */
+.spot { position: relative; overflow: hidden; min-height: 560px; display: grid; align-items: center; border-block: 1px solid var(--line) }
+#planetCv { position: absolute; inset: 0; width: 100%; height: 100%; display: block }
+.spot > .wrap { width: 100% }
+.spot-card { position: relative; margin: 32px 0; max-width: 500px; display: grid; gap: 16px }
+.spot-card h2 { font-size: clamp(44px, 6vw, 80px) }
+.spot-card > p { color: var(--soft); text-shadow: 0 1px 10px rgba(0,0,0,0.9) }
+.kv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line-2); background: rgba(3,5,11,0.6) }
+.kv > div { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); min-width: 0 }
+.kv .k { font-size: 12.5px; color: var(--mute) }
+.kv .v { font-family: var(--f-mono); font-size: 14px; font-variant-numeric: tabular-nums }
+@media (max-width: 560px) { .spot { min-height: 0; padding-top: 180px } }
+
+/* results */
+.res { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px }
+@media (max-width: 900px) { .res { grid-template-columns: 1fr } }
+.res .panel h3 { font-family: var(--f-display); font-weight: 600; letter-spacing: -0.02em; font-size: 22px; margin-bottom: 8px }
+.tbl { overflow-x: auto }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; font-variant-numeric: tabular-nums }
+th, td { text-align: left; padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line); white-space: nowrap }
+th { font-weight: 500; font-size: 13px; color: var(--mute) }
+td.n, th.n { text-align: right; padding-right: 0; padding-left: 12px }
+
+/* run */
+.run { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; max-width: 820px }
+.tabs { display: flex; gap: 18px; flex-wrap: wrap; border-bottom: 1px solid var(--line) }
+.tabs button { font: inherit; font-size: 15px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--mute); padding: 8px 0; cursor: pointer; margin-bottom: -1px }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--star) }
+.term { width: 100%; border: 1px solid var(--line); background: rgba(3, 5, 11, 0.94) }
+.term .bar0 { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--line); font-family: var(--f-mono); font-size: 12px; color: var(--mute) }
+.term pre { margin: 0; padding: 16px; overflow-x: auto; font-family: var(--f-mono); font-size: 13.5px; line-height: 1.75; color: #e2dfd6 }
+.term pre .c { color: var(--dim) }
+.copy { font-family: var(--f-mono); font-size: 11.5px; border: 1px solid var(--line-2); background: transparent; color: var(--ink); padding: 3px 9px; cursor: pointer }
+
+footer { border-top: 1px solid var(--line); padding-block: 34px 40px; position: relative; z-index: 1; background: var(--void) }
+footer .wrap { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px 40px; font-size: 14px; color: var(--mute) }
+footer .sig { font-family: var(--f-display); font-weight: 600; letter-spacing: -0.03em; font-size: 26px; color: var(--ink); line-height: 1.1 }
+footer .sig i { color: var(--star); font-style: normal }
+@media (max-width: 760px) { footer .wrap { grid-template-columns: 1fr } }
+</style>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<!--INTRO-->
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top">Transit<i>Vet</i></a>
+    <nav aria-label="Sections">
+      <a href="#method">The dip</a><a href="#pipeline">How we check</a><a href="#explore">The signals</a><a href="#game">Play</a><a href="#results">Results</a><button type="button" id="replay" onclick="tvReplayIntro()">Watch intro</button>
+    </nav>
+    <a class="btn" href="#run">Get it</a>
+  </div>
+</header>
+
+<main id="top">
+<!-- HERO -->
+<section class="hero">
+  <div class="plate-bg" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="kicker">Exoplanet transit vetting · Kepler &amp; TESS</div>
+        <h1>Somewhere in this starlight, <em>a planet just went by.</em></h1>
+        <p class="lede">When a planet passes in front of its star, the star gets a little dimmer. NASA's Kepler and TESS telescopes recorded that brightness for a huge number of stars. We built TransitVet to go through the data, find dips that repeat, and then do the harder part: question every dip until we can say whether it could be a planet.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="#explore">Look at 70 real signals</a>
+          <a class="btn" href="#method">Start with the basics</a>
+        </div>
+      </div>
+      <div class="theatre">
+        <canvas id="transitCv" role="img" aria-label="Animation: a planet crosses a star and the measured brightness dips below it"></canvas>
+        <div class="theatre-cap"><span>Watch the line, not the planet.</span><span>Brightness <span class="flux num" id="fluxOut">100.000%</span></span></div>
+      </div>
+    </div>
+    <div class="facts-line">
+      <div><b>15,737</b><span>Kepler signals with expert labels to learn from</span></div>
+      <div><b>6,910</b><span>TESS objects of interest with 2-minute data</span></div>
+      <div><b>0.968</b><span>PR-AUC on Kepler stars it never saw in training</span></div>
+      <div><b>95.8%</b><span>of real Kepler planets kept at the 95% setting</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- THE DIP -->
+<section id="method">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="kicker">One · the dip</div>
+      <h2>You can't see the planet. <em>You can only see what it hides.</em></h2>
+      <p class="lede">Move the sliders. A planet the size of Earth blocks less than a hundredth of a percent of a Sun-like star's light. Jupiter blocks about one percent. Everything TransitVet does starts from a number that small.</p>
+    </div>
+    <div class="panel">
+      <div class="panel-top"><span><b>Make your own transit.</b> One crossing, sampled every 2 minutes, with realistic noise.</span><span class="chip"><span class="dot"></span><span id="simChip">Dip depth 0.084%</span></span></div>
+      <canvas class="plot" id="simCv" height="260" role="img" aria-label="Simulated light curve of one transit"></canvas>
+      <div class="readouts">
+        <div><div class="k">Orbit</div><div class="v" id="roP">10.0 d</div></div>
+        <div><div class="k">Dip depth</div><div class="v" id="roD">0.084%</div></div>
+        <div><div class="k">Dip length</div><div class="v" id="roT">3.7 h</div></div>
+        <div><div class="k">Planet size, Earth = 1</div><div class="v" id="roR">3.0×</div></div>
+      </div>
+      <div class="sliders">
+        <div class="sl"><label for="sR">Planet size <output id="oR">3.0 Earth radii</output></label><input id="sR" type="range" min="0.5" max="15" step="0.1" value="3"></div>
+        <div class="sl"><label for="sP">Time for one orbit <output id="oP">10.0 days</output></label><input id="sP" type="range" min="0.6" max="60" step="0.1" value="10"></div>
+        <div class="sl"><label for="sS">Star size <output id="oS">1.00 Suns</output></label><input id="sS" type="range" min="0.3" max="2.5" step="0.01" value="1"></div>
+      </div>
+      <p class="src">The depth is (planet size ÷ star size)². The length comes from Kepler's third law, for a star as heavy as the Sun and a planet crossing the middle. Jupiter is 11.2 times wider than Earth.</p>
+    </div>
+
+    <div class="two" style="margin-top:24px">
+      <div class="panel">
+        <div class="panel-top"><span><b>Real data.</b> Seven years of TESS on the star Pi Mensae.</span></div>
+        <canvas class="plot" id="rawCv" height="200" role="img" aria-label="Pi Mensae brightness over seven years; the dips are too small to see"></canvas>
+        <p class="src">Each dot is half an hour of starlight, 25,981 of them. Its planet, Pi Mensae c, takes away 0.027% of the light. Look as hard as you like: it isn't visible here.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-top"><span><b>Now stack the orbits.</b></span><span class="chip" id="foldChip">6.000 d</span></div>
+        <canvas class="plot" id="foldCv" height="200" role="img" aria-label="The same data folded on the chosen period and averaged"></canvas>
+        <div class="sl" style="margin-top:10px"><label for="sF">Guess the orbit <output id="oF">6.000 days</output></label><input id="sF" type="range" min="5.6" max="7.0" step="0.0005" value="6.0"></div>
+        <p class="lock" id="lockMsg">Slide slowly. At the right value the dip climbs out of the noise.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERLUDE 1 -->
+<section class="plate interlude" style="background-image:url(__IMG_GALAXY__)">
+  <div class="wrap">
+    <blockquote>
+      <p>Most dips aren't planets.</p>
+      <p>Two stars eclipsing each other. A brighter neighbour sharing the same camera pixels. A hiccup in the spacecraft. They all make dips that look like this. Most of our work went into ruling them out.</p>
+    </blockquote>
+  </div>
+  <span class="plate-cap">Background: computer-generated sky</span>
+</section>
+
+<!-- HOW WE CHECK -->
+<section id="pipeline">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="kicker">Two · how we check</div>
+      <h2>Seven steps for every star, <em>nine questions for every dip.</em></h2>
+      <p class="lede">None of these steps is magic. Most are ordinary signal processing, the same tools used on radio and audio, pointed at a star instead.</p>
+    </div>
+    <ol class="steps">
+      <li><span class="n">1</span><div><h3>Get the data</h3><p>Pull the light curve from NASA's MAST archive: a point every 30 minutes for Kepler, every 2 minutes for TESS. You can also give it your own file.</p></div></li>
+      <li><span class="n">2</span><div><h3>Clean it</h3><p>Drop the points the telescope itself marked as bad, and line up each stretch of data so they join without steps.</p></div></li>
+      <li><span class="n">3</span><div><h3>Flatten the star</h3><p>Stars drift in brightness on their own. A biweight filter and a spline take out the slow drift so only short dips remain.</p></div></li>
+      <li><span class="n">4</span><div><h3>Search</h3><p>Box Least Squares tries 20,000 to 150,000 possible orbits and keeps up to three dips that repeat.</p></div></li>
+      <li><span class="n">5</span><div><h3>Fold</h3><p>Stack every orbit on top of the others. We keep two pictures: the whole orbit, and a close-up of the dip.</p></div></li>
+      <li><span class="n">6</span><div><h3>Score</h3><p>Three models look at it: gradient boosting on measured numbers, the AstroNet CNN, and a Transformer. Their scores are joined into one.</p></div></li>
+      <li><span class="n">7</span><div><h3>Decide</h3><p>Candidate, false alarm, or "a person should look at this". Each one comes with a report card in plain words and times to observe the next dip.</p></div></li>
+    </ol>
+
+    <h3 class="checks-title">The nine questions</h3>
+    <p class="small" style="max-width:62ch;margin-bottom:12px">Every signal gets all of them. The answers go on its report card, so you can see why the tool decided what it did.</p>
+    <div class="checks">
+      <div class="check"><canvas data-g="oddeven"></canvas><div><h3>Are odd and even dips the same?</h3><p>Two stars of different sizes take turns: deep dip, shallow dip. A planet makes the same dip every time.</p></div></div>
+      <div class="check"><canvas data-g="secondary"></canvas><div><h3>Is there a dip half an orbit later?</h3><p>A companion star that glows shows up as a second, smaller dip when it goes behind. A planet usually doesn't.</p></div></div>
+      <div class="check"><canvas data-g="vshape"></canvas><div><h3>Flat bottom or V?</h3><p>We fit a transit model (batman) to measure the shape. Stars just grazing each other make V-shaped dips.</p></div></div>
+      <div class="check"><canvas data-g="size"></canvas><div><h3>Is it planet-sized?</h3><p>Dip depth plus the star's size from the TESS Input Catalog. Anything over two Jupiters is almost surely a star.</p></div></div>
+      <div class="check"><canvas data-g="centroid"></canvas><div><h3>Does the light stay put?</h3><p>If the star's image slides across the camera during the dip, the dip may belong to a neighbour.</p></div></div>
+      <div class="check"><canvas data-g="pixel"></canvas><div><h3>Which pixels went dark?</h3><p>We compare the camera images in and out of the dip. If a nearby star dimmed instead, it gets named.</p></div></div>
+      <div class="check"><canvas data-g="density"></canvas><div><h3>Does the dip fit the star?</h3><p>How long a dip lasts says how dense the star should be. A big mismatch hints that a different star is involved.</p></div></div>
+      <div class="check"><canvas data-g="nasa"></canvas><div><h3>What does NASA's model say?</h3><p>For TESS we show the score from NASA's ExoMiner++ catalogue next to ours, when it has one.</p></div></div>
+      <div class="check trust"><canvas data-g="trust"></canvas><div><h3>Can we promise anything?</h3><p>Keep, drop, or ask a person. Set up so that at least 95% of real planets are never dropped.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPLORE -->
+<section id="explore" class="plate" style="background-image:linear-gradient(rgba(3,5,11,0.55), rgba(3,5,11,0.82)), url(__IMG_NEBULA__)">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="kicker">Three · the signals</div>
+      <h2>Seventy signals <em>we held back.</em></h2>
+      <p class="lede">We kept these stars out of training on purpose. Each signal has a label from astronomers. Pick one to see what the models saw. The last filter shows the ones we got wrong; we left them in.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Filter signals">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="kepler" aria-pressed="false">Kepler</button>
+      <button type="button" data-f="tess" aria-pressed="false">TESS</button>
+      <button type="button" data-f="planet" aria-pressed="false">Labelled planet</button>
+      <button type="button" data-f="false" aria-pressed="false">Labelled false alarm</button>
+      <button type="button" data-f="miss" aria-pressed="false">Ones we got wrong</button>
+    </div>
+    <div class="explore">
+      <div class="cards" id="cards"></div>
+      <div class="panel detail" id="detail"></div>
+    </div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="game">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="kicker">Four · your turn</div>
+      <h2>Planet or not? <em>Ten rounds against the model.</em></h2>
+      <p class="lede">You get the same two pictures the model gets: the whole orbit and a close-up of the dip. Make your call, then see the astronomers' label and our score. It's harder than it looks.</p>
+    </div>
+    <div class="game">
+      <div class="panel">
+        <div class="panel-top"><span id="gRound">Round 1 of 10</span><span class="mis" id="gMis"></span></div>
+        <div class="views">
+          <div><div class="cap">Whole orbit</div><canvas class="plot" id="gG" height="170"></canvas></div>
+          <div><div class="cap">Close-up of the dip</div><canvas class="plot" id="gL" height="170"></canvas></div>
+        </div>
+        <div class="answer" id="gBtns">
+          <button type="button" class="btn yes" data-a="1">Planet</button>
+          <button type="button" class="btn no" data-a="0">False alarm</button>
+        </div>
+        <div class="reveal" id="gReveal" aria-live="polite">Look for a flat-bottomed dip that is the same every orbit, with nothing halfway round.</div>
+      </div>
+      <div class="panel score">
+        <div class="big"><div><b class="num" id="gYou">0</b><span>You</span></div><div><b class="num" id="gModel">0</b><span>TransitVet</span></div></div>
+        <p class="small">A few tells: a dip halfway round, or dips that alternate deep and shallow, mean two stars. A V shape usually means two stars grazing. A very deep dip is too big for a planet.</p>
+        <button type="button" class="btn" id="gNew">New game</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPOTLIGHT -->
+<section id="spotlight" style="padding-block:0">
+  <div class="spot">
+    <canvas id="planetCv" aria-hidden="true"></canvas>
+    <div class="wrap">
+      <div class="spot-card">
+        <div class="kicker">Five · one we found again</div>
+        <h2>TOI-7719.01</h2>
+        <p>A Jupiter-sized companion going round a Sun-like star every 3.3 days. It was already on NASA's TESS list. We didn't tell the search where to look, and it found the same orbit in three sectors of data on its own.</p>
+        <div class="kv">
+          <div><div class="k">Orbit</div><div class="v">3.27622 ± 0.00003 d</div></div>
+          <div><div class="k">Size</div><div class="v">11.5 ± 1.2 R⊕</div></div>
+          <div><div class="k">Star</div><div class="v">TIC 1333933 · 0.96 R☉</div></div>
+          <div><div class="k">Our score</div><div class="v">0.98 · keep</div></div>
+          <div><div class="k">Next good dip from Coimbatore</div><div class="v">6 Nov 2026 · 00:38–04:00 IST</div></div>
+          <div><div class="k">With a 20 cm telescope</div><div class="v">SNR 6.5 · borderline</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="plate" style="background-image:linear-gradient(rgba(3,5,11,0.35), rgba(3,5,11,0.75)), url(__IMG_DEEP__)">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="kicker">Six · how well it works</div>
+      <h2>The numbers, <em>including the awkward ones.</em></h2>
+      <p class="lede">Every number here comes from stars the models never trained on. PR-AUC measures how well the score puts real planets above false alarms; 1.0 would be perfect.</p>
+    </div>
+    <div class="res">
+      <div class="panel">
+        <h3>Ranking quality (PR-AUC)</h3>
+        <canvas class="plot" id="prCv" height="250" role="img" aria-label="Dot plot of PR-AUC for each model on test stars"></canvas>
+        <p class="src">Kepler: 2,373 test signals. TESS: 1,000 test signals. The NASA comparison uses the 542 TESS signals that both TransitVet and ExoMiner++ scored; the gap between the two is within the uncertainty.</p>
+      </div>
+      <div class="panel">
+        <h3>The 95% promise, tested</h3>
+        <div class="tbl"><table>
+          <thead><tr><th>Mission</th><th class="n">Planets kept</th><th class="n">Keep</th><th class="n">Drop</th><th class="n">Ask a person</th></tr></thead>
+          <tbody>
+            <tr><td>Kepler · 2,373</td><td class="n">95.8%</td><td class="n">559</td><td class="n">1,792</td><td class="n">22</td></tr>
+            <tr><td>TESS · 1,000</td><td class="n">97.8%</td><td class="n">284</td><td class="n">268</td><td class="n">448</td></tr>
+          </tbody>
+        </table></div>
+        <p class="src">This uses split conformal prediction, with the cut-offs set on half of the validation stars. On TESS, almost half the signals end up as "ask a person". We'd rather say that than guess.</p>
+        <h3 style="margin-top:22px">Fifty stars, start to finish</h3>
+        <p class="small">Download, search and score, with nothing prepared in advance. TESS false alarms wrongly called candidates went from 5 of 10 down to 2 of 10 once we added the light-position, size and crowding checks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RUN -->
+<section id="run">
+  <div class="wrap run">
+    <div class="kicker">Seven · try it yourself</div>
+    <h2>Pick a star. <em>See what's going round it.</em></h2>
+    <p class="lede">Give it a Kepler (KIC) or TESS (TIC) number, or upload a FITS or CSV light curve. It runs on an ordinary laptop, no GPU needed.</p>
+    <div class="tabs" role="tablist" aria-label="Operating system">
+      <button type="button" role="tab" aria-selected="true" data-t="win">Windows</button>
+      <button type="button" role="tab" aria-selected="false" data-t="nix">Mac / Linux</button>
+      <button type="button" role="tab" aria-selected="false" data-t="cli">Many stars at once</button>
+    </div>
+    <div class="term">
+      <div class="bar0"><span id="termName">transitvet-app</span><button type="button" class="copy" id="copyBtn">Copy</button></div>
+      <pre id="termText"></pre>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="sig">Transit<i>Vet</i></div>
+      <p style="margin-top:10px">Find and vet planet candidates in Kepler and TESS light curves. Open models, a plain-language report for every signal, and a stated guarantee on how many real planets it keeps.</p>
+      <p style="margin-top:14px"><a href="#explore">Signals</a> · <a href="#results">Results</a> · <a href="#run">Get it</a></p>
+    </div>
+    <div>
+      <p>Everything this tool finds is a planet candidate until someone confirms it with more observations.</p>
+      <p style="margin-top:10px">Data: NASA Kepler and TESS, through the MAST archive. Background skies on this page are computer-generated, not telescope photos.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+const SIG = __SIGNALS__;
+const PM = __PIMEN__;
+const C = { ice: '#5ee7ff', star: '#a78bfa', good: '#66d19e', bad: '#f07b6c', ink: '#ece9e1', mute: '#8f93a0', line: 'rgba(214,222,240,0.14)', dim: '#5d6372' };
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = (s, r = document) => r.querySelector(s);
+
+/* ---------- canvas helpers ---------- */
+function setup(cv, h) {
+  const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
+  const W = Math.max(50, r.width), H = h || cv.height / (cv._d || 1) || r.height;
+  cv._d = d; cv.width = W * d; cv.height = (h || r.height || 150) * d;
+  const x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0);
+  return { x, W, H: h || r.height || 150 };
+}
+function plotPts(cv, xs, ys, o = {}) {
+  const h = o.h || parseFloat(cv.getAttribute('height')) || 160;
+  cv.style.height = h + 'px';
+  const { x, W, H } = setup(cv, h);
+  const pad = o.pad || { l: 6, r: 6, t: 8, b: o.xlab ? 20 : 6 };
+  let lo = o.ylo, hi = o.yhi;
+  if (lo === undefined) { const s = ys.filter(Number.isFinite).slice().sort((a, b) => a - b); lo = s[Math.floor(s.length * 0.003)]; hi = s[Math.ceil(s.length * 0.997) - 1]; const m = (hi - lo) * 0.08 || 1; lo -= m; hi += m }
+  const x0 = o.xlo ?? Math.min(...xs), x1 = o.xhi ?? Math.max(...xs);
+  const X = v => pad.l + (v - x0) / (x1 - x0) * (W - pad.l - pad.r), Y = v => pad.t + (hi - v) / (hi - lo) * (H - pad.t - pad.b);
+  x.clearRect(0, 0, W, H);
+  if (o.grid !== false) { x.strokeStyle = C.line; x.lineWidth = 1; for (let k = 1; k < 4; k++) { const yy = pad.t + k * (H - pad.t - pad.b) / 4; x.beginPath(); x.moveTo(pad.l, yy); x.lineTo(W - pad.r, yy); x.stroke() } }
+  if (o.band) { x.fillStyle = 'rgba(167,139,250,0.07)'; x.fillRect(X(o.band[0]), pad.t, X(o.band[1]) - X(o.band[0]), H - pad.t - pad.b) }
+  x.fillStyle = o.color || C.ice; x.globalAlpha = o.alpha ?? 0.85;
+  const r = o.r || 1.6;
+  for (let i = 0; i < xs.length; i++) { const v = ys[i]; if (!Number.isFinite(v)) continue; const yy = Y(Math.max(lo, Math.min(hi, v))); x.fillRect(X(xs[i]) - r / 2, yy - r / 2, r, r) }
+  x.globalAlpha = 1;
+  if (o.line) { x.strokeStyle = o.lineColor || C.star; x.lineWidth = 2; x.beginPath(); o.line.forEach((p, i) => { i ? x.lineTo(X(p[0]), Y(p[1])) : x.moveTo(X(p[0]), Y(p[1])) }); x.stroke() }
+  if (o.xlab) { x.fillStyle = C.mute; x.font = '10.5px "JetBrains Mono", monospace'; x.textBaseline = 'bottom'; x.fillText(o.xlab[0], pad.l, H - 2); const t = o.xlab[1]; x.textAlign = 'right'; x.fillText(t, W - pad.r, H - 2); x.textAlign = 'left' }
+  if (o.ylab) { x.fillStyle = C.mute; x.font = '10.5px "JetBrains Mono", monospace'; x.textBaseline = 'top'; x.fillText(o.ylab, pad.l + 2, pad.t + 2) }
+  return { X, Y };
+}
+const lin = (n, a, b) => Array.from({ length: n }, (_, i) => a + (b - a) * i / (n - 1));
+
+/* ---------- starfield ---------- */
+(function sky() {
+  const cv = $('#sky'); let stars = [], W, H, x;
+  function size() { const d = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0);
+    let s = 1234567; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    stars = Array.from({ length: Math.round(W * H / 2600) }, () => ({ x: rnd() * W, y: rnd() * H, r: rnd() < 0.06 ? 1.4 : rnd() * 0.9 + 0.2, a: rnd() * 0.7 + 0.2, p: rnd() * 6.28, w: rnd() * 0.8 + 0.2, warm: rnd() < 0.15 })) }
+  let mets = [], nextMet = 1500;
+  function meteors(t) { if (t > nextMet) { const a = 0.45 + Math.random() * 0.35; mets.push({ x: Math.random() * W * 0.9 + W * 0.1, y: Math.random() * H * 0.45, a, v: 0.9 + Math.random() * 0.6, L: 90 + Math.random() * 120, t0: t }); nextMet = t + 2500 + Math.random() * 5000 }
+    mets = mets.filter(m => t - m.t0 < 1100); for (const m of mets) { const k = (t - m.t0), px = m.x - Math.cos(m.a) * k * m.v, py = m.y + Math.sin(m.a) * k * m.v, fade = 1 - k / 1100;
+      const g = x.createLinearGradient(px, py, px + Math.cos(m.a) * m.L, py - Math.sin(m.a) * m.L); g.addColorStop(0, `rgba(235,240,255,${0.9 * fade})`); g.addColorStop(1, 'rgba(160,140,255,0)');
+      x.strokeStyle = g; x.lineWidth = 1.6; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(m.a) * m.L, py - Math.sin(m.a) * m.L); x.stroke() } }
+  function draw(t) { x.clearRect(0, 0, W, H); const sy = scrollY * 0.08; for (const s of stars) { const a = RM ? s.a : s.a * (0.65 + 0.35 * Math.sin(t / 1000 * s.w + s.p)); x.globalAlpha = a; x.fillStyle = s.warm ? '#ffd9a0' : '#dfe8ff'; x.beginPath(); x.arc(s.x, ((s.y - sy) % H + H) % H, s.r, 0, 6.283); x.fill() } x.globalAlpha = 1; if (!RM) meteors(t); if (!RM) requestAnimationFrame(draw) }
+  size(); addEventListener('resize', () => { size(); if (RM) draw(0) }); requestAnimationFrame(draw);
+})();
+
+/* ---------- hero transit theatre ---------- */
+(function theatre() {
+  const cv = $('#transitCv'), out = $('#fluxOut');
+  const k = 0.30, u1 = 0.45, u2 = 0.2, P = 9000;      // radius ratio, limb darkening, ms per crossing cycle
+  // brightness by numerical integration over the stellar disc (limb-darkened), cached on a grid of positions
+  const NB = 241, curve = new Float64Array(NB), xs = lin(NB, -1.6, 1.6);
+  (function precompute() {
+    const N = 140; let tot = 0; const I = (r2) => { const mu = Math.sqrt(Math.max(0, 1 - r2)); return 1 - u1 * (1 - mu) - u2 * (1 - mu) ** 2 };
+    const pts = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const px = -1 + 2 * (i + 0.5) / N, py = -1 + 2 * (j + 0.5) / N, r2 = px * px + py * py; if (r2 <= 1) { const w = I(r2); pts.push(px, py, w); tot += w } }
+    const b = 0.25;
+    for (let q = 0; q < NB; q++) { let blk = 0; const cx = xs[q]; for (let m = 0; m < pts.length; m += 3) { const dx = pts[m] - cx, dy = pts[m + 1] - b; if (dx * dx + dy * dy < k * k) blk += pts[m + 2] } curve[q] = 1 - blk / tot }
+  })();
+  let size;
+  function resize() { const r = cv.getBoundingClientRect(); size = { W: r.width, H: r.width * 0.86 }; cv.style.height = size.H + 'px'; const d = Math.min(devicePixelRatio || 1, 2); cv.width = size.W * d; cv.height = size.H * d; cv.getContext('2d').setTransform(d, 0, 0, d, 0, 0) }
+  function frame(t) {
+    const x = cv.getContext('2d'), { W, H } = size;
+    x.clearRect(0, 0, W, H);
+    const R = Math.min(W, H) * 0.22, cx = W * 0.5, cy = H * 0.40;
+    // corona and rays
+    const g = x.createRadialGradient(cx, cy, R * 0.9, cx, cy, R * 1.9); g.addColorStop(0, 'rgba(150,180,255,0.55)'); g.addColorStop(0.35, 'rgba(120,110,255,0.14)'); g.addColorStop(1, 'rgba(120,110,255,0)');
+    x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R * 1.9, 0, 6.283); x.fill();
+    x.save(); x.translate(cx, cy); x.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 18; i++) { const a = i / 18 * 6.283 + (RM ? 0 : t / 40000); const L = R * (1.5 + 0.5 * Math.sin(i * 2.1)); const gr = x.createLinearGradient(0, 0, Math.cos(a) * L, Math.sin(a) * L); gr.addColorStop(0, 'rgba(180,200,255,0.18)'); gr.addColorStop(1, 'rgba(180,200,255,0)'); x.strokeStyle = gr; x.lineWidth = 1.5; x.beginPath(); x.moveTo(Math.cos(a) * R, Math.sin(a) * R); x.lineTo(Math.cos(a) * L, Math.sin(a) * L); x.stroke() }
+    x.restore();
+    // limb-darkened disc
+    const d = x.createRadialGradient(cx - R * 0.15, cy - R * 0.15, R * 0.05, cx, cy, R); d.addColorStop(0, '#ffffff'); d.addColorStop(0.55, '#d6e4ff'); d.addColorStop(0.9, '#8fb0ff'); d.addColorStop(1, '#5b6be0');
+    x.fillStyle = d; x.beginPath(); x.arc(cx, cy, R, 0, 6.283); x.fill();
+    // planet position
+    const ph = RM ? 0.5 : (t % P) / P, pos = -1.6 + 3.2 * ph;
+    const px = cx + pos * R, py = cy + 0.25 * R;
+    x.save(); x.beginPath(); x.arc(px, py, k * R, 0, 6.283); x.fillStyle = '#05070f'; x.fill();
+    x.strokeStyle = 'rgba(94,231,255,0.55)'; x.lineWidth = 1.2; x.stroke(); x.restore();
+    // light curve strip
+    const top = H * 0.73, bot = H * 0.97, L = W * 0.06, Rr = W * 0.94;
+    const Xc = v => L + (v + 1.6) / 3.2 * (Rr - L), lo = 0.9, Yc = f => top + (1.003 - f) / (1.003 - lo) * (bot - top);
+    x.strokeStyle = C.line; x.lineWidth = 1; x.beginPath(); x.moveTo(L, Yc(1)); x.lineTo(Rr, Yc(1)); x.stroke();
+    x.font = '10.5px "JetBrains Mono", monospace'; x.fillStyle = C.mute; x.fillText('brightness', L, top - 6);
+    x.fillStyle = C.ice;
+    const qi = Math.round(ph * (NB - 1));
+    for (let q = 0; q <= qi; q += 1) { const j = Math.sin(q * 12.9898) * 43758.5453; const n = (j - Math.floor(j) - 0.5) * 0.004; x.globalAlpha = 0.9; x.fillRect(Xc(xs[q]) - 1.2, Yc(curve[q] + n) - 1.2, 2.4, 2.4) }
+    x.globalAlpha = 1; x.strokeStyle = C.star; x.lineWidth = 1.6; x.beginPath(); for (let q = 0; q <= qi; q++) { q ? x.lineTo(Xc(xs[q]), Yc(curve[q])) : x.moveTo(Xc(xs[q]), Yc(curve[q])) } x.stroke();
+    x.beginPath(); x.arc(Xc(xs[qi]), Yc(curve[qi]), 4, 0, 6.283); x.fillStyle = C.star; x.fill();
+    out.textContent = (curve[qi] * 100).toFixed(3) + '%';
+    if (!RM) requestAnimationFrame(frame);
+  }
+  resize(); addEventListener('resize', () => { resize(); if (RM) frame(0) }); requestAnimationFrame(frame);
+})();
+
+/* ---------- simulator ---------- */
+function sim() {
+  const Rp = +$('#sR').value, Pd = +$('#sP').value, Rs = +$('#sS').value;
+  const k = Rp / 109.1 / Rs, depth = k * k;
+  const aAU = Math.cbrt((Pd / 365.25) ** 2), aRs = aAU * 215.03 / Rs;
+  const T = Pd / Math.PI * Math.asin(Math.min(1, (1 + k) / aRs)) * 24;     // hours, central transit
+  $('#oR').textContent = Rp.toFixed(1) + ' Earth radii'; $('#oP').textContent = Pd.toFixed(1) + ' days'; $('#oS').textContent = Rs.toFixed(2) + ' Suns';
+  const dTxt = depth >= 0.001 ? (depth * 100).toFixed(depth > 0.1 ? 1 : 3) + '%' : Math.round(depth * 1e6) + ' ppm';
+  $('#roP').textContent = Pd.toFixed(1) + ' d'; $('#roD').textContent = dTxt; $('#roT').textContent = T.toFixed(1) + ' h'; $('#roR').textContent = Rp.toFixed(1) + '×';
+  $('#simChip').textContent = 'Dip depth ' + dTxt + (Rp > 22.4 ? ' · too big for a planet' : '');
+  const span = Math.max(T * 3, 6), n = Math.round(span * 30), ts = lin(n, -span / 2, span / 2);
+  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const gauss = () => Math.sqrt(-2 * Math.log(rnd() + 1e-12)) * Math.cos(6.283 * rnd());
+  const ing = T * k / (1 + k);
+  const model = t => { const a = Math.abs(t); if (a >= T / 2) return 1; if (a <= T / 2 - ing) return 1 - depth; return 1 - depth * (T / 2 - a) / ing };
+  const fs = ts.map(t => model(t) + gauss() * 4e-4);
+  const lo = Math.min(1 - depth * 1.25 - 0.0015, 0.998), hi = 1.0015;
+  plotPts($('#simCv'), ts, fs, { h: 260, ylo: lo, yhi: hi, line: lin(300, -span / 2, span / 2).map(t => [t, model(t)]), band: [-T / 2, T / 2], xlab: [(-span / 2).toFixed(1) + ' h', '+' + (span / 2).toFixed(1) + ' h'], ylab: 'brightness, 1 = no planet', r: 2 });
+}
+['#sR', '#sP', '#sS'].forEach(s => $(s).addEventListener('input', sim));
+
+/* ---------- Pi Men fold ---------- */
+const PT = PM.t, PF = PM.f;   // days (BTJD), ppm
+function rawPlot() { plotPts($('#rawCv'), PT, PF, { h: 200, r: 1.1, alpha: 0.45, ylo: -900, yhi: 700, xlab: ['2018', '2025'], ylab: 'ppm' }) }
+function fold() {
+  const p = +$('#sF').value, t0 = PM.t0, nb = 180, sum = new Float64Array(nb), cnt = new Float64Array(nb);
+  const ph = [], ff = [];
+  for (let i = 0; i < PT.length; i++) { let q = ((PT[i] - t0) / p + 0.5) % 1; if (q < 0) q += 1; q -= 0.5; ph.push(q); ff.push(PF[i]); const b = Math.min(nb - 1, Math.floor((q + 0.5) * nb)); sum[b] += PF[i]; cnt[b]++ }
+  const bx = lin(nb, -0.5 + 0.5 / nb, 0.5 - 0.5 / nb), by = Array.from(sum, (v, i) => cnt[i] ? v / cnt[i] : NaN);
+  plotPts($('#foldCv'), ph, ff, { h: 200, r: 1, alpha: 0.18, ylo: -700, yhi: 450, color: C.mute, line: bx.map((v, i) => [v, by[i]]).filter(z => Number.isFinite(z[1])), lineColor: C.ice, xlab: ['phase −0.5', '+0.5'], ylab: 'ppm' });
+  $('#oF').textContent = p.toFixed(4) + ' days'; $('#foldChip').textContent = p.toFixed(4) + ' d';
+  const off = Math.abs(p - PM.period), m = $('#lockMsg');
+  if (off < 0.0006) { m.className = 'lock on'; m.textContent = `There it is: ${PM.period.toFixed(4)} days. Stack every orbit at that period and the 270 ppm dip of Pi Mensae c shows up. TransitVet's search found this period without being told.` }
+  else if (off < 0.004) { m.className = 'lock'; m.textContent = 'Close. The dip is smeared because each orbit lands a little off from the last.' }
+  else { m.className = 'lock'; m.textContent = 'Slide slowly. At the right value the dip climbs out of the noise.' }
+}
+$('#sF').addEventListener('input', fold);
+
+/* ---------- check glyphs ---------- */
+function glyph(cv) {
+  const { x, W, H } = setup(cv, 54); cv.style.height = '54px';
+  const kind = cv.dataset.g, base = H * 0.32, Y = v => base + v * H * 0.5;
+  x.lineWidth = 1.6; x.strokeStyle = C.ice;
+  const curve = (fn, col = C.ice) => { x.strokeStyle = col; x.beginPath(); for (let i = 0; i <= 70; i++) { const u = i / 70; const v = fn(u); i ? x.lineTo(6 + u * (W - 12), Y(v)) : x.moveTo(6, Y(v)) } x.stroke() };
+  const box = (u, c, w, d) => Math.abs(u - c) < w ? d : 0;
+  if (kind === 'oddeven') curve(u => box(u, 0.18, 0.05, 0.8) + box(u, 0.5, 0.05, 0.45) + box(u, 0.82, 0.05, 0.8), C.star);
+  if (kind === 'secondary') curve(u => box(u, 0.2, 0.06, 0.85) + box(u, 0.7, 0.06, 0.25), C.star);
+  if (kind === 'vshape') { curve(u => Math.max(0, 0.8 - Math.abs(u - 0.3) * 6), C.star); curve(u => Math.abs(u - 0.72) < 0.12 ? (Math.abs(u - 0.72) < 0.09 ? 0.6 : 0.6 * (0.12 - Math.abs(u - 0.72)) / 0.03) : 0) }
+  if (kind === 'size') { x.fillStyle = C.star; x.beginPath(); x.arc(W * 0.36, H * 0.5, 17, 0, 6.283); x.fill(); x.fillStyle = C.ice; x.beginPath(); x.arc(W * 0.78, H * 0.5, 5, 0, 6.283); x.fill() }
+  if (kind === 'centroid') { x.strokeStyle = C.line; for (let i = 1; i < 6; i++) { x.beginPath(); x.moveTo(i * W / 6, 4); x.lineTo(i * W / 6, H - 4); x.stroke() } x.fillStyle = C.ice; x.beginPath(); x.arc(W * 0.45, H * 0.5, 4, 0, 6.283); x.fill(); x.strokeStyle = C.star; x.beginPath(); x.moveTo(W * 0.45, H * 0.5); x.lineTo(W * 0.72, H * 0.32); x.stroke(); x.fillStyle = C.star; x.beginPath(); x.arc(W * 0.72, H * 0.32, 3, 0, 6.283); x.fill() }
+  if (kind === 'pixel') { const n = 7, cw = (W - 8) / n, ch = (H - 8) / 5; for (let i = 0; i < n; i++) for (let j = 0; j < 5; j++) { const d1 = Math.hypot(i - 5, j - 1.2), v = Math.exp(-d1 * d1 / 1.6); x.fillStyle = `rgba(98,208,255,${0.06 + 0.85 * v})`; x.fillRect(4 + i * cw + 0.5, 4 + j * ch + 0.5, cw - 1, ch - 1) } x.strokeStyle = C.star; x.lineWidth = 2; const cx = 4 + 2.5 * cw, cy = 4 + 2.5 * ch; x.beginPath(); x.moveTo(cx - 5, cy); x.lineTo(cx + 5, cy); x.moveTo(cx, cy - 5); x.lineTo(cx, cy + 5); x.stroke() }
+  if (kind === 'density') { curve(u => box(u, 0.5, 0.08, 0.6)); x.setLineDash([3, 3]); curve(u => box(u, 0.5, 0.2, 0.6), C.star); x.setLineDash([]) }
+  if (kind === 'nasa') { x.fillStyle = C.ice; x.fillRect(8, H * 0.30, (W - 16) * 0.97, 7); x.fillStyle = C.star; x.fillRect(8, H * 0.58, (W - 16) * 0.95, 7) }
+  if (kind === 'trust') { x.strokeStyle = C.star; x.lineWidth = 2; x.beginPath(); x.moveTo(W / 2, 6); x.lineTo(W / 2 + 16, 12); x.lineTo(W / 2 + 14, 32); x.lineTo(W / 2, 46); x.lineTo(W / 2 - 14, 32); x.lineTo(W / 2 - 16, 12); x.closePath(); x.stroke(); x.strokeStyle = C.good; x.beginPath(); x.moveTo(W / 2 - 7, 25); x.lineTo(W / 2 - 1, 31); x.lineTo(W / 2 + 8, 19); x.stroke() }
+}
+
+/* ---------- explore ---------- */
+const VNAME = { candidate: 'candidate', false: 'false alarm', uncertain: 'uncertain' };
+const verdictOf = p => p >= 0.65 ? 'candidate' : p < 0.35 ? 'false' : 'uncertain';
+const pill = v => `<span class="pill ${v}">${VNAME[v]}</span>`;
+SIG.forEach((s, i) => { s.i = i; s.p = s.s.combined; s.v = verdictOf(s.p); s.wrong = (s.v === 'candidate' && !s.label) || (s.v === 'false' && s.label) });
+let filt = 'all', cur = Math.max(0, SIG.findIndex(s => s.mission === 'tess' && s.label && s.p > 0.9));
+const keep = s => filt === 'all' || s.mission === filt || (filt === 'planet' && s.label) || (filt === 'false' && !s.label) || (filt === 'miss' && s.wrong);
+function cards() {
+  const el = $('#cards'); el.innerHTML = '';
+  SIG.filter(keep).forEach(s => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'card'; b.setAttribute('aria-current', s.i === cur ? 'true' : 'false');
+    b.innerHTML = `<div class="row"><span class="mis">${s.mission}</span>${pill(s.v)}</div><canvas></canvas><div class="nm">${s.name}</div><div class="row"><span class="mis">${s.label ? 'label: planet' : 'label: false alarm'}</span><span class="mono num" style="font-size:12px">${s.p.toFixed(2)}</span></div>`;
+    b.addEventListener('click', () => { cur = s.i; cards(); detail(); if (innerWidth < 960) $('#detail').scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'start' }) });
+    el.appendChild(b);
+    requestAnimationFrame(() => plotPts(b.querySelector('canvas'), lin(s.l.length, -4, 4), s.l, { h: 46, r: 1.6, grid: false, color: s.label ? C.ice : C.star, pad: { l: 2, r: 2, t: 3, b: 3 } }));
+  });
+}
+function bar(name, v, main) { return `<div class="bar${main ? ' main' : ''}"><span>${name}</span><span class="track"><span class="fill" style="width:${(v * 100).toFixed(1)}%"></span><span class="mid"></span></span><span class="mono num">${v.toFixed(2)}</span></div>` }
+function f(v, d, u = '') { return v === null || v === undefined || !Number.isFinite(v) ? '—' : v.toFixed(d) + u }
+function detail() {
+  const s = SIG[cur], el = $('#detail');
+  el.innerHTML = `<div class="panel-top" style="margin:0"><span>${s.mission.toUpperCase()} · ${s.star}</span>${pill(s.v)}</div>
+  <h3>${s.name}</h3>
+  <p class="muted" style="font-size:14px">Expert label: <b style="color:var(--ink)">${s.truth}</b>. ${s.wrong ? 'TransitVet got this one wrong.' : s.v === 'uncertain' ? 'TransitVet was unsure and would send this to a human.' : 'TransitVet agrees with the label.'}</p>
+  <div class="views"><div><div class="cap">Whole orbit</div><canvas class="plot" id="dG" height="150"></canvas></div><div><div class="cap">Zoom on the dip</div><canvas class="plot" id="dL" height="150"></canvas></div></div>
+  <div class="bars">${bar('Combined score', s.s.combined, 1)}${bar('Gradient boosting', s.s.gb)}${bar('AstroNet CNN', s.s.cnn)}${bar('Transformer', s.s.tf)}${s.exo !== null && s.exo !== undefined ? bar('NASA ExoMiner++', s.exo) : ''}</div>
+  <div class="facts">
+    <div><div class="k">Period</div><div class="v">${f(s.period, 3, ' d')}</div></div>
+    <div><div class="k">Depth</div><div class="v">${f(s.depth, 0, ' ppm')}</div></div>
+    <div><div class="k">Duration</div><div class="v">${f(s.duration_h, 1, ' h')}</div></div>
+    <div><div class="k">Size</div><div class="v">${f(s.size_re, 1, ' R⊕')}</div></div>
+    <div><div class="k">Odd vs even</div><div class="v">${f(s.odd_even, 1, ' σ')}</div></div>
+    <div><div class="k">Half-phase dip</div><div class="v">${f(s.secondary, 1, ' σ')}</div></div>
+  </div>`;
+  const col = s.label ? C.ice : C.star;
+  requestAnimationFrame(() => { plotPts($('#dG'), lin(s.g.length, -0.5, 0.5), s.g, { h: 150, color: col, r: 1.8, xlab: ['−½ orbit', '+½'] }); plotPts($('#dL'), lin(s.l.length, -4, 4), s.l, { h: 150, color: col, r: 2.2, xlab: ['−4 dur', '+4'] }) });
+}
+document.querySelectorAll('.filters button').forEach(b => b.addEventListener('click', () => {
+  filt = b.dataset.f; document.querySelectorAll('.filters button').forEach(o => o.setAttribute('aria-pressed', o === b ? 'true' : 'false'));
+  const vis = SIG.filter(keep); if (vis.length && !vis.some(s => s.i === cur)) cur = vis[0].i; cards(); detail();
+}));
+
+/* ---------- game ---------- */
+let G;
+function newGame() {
+  let s = Date.now() % 2147483647 || 1; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  const order = SIG.map(x => x.i).sort(() => rnd() - 0.5).slice(0, 10);
+  G = { order, k: 0, you: 0, model: 0, done: false }; round();
+}
+function round() {
+  const s = SIG[G.order[G.k]];
+  $('#gRound').textContent = `Round ${G.k + 1} of ${G.order.length}`; $('#gMis').textContent = s.mission;
+  $('#gYou').textContent = G.you; $('#gModel').textContent = G.model;
+  $('#gReveal').textContent = 'Your call: planet or false alarm?';
+  document.querySelectorAll('#gBtns button').forEach(b => { b.disabled = false; b.hidden = false });
+  $('#gBtns .next')?.remove();
+  requestAnimationFrame(() => { plotPts($('#gG'), lin(s.g.length, -0.5, 0.5), s.g, { h: 170, color: C.ink, r: 1.8, alpha: 0.7 }); plotPts($('#gL'), lin(s.l.length, -4, 4), s.l, { h: 170, color: C.ink, r: 2.2, alpha: 0.8 }) });
+}
+function answer(a) {
+  const s = SIG[G.order[G.k]], right = (+a === 1) === !!s.label, mRight = (s.p >= 0.5) === !!s.label;
+  G.you += right; G.model += mRight;
+  $('#gYou').textContent = G.you; $('#gModel').textContent = G.model;
+  $('#gReveal').innerHTML = `${right ? '<b style="color:var(--good)">Right.</b>' : '<b style="color:var(--bad)">Not quite.</b>'} ${s.name} is labelled <b>${s.truth}</b>. TransitVet's combined score: <b class="num">${s.p.toFixed(2)}</b> (${mRight ? 'model right' : 'model wrong'}).`;
+  document.querySelectorAll('#gBtns button').forEach(b => b.hidden = true);
+  const nx = document.createElement('button'); nx.type = 'button'; nx.className = 'btn primary next';
+  const last = G.k === G.order.length - 1;
+  nx.textContent = last ? `Final: you ${G.you} · TransitVet ${G.model}. Play again` : 'Next signal →';
+  nx.addEventListener('click', () => { if (last) newGame(); else { G.k++; round() } });
+  $('#gBtns').appendChild(nx); nx.focus();
+}
+document.querySelectorAll('#gBtns button[data-a]').forEach(b => b.addEventListener('click', () => answer(b.dataset.a)));
+$('#gNew').addEventListener('click', newGame);
+
+/* ---------- spotlight planet ---------- */
+(function planet() {
+  const cv = $('#planetCv'); let W, H, x, tex;
+  function make() {
+    const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2); W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; x = cv.getContext('2d'); x.setTransform(d, 0, 0, d, 0, 0);
+    // band texture: one row of colours, stretched later
+    const tw = 512; tex = document.createElement('canvas'); tex.width = tw; tex.height = 256; const t = tex.getContext('2d');
+    let s = 99; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    const pal = ['#c9d6ff', '#8fa6f0', '#6a6fd8', '#b7c4ff', '#4b4fb0', '#dfe6ff', '#9a8fe6'];
+    const gr = t.createLinearGradient(0, 0, 0, 256); let y = 0, k = 0;
+    while (y < 1) { gr.addColorStop(Math.min(1, y), pal[k % pal.length]); y += 0.03 + rnd() * 0.07; k += 1 + Math.floor(rnd() * 3) }
+    t.fillStyle = gr; t.fillRect(0, 0, tw, 256);
+    for (let i = 0; i < 260; i++) { t.globalAlpha = 0.05 + rnd() * 0.06; t.strokeStyle = rnd() < 0.5 ? '#eef2ff' : '#2b2a6e'; t.lineWidth = 1 + rnd() * 3; const yy = rnd() * 256, x0 = rnd() * tw, L = 60 + rnd() * 220; t.beginPath(); t.moveTo(x0, yy); for (let q = 0; q <= 12; q++) t.lineTo(x0 + q * L / 12, yy + Math.sin(q * 0.9 + i) * 2.2); t.stroke() }
+    t.globalAlpha = 0.35; t.fillStyle = '#3a3a9a'; t.beginPath(); t.ellipse(330, 170, 26, 11, 0, 0, 6.283); t.fill(); t.globalAlpha = 1;
+  }
+  function draw(time) {
+    x.clearRect(0, 0, W, H);
+    const R = Math.max(H * 0.62, W * 0.26), cx = W > 700 ? W * 0.74 : W * 0.5, cy = W > 700 ? H * 0.5 : R * 0.15;
+    // star glow from the right
+    const g = x.createRadialGradient(W * 1.05, H * 0.15, 10, W * 1.05, H * 0.15, W * 0.7); g.addColorStop(0, 'rgba(170,190,255,0.35)'); g.addColorStop(1, 'rgba(170,190,255,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    x.save(); x.beginPath(); x.arc(cx, cy, R, 0, 6.283); x.clip();
+    const off = RM ? 0 : (time / 60) % 512;
+    x.translate(cx, cy); x.rotate(-0.25); x.translate(-cx, -cy);
+    x.drawImage(tex, off, 0, 256, 256, cx - R, cy - R, R * 2, R * 2);
+    x.drawImage(tex, off - 512, 0, 256, 256, cx - R, cy - R, R * 2, R * 2);
+    x.restore();
+    // shading: lit from the upper right
+    const sh = x.createRadialGradient(cx + R * 0.45, cy - R * 0.4, R * 0.1, cx, cy, R * 1.05); sh.addColorStop(0, 'rgba(220,230,255,0.10)'); sh.addColorStop(0.55, 'rgba(10,8,20,0.15)'); sh.addColorStop(1, 'rgba(4,6,13,0.96)');
+    x.fillStyle = sh; x.beginPath(); x.arc(cx, cy, R, 0, 6.283); x.fill();
+    x.strokeStyle = 'rgba(180,200,255,0.3)'; x.lineWidth = 2; x.beginPath(); x.arc(cx, cy, R, -1.9, 0.6); x.stroke();
+    if (!RM) requestAnimationFrame(draw);
+  }
+  make(); addEventListener('resize', () => { make(); if (RM) draw(0) }); requestAnimationFrame(draw);
+})();
+
+/* ---------- results dot plot ---------- */
+function prPlot() {
+  const cv = $('#prCv'); cv.style.height = '250px';
+  const { x, W, H } = setup(cv, 250);
+  const rows = [
+    ['Kepler · AstroNet CNN alone', 0.947, C.mute], ['Kepler · TransitVet combined', 0.968, C.ice],
+    ['TESS · best single model before', 0.883, C.mute], ['TESS · TransitVet combined', 0.946, C.ice],
+    ['542 TESS · NASA ExoMiner++', 0.973, C.star], ['542 TESS · TransitVet', 0.967, C.ice], ['542 TESS · average of both', 0.981, C.good]];
+  const lo = 0.85, hi = 1.0, L = Math.min(210, W * 0.48), Rr = W - 14, top = 8, rowH = (H - 34) / rows.length;
+  const X = v => L + (v - lo) / (hi - lo) * (Rr - L);
+  x.font = '11px "JetBrains Mono", monospace';
+  for (let v = 0.85; v <= 1.0001; v += 0.05) { x.strokeStyle = C.line; x.beginPath(); x.moveTo(X(v), top); x.lineTo(X(v), H - 22); x.stroke(); x.fillStyle = C.mute; x.textAlign = 'center'; x.fillText(v.toFixed(2), X(v), H - 6) }
+  rows.forEach((r, i) => {
+    const y = top + rowH * (i + 0.5);
+    x.textAlign = 'left'; x.fillStyle = C.ink; x.font = (W < 420 ? '10px' : '11.5px') + ' "Manrope", sans-serif'; x.fillText(r[0], 0, y + 4);
+    x.strokeStyle = 'rgba(146,168,222,0.28)'; x.beginPath(); x.moveTo(X(lo), y); x.lineTo(X(r[1]), y); x.stroke();
+    x.fillStyle = r[2]; x.beginPath(); x.arc(X(r[1]), y, 5.5, 0, 6.283); x.fill();
+    x.fillStyle = C.ink; x.font = '11px "JetBrains Mono", monospace'; x.textAlign = X(r[1]) > Rr - 40 ? 'right' : 'left'; x.fillText(r[1].toFixed(3), X(r[1]) + (x.textAlign === 'right' ? -10 : 10), y - 7);
+    if (i === 1 || i === 3) { x.strokeStyle = C.line; x.beginPath(); x.moveTo(0, y + rowH / 2); x.lineTo(W, y + rowH / 2); x.stroke() }
+  });
+}
+
+/* ---------- run tabs ---------- */
+const TERM = {
+  win: ['transitvet-app (Windows)', `<span class="c"># 1. Unzip transitvet-app.zip, open the folder</span>
+<span class="c"># 2. Double-click once:</span>
+install_windows.bat        <span class="c"># sets up Python packages, runs the tests</span>
+<span class="c"># 3. Every time after that:</span>
+run_dashboard.bat          <span class="c"># opens TransitVet in your browser</span>`],
+  nix: ['transitvet-app (Mac / Linux)', `bash install.sh
+. .venv/bin/activate
+streamlit run app.py       <span class="c"># dashboard on http://localhost:8501</span>`],
+  cli: ['transitvet-app (batch)', `python -m transitvet run "TIC 1333933" "KIC 11442793"
+python -m transitvet run --file stars.txt --out results --workers 4
+<span class="c"># resumable, logged; results/summary.csv ranks every signal</span>
+python -m transitvet test  <span class="c"># run the automated tests</span>`]
+};
+function tab(k) { document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.t === k ? 'true' : 'false')); $('#termName').textContent = TERM[k][0]; $('#termText').innerHTML = TERM[k][1] }
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => tab(b.dataset.t)));
+$('#copyBtn').addEventListener('click', async () => {
+  const txt = $('#termText').innerText.split('\n').map(l => l.replace(/\s+#.*$/, '').trim()).filter(l => l && !l.startsWith('#')).join('\n');
+  try { await navigator.clipboard.writeText(txt); $('#copyBtn').textContent = 'Copied' } catch (e) { const r = document.createRange(); r.selectNodeContents($('#termText')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('#copyBtn').textContent = 'Selected' }
+  setTimeout(() => $('#copyBtn').textContent = 'Copy', 1600);
+});
+
+/* ---------- parallax ---------- */
+if (!RM) { const plates = [...document.querySelectorAll('.plate')], hb = document.querySelector('.hero .plate-bg');
+  let tick = false; const par = () => { tick = false; const vh = innerHeight;
+    plates.forEach(p => { const r = p.getBoundingClientRect(); if (r.bottom < 0 || r.top > vh) return; const k = (r.top + r.height / 2 - vh / 2) / vh; p.style.backgroundPositionY = (50 + k * 18) + '%' });
+    if (hb) hb.style.translate = '0 ' + Math.min(scrollY * 0.25, 300) + 'px' };
+  addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(par) } }, { passive: true }); par() }
+
+/* ---------- boot ---------- */
+function drawAll() { sim(); rawPlot(); fold(); document.querySelectorAll('.check canvas').forEach(glyph); cards(); detail(); prPlot(); round() }
+tab('win');
+G = { order: SIG.map(s => s.i).sort((a, b) => ((a * 37) % 70) - ((b * 37) % 70)).slice(0, 10), k: 0, you: 0, model: 0 };
+drawAll();
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { sim(); rawPlot(); fold(); document.querySelectorAll('.check canvas').forEach(glyph); cards(); detail(); prPlot(); round() }, 150) });
+</script>
