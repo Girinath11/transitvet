@@ -3,7 +3,7 @@ S = json.load(open('signals.json')); P = json.load(open('pimen.json'))
 r = lambda a, d=3: [round(float(v), d) for v in a]
 sig = []
 for s in S:
-    o = {k: s[k] for k in ('mission', 'name', 'star', 'truth', 'label', 'period', 'duration_h', 'depth', 'odd_even', 'secondary', 'n_transits', 'size_re', 'exo')}
+    o = {k: s[k] for k in ('mission', 'name', 'star', 'truth', 'label', 'period', 'duration_h', 'depth', 'odd_even', 'secondary', 'n_transits', 'size_re', 'exo', 'ra', 'dec')}
     if isinstance(o['exo'], list): o['exo'] = o['exo'][0] if o['exo'] else None
     o['s'] = {k: round(v, 3) for k, v in s['s'].items()}; o['g'] = r(s['g'], 3); o['l'] = r(s['l'], 3)
     sig.append(o)

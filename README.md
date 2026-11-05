@@ -14,6 +14,8 @@ TransitVet looks at a star's brightness over time (its **light curve**), finds s
 
 The dashboard opens at http://localhost:8501. The models are in `transitvet/models/`. The two CNN files (199 MB each) are too big for normal GitHub storage, so they are published as a release download; the first run fetches them automatically and checks their SHA-256 checksums (`python -m transitvet.fetch_models` does it by hand).
 
+The four example stars on the dashboard open from saved runs of the full analysis (`transitvet/examples/`, made with `python -m transitvet.examples`), so they show in about 15 seconds; "Run it live" repeats the whole analysis. Each signal also has a **Share this result** button that saves a one-page image of its verdict and report card.
+
 ## Command line (many stars)
 
 ```bash
@@ -45,7 +47,7 @@ print(P.summary_table(result))
 
 ## Tests
 
-There are 31 automated tests in `tests/`, and they cover every step:
+There are 32 automated tests in `tests/`, and they cover every step:
 
 - cleaning and loading
 - the dip search, including two planets, pure noise and an eclipsing binary

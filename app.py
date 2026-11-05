@@ -4,7 +4,7 @@ os.environ.setdefault('TV_LAZY_MODELS', '1')   # load only the networks a star n
 import numpy as np, pandas as pd, streamlit as st
 
 sys.path.insert(0, os.path.dirname(__file__))
-from transitvet import pipeline as P, plots, extras as E, planner as PL, ui_theme as UI, live as LV
+from transitvet import pipeline as P, plots, extras as E, planner as PL, ui_theme as UI, live as LV, examples as EX
 
 st.set_page_config(page_title='TransitVet', page_icon='🪐', layout='wide')
 st.markdown(UI.CSS, unsafe_allow_html=True)
@@ -73,6 +73,17 @@ def analyse(loader, *args):
     return res
 
 
+def replay_saved(blob):
+    """Example stars: replay a saved real run (see transitvet/examples.py) instead of re-downloading and re-searching."""
+    tg = blob['target']
+    with st.status(f'{tg}: replaying a saved run of the full analysis ...', expanded=True) as box:
+        view = LV.LiveView(st, tg + ' · replay')
+        res = EX.replay(view, blob)
+        box.update(label=f"{tg}: {len(res['signals'])} signal(s) · saved run from {blob['made']} (took {blob['events'][-1][0]:.0f} s) · open to replay the steps",
+                   state='complete', expanded=False)
+    return res
+
+
 def show_result(res, key):
     scorer = get_scorer()
     m = res['meta']
@@ -134,6 +145,12 @@ def show_result(res, key):
                                f"{src['sep_from_target_arcsec']:.0f} arcsec from the target.")
             for fl in r['flags']:
                 st.warning(fl)
+            try:
+                card = plots.share_card(m['target'], m['mission'], r, i, P.report_card(r))
+                st.download_button('Share this result (image)', card, f"transitvet_{m['target'].replace(' ', '_')}_signal{i}.png",
+                                   mime='image/png', key=f'card{key}{i}', on_click='ignore')
+            except Exception as e:
+                st.caption(f'Share image unavailable: {e}')
             if r['verdict'] != 'false alarm':
                 st.markdown(f"**Can you observe the next dips?** ({SITE['aperture_cm']:.0f} cm telescope, next {SITE['nights']} nights)")
                 try:
@@ -165,10 +182,10 @@ def show_result(res, key):
 st.markdown(UI.HERO, unsafe_allow_html=True)
 tab1, tab2, tab3 = st.tabs(['One star', 'Batch', 'About the models'])
 
-EXAMPLES = [('TIC 1333933', 'Known hot Jupiter (TOI-7719.01)', '~1 min'),
-            ('TIC 184952758', 'A dip that comes from a nearby star', '~2 min'),
-            ('TIC 261136679', 'Pi Mensae: a small planet, 7 years of data', '~3 min'),
-            ('KIC 11442793', 'Kepler-90: a star with many planets', '~8 min')]
+EXAMPLES = [('TIC 1333933', 'Known hot Jupiter (TOI-7719.01)', 'saved run, ~15 s'),
+            ('TIC 184952758', 'A dip that comes from a nearby star', 'saved run, ~15 s'),
+            ('TIC 261136679', 'Pi Mensae: a small planet, 7 years of data', 'saved run, ~15 s'),
+            ('KIC 11442793', 'Kepler-90: a star with many planets', 'saved run, ~15 s')]
 
 
 def _pick(t):
@@ -190,11 +207,19 @@ with tab1:
             col.caption(f'{what} · {dur}')
     if go and target:
         try:
-            st.session_state['res_one'] = analyse(P.load_star, target, None if mission == 'auto' else mission)
+            live = st.session_state.pop('_live', False)
+            blob = None if live or mission != 'auto' else EX.saved(target)
+            st.session_state['res_saved'] = blob['made'] if blob else None
+            st.session_state['res_one'] = replay_saved(blob) if blob else analyse(P.load_star, target, None if mission == 'auto' else mission)
         except Exception as e:
             st.session_state.pop('res_one', None)
             st.error(f'Could not analyse {target}: {e}. Check the ID (KIC or TIC number) and your internet connection.')
     if 'res_one' in st.session_state:          # kept across reruns, so the result stays while you use other controls
+        if st.session_state.get('res_saved'):
+            a, b = st.columns([4, 1], vertical_alignment='center')
+            a.caption(f"This example opened from a saved run of the full analysis ({st.session_state['res_saved']}), so you don't wait. "
+                      'Same code and models as a live run.')
+            b.button('Run it live', key='run_live', on_click=lambda: st.session_state.update(_live=True, _go=True), width='stretch')
         show_result(st.session_state['res_one'], 'one')
     st.divider()
     up = st.file_uploader('...or upload one light-curve file (Kepler/TESS FITS, or CSV with time and flux columns)',

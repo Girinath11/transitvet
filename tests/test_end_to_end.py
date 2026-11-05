@@ -59,3 +59,25 @@ def test_live_view_draws_offline(scorer, tic1333933):
     v.loaded(segs, meta)
     res = P.run(segs, dict(meta), scorer, progress=lambda m: None, stage=v)
     assert v.active == len(LV.STAGES) - 1 and res['signals']
+
+
+def test_saved_run_replays_and_share_card(scorer, tic1333933, monkeypatch):
+    """A recorded run replays into the live view and gives back the same result; the share image is a PNG."""
+    from transitvet import live as LV, examples as EX, plots
+
+    class _Slot:
+        def markdown(self, *a, **k): pass
+        def pyplot(self, *a, **k): pass
+
+    class _St:
+        def empty(self): return _Slot()
+
+    segs, meta = tic1333933
+    rec = EX.Recorder(); rec.loaded(segs, meta)
+    res = P.run(segs, dict(meta), scorer, progress=lambda m: None, stage=rec)
+    monkeypatch.setattr(EX.time, 'sleep', lambda s: None)
+    back = EX.replay(LV.LiveView(_St(), meta['target']), dict(events=rec.events, res=res), seconds=0.1)
+    assert back is res and [e[1] for e in rec.events][0] == 'loaded'
+    r = res['signals'][0]
+    png = plots.share_card(meta['target'], meta['mission'], r, 1, P.report_card(r))
+    assert png[:8] == b'\x89PNG\r\n\x1a\n' and len(png) > 20000

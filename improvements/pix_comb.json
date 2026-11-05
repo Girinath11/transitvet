@@ -1,0 +1,39 @@
+{
+ "n_val": 259,
+ "n_test": 1000,
+ "pixel_available_test": 0.698,
+ "base": {
+  "test_pr_auc": 0.9457,
+  "test_roc": 0.9391,
+  "planets_kept": "493/542",
+  "false_alarms_caught": "376/458"
+ },
+ "pixel_C0.1": {
+  "val_pr_auc": 0.9521,
+  "test_pr_auc": 0.9496,
+  "test_roc": 0.9457,
+  "coef": [
+   0.883,
+   -0.034,
+   -0.419,
+   -0.075,
+   -0.136
+  ],
+  "same_planets_kept": "493/542",
+  "false_alarms_caught": "383/458"
+ },
+ "pixel_C1.0": {
+  "val_pr_auc": 0.9544,
+  "test_pr_auc": 0.9499,
+  "test_roc": 0.9448,
+  "coef": [
+   0.986,
+   -0.388,
+   -0.962,
+   0.397,
+   -0.432
+  ],
+  "same_planets_kept": "493/542",
+  "false_alarms_caught": "383/458"
+ }
+}

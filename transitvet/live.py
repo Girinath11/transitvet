@@ -77,6 +77,7 @@ class LiveView:
         self.st, self.target, self.t0 = st, target, time.time()
         self.track, self.head, self.plot, self.feed = st.empty(), st.empty(), st.empty(), st.empty()
         self.items, self.last_draw, self.peaks, self.active = [], 0.0, [], 0
+        self.replay_clock = None    # set when a saved run is replayed: shows the original run's elapsed time
         self.set('download', 'Asking NASA MAST for every light curve of this star. Bigger stars with years of data take longer.')
         try:   # bring the live view into sight (same-origin iframe; harmless if it fails)
             import streamlit.components.v1 as components
@@ -86,11 +87,14 @@ class LiveView:
             pass
 
     # ---- helpers
+    def elapsed(self):
+        return self.replay_clock if self.replay_clock is not None else time.time() - self.t0
+
     def set(self, key, say):
         self.active = _IDX[key]
         self.track.markdown(_track(self.active, self.active), unsafe_allow_html=True)
         name = STAGES[self.active][1]
-        self.head.markdown(f'<div class="lv-head"><b>{self.active + 1} · {name}</b><span>{self.target} · {time.time() - self.t0:.0f} s</span></div>'
+        self.head.markdown(f'<div class="lv-head"><b>{self.active + 1} · {name}</b><span>{self.target} · {self.elapsed():.0f} s</span></div>'
                            f'<p class="lv-say">{say}</p>', unsafe_allow_html=True)
 
     def show(self, fig):
@@ -123,10 +127,10 @@ class LiveView:
         ax.set_xlabel('time (days)'); ax.set_ylabel('brightness (ppm)'); ax.set_title('After flattening')
         fig.tight_layout(); self.show(fig); self.t_f = (t, f)
 
-    def _search(self, k, parts, n):
+    def _search(self, k, parts, n, done=None):
         now = time.time()
-        done = sum(len(p[0]) for p in parts)
-        if now - self.last_draw < 0.8 and done < n:
+        done = sum(len(p[0]) for p in parts) if done is None else done   # a saved run stores thinned arrays plus the true count
+        if self.replay_clock is None and now - self.last_draw < 0.8 and done < n:
             return
         self.last_draw = now
         self.set('search', f'Search {k + 1}: sliding a box-shaped dip along the data at every trial orbit and scoring the fit. '
@@ -207,5 +211,5 @@ class LiveView:
             cards.append(f'<div class="lv-v"><div class="k">Signal {i + 1} · {r["period"]:.3f} d</div>'
                          f'<div class="t" style="color:{COL[v]}">{v}</div><div class="k">score {p:.2f}</div></div>')
         self.track.markdown(_track(len(STAGES), len(STAGES)), unsafe_allow_html=True)
-        self.head.markdown(f'<div class="lv-head"><b>Done</b><span>{self.target} · {time.time() - self.t0:.0f} s</span></div>'
+        self.head.markdown(f'<div class="lv-head"><b>Done</b><span>{self.target} · {self.elapsed():.0f} s</span></div>'
                            f'<div class="lv-verdicts">{"".join(cards)}</div>', unsafe_allow_html=True)

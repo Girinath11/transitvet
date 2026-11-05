@@ -1,0 +1,26 @@
+{
+ "tess_only": {
+  "val_pr_auc": 0.9423,
+  "val_roc": 0.9271,
+  "test_pr_auc": 0.9403,
+  "test_roc": 0.9327
+ },
+ "joint": {
+  "val_pr_auc": 0.9282,
+  "val_roc": 0.9031,
+  "test_pr_auc": 0.9403,
+  "test_roc": 0.9253
+ },
+ "joint_w3": {
+  "val_pr_auc": 0.9264,
+  "val_roc": 0.9073,
+  "test_pr_auc": 0.9442,
+  "test_roc": 0.9312
+ },
+ "joint_w10": {
+  "val_pr_auc": 0.9367,
+  "val_roc": 0.9172,
+  "test_pr_auc": 0.9431,
+  "test_roc": 0.9321
+ }
+}

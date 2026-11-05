@@ -149,6 +149,8 @@ input[type=range] { width: 100%; accent-color: var(--star) }
 .check.trust h3 { color: var(--star) }
 
 /* explore */
+.skymap { margin-bottom: 18px } #skymapCv { width: 100%; height: 260px; display: block; cursor: pointer }
+@media (max-width: 700px) { #skymapCv { height: 180px } }
 .filters { display: flex; gap: 6px 18px; flex-wrap: wrap; margin-bottom: 18px; border-bottom: 1px solid var(--line) }
 .filters button { font: inherit; font-size: 15px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--mute); padding: 8px 0; cursor: pointer; margin-bottom: -1px }
 .filters button:hover { color: var(--ink) }
@@ -380,6 +382,11 @@ footer .sig i { color: var(--star); font-style: normal }
       <button type="button" data-f="planet" aria-pressed="false">Labelled planet</button>
       <button type="button" data-f="false" aria-pressed="false">Labelled false alarm</button>
       <button type="button" data-f="miss" aria-pressed="false">Ones we got wrong</button>
+    </div>
+    <div class="panel skymap">
+      <div class="panel-top" style="margin:0 0 6px"><span>Where these stars are in the sky</span><span class="muted" id="skyName"></span></div>
+      <canvas id="skymapCv" aria-label="Sky map of the 70 stars; click a dot to open its signal"></canvas>
+      <p class="muted" style="font-size:13.5px;margin:6px 0 0">Whole sky, flattened. All Kepler stars sit in one small patch near the constellation Cygnus, where Kepler stared for four years. TESS scanned almost the whole sky. Dot colour is TransitVet's verdict: <span style="color:var(--good)">candidate</span>, <span style="color:#ffc861">uncertain</span>, <span style="color:var(--bad)">false alarm</span>. Click a dot to open its signal.</p>
     </div>
     <div class="explore">
       <div class="cards" id="cards"></div>
@@ -678,7 +685,47 @@ function cards() {
     el.appendChild(b);
     requestAnimationFrame(() => plotPts(b.querySelector('canvas'), lin(s.l.length, -4, 4), s.l, { h: 46, r: 1.6, grid: false, color: s.label ? C.ice : C.star, pad: { l: 2, r: 2, t: 3, b: 3 } }));
   });
+  sky();
 }
+/* ---------- sky map (Hammer projection, RA increasing to the left as on the sky) ---------- */
+const VCOL = { candidate: C.good, false: C.bad, uncertain: '#ffc861' };
+function hammer(ra, dec, W, H) {
+  const l = -(ra - 180) * Math.PI / 180, b = dec * Math.PI / 180, z = Math.sqrt(1 + Math.cos(b) * Math.cos(l / 2));
+  const x = 2 * Math.SQRT2 * Math.cos(b) * Math.sin(l / 2) / z, y = Math.SQRT2 * Math.sin(b) / z;
+  const sc = Math.min((W - 16) / (4 * Math.SQRT2), (H - 16) / (2 * Math.SQRT2));
+  return [W / 2 + x * sc, H / 2 - y * sc];
+}
+let skyPts = [];
+function sky() {
+  const cv = $('#skymapCv'); if (!cv) return;
+  const W = cv.clientWidth, H = cv.clientHeight, dpr = devicePixelRatio || 1;
+  cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  g.strokeStyle = C.line; g.lineWidth = 1;
+  for (let dec = -60; dec <= 60; dec += 30) { g.beginPath(); for (let ra = 0; ra <= 360; ra += 4) { const [x, y] = hammer(ra === 360 ? 359.999 : ra, dec, W, H); ra ? g.lineTo(x, y) : g.moveTo(x, y) } g.stroke() }
+  for (let ra = 0; ra < 360; ra += 60) { g.beginPath(); for (let dec = -90; dec <= 90; dec += 3) { const [x, y] = hammer(ra || 0.001, dec, W, H); dec > -90 ? g.lineTo(x, y) : g.moveTo(x, y) } g.stroke() }
+  g.beginPath(); for (let dec = -90; dec <= 90; dec += 2) { const [x, y] = hammer(0.001, dec, W, H); dec > -90 ? g.lineTo(x, y) : g.moveTo(x, y) }
+  for (let dec = 90; dec >= -90; dec -= 2) { const [x, y] = hammer(359.999, dec, W, H); g.lineTo(x, y) } g.strokeStyle = 'rgba(214,222,240,0.28)'; g.stroke();
+  skyPts = [];
+  const order = SIG.slice().sort((a, b) => (a.i === cur) - (b.i === cur));
+  for (const s of order) {
+    if (!Number.isFinite(s.ra)) continue;
+    const [x, y] = hammer(s.ra, s.dec, W, H), on = keep(s);
+    skyPts.push([x, y, s]);
+    g.globalAlpha = on ? 1 : 0.18; g.fillStyle = VCOL[s.v];
+    g.beginPath(); g.arc(x, y, s.i === cur ? 5 : 3.2, 0, 7); g.fill();
+    if (s.i === cur) { g.globalAlpha = 1; g.strokeStyle = C.ink; g.lineWidth = 1.5; g.beginPath(); g.arc(x, y, 9, 0, 7); g.stroke() }
+  }
+  g.globalAlpha = 1;
+  const s = SIG[cur]; $('#skyName').textContent = `${s.name} · RA ${s.ra.toFixed(1)}°, Dec ${s.dec.toFixed(1)}°`;
+}
+(function () {
+  const cv = $('#skymapCv'); if (!cv) return;
+  const near = e => { const r = cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top; let best = null, bd = 196;
+    for (const [x, y, s] of skyPts) { if (!keep(s)) continue; const d = (x - mx) ** 2 + (y - my) ** 2; if (d < bd) { bd = d; best = s } } return best };
+  cv.addEventListener('click', e => { const s = near(e); if (s) { cur = s.i; cards(); detail() } });
+  cv.addEventListener('mousemove', e => { const s = near(e); cv.title = s ? `${s.name} (${s.star}) · ${VNAME[s.v]}` : '' });
+  addEventListener('resize', () => sky());
+})();
 function bar(name, v, main) { return `<div class="bar${main ? ' main' : ''}"><span>${name}</span><span class="track"><span class="fill" style="width:${(v * 100).toFixed(1)}%"></span><span class="mid"></span></span><span class="mono num">${v.toFixed(2)}</span></div>` }
 function f(v, d, u = '') { return v === null || v === undefined || !Number.isFinite(v) ? '—' : v.toFixed(d) + u }
 function detail() {

@@ -66,3 +66,49 @@ def pixel_figure(rec):
     fig.suptitle(f"Segment {b['label']} · dip seen in the pixels at SNR {b['diff_snr']:.0f}", fontsize=9)
     fig.tight_layout()
     return fig
+
+
+SITE_URL = 'girinath11.github.io/transitvet'
+
+
+def share_card(target, mission, rec, i, checks):
+    """One shareable image (1200 x 675 px) for one signal: verdict, key numbers, the two folded views and the report card.
+    checks = pipeline.report_card(rec). Returns PNG bytes."""
+    import io
+    v = rec['verdict']; c = COL[v]
+    fig = plt.figure(figsize=(12, 6.75), dpi=100, facecolor=BG)
+    t1 = fig.text(0.04, 0.92, 'Transit', fontsize=17, weight='bold', color=INK)
+    bb = t1.get_window_extent(renderer=fig.canvas.get_renderer()).transformed(fig.transFigure.inverted())
+    fig.text(bb.x1, 0.92, 'Vet', fontsize=17, weight='bold', color=STAR)
+    fig.text(0.96, 0.92, f'{target} · {mission.upper()} · signal {i}', fontsize=13, color=MUTE, ha='right')
+    fig.add_artist(matplotlib.lines.Line2D([0.04, 0.96], [0.895, 0.895], color=LINE, lw=1))
+    fig.text(0.04, 0.80, {'candidate': 'Planet candidate', 'false alarm': 'False alarm', 'uncertain': 'Uncertain'}[v],
+             fontsize=30, weight='bold', color=c)
+    p = rec['scores'].get(rec['main_model'], np.nan)
+    ft = rec.get('fit') or {}
+    rp = ft.get('planet_radius_re', rec.get('rp_est_re', np.nan))
+    nums = [('score', f'{p:.2f}'), ('orbit', f"{rec['period']:.3f} d"), ('dip depth', f"{rec['depth_ppm']:.0f} ppm"),
+            ('size (Earth = 1)', f'{rp:.1f}' if rp == rp else '?'), ('dips seen', str(rec.get('n_transits', '?')))]
+    for k, (lab, val) in enumerate(nums):
+        x = 0.04 + k * 0.102
+        fig.text(x, 0.71, val, fontsize=14, weight='bold', color=INK)
+        fig.text(x, 0.675, lab, fontsize=9.5, color=MUTE)
+    a1 = fig.add_axes([0.04, 0.12, 0.30, 0.46]); a2 = fig.add_axes([0.36, 0.12, 0.15, 0.46])
+    a1.plot(np.linspace(-0.5, 0.5, len(rec['global_astronet'])), rec['global_astronet'], '.', ms=1.4, color=c)
+    a2.plot(np.linspace(-4, 4, len(rec['local_astronet'])), rec['local_astronet'], '.', ms=2.6, color=c)
+    a1.set_title('Whole orbit, folded', fontsize=10, loc='left'); a2.set_title('Close-up of the dip', fontsize=10, loc='left')
+    for a in (a1, a2):
+        a.set_xticks([]); a.set_yticks([]); a.set_facecolor(PANEL)
+    fig.text(0.56, 0.80, 'Report card', fontsize=13, weight='bold', color=INK)
+    mark = {'pass': ('✓', COL['candidate']), 'warn': ('!', COL['uncertain']), 'n/a': ('–', MUTE)}
+    y = 0.74
+    for check, found, status in checks[:11]:
+        s, col = mark[status]
+        fig.text(0.56, y, s, fontsize=12, weight='bold', color=col)
+        fig.text(0.585, y, check, fontsize=10.5, color=INK)
+        fig.text(0.585, y - 0.028, (found[:62] + '…') if len(found) > 63 else found, fontsize=8.5, color=MUTE)
+        y -= 0.058
+    fig.text(0.04, 0.04, 'A planet candidate is not a confirmed planet: it needs more observations.', fontsize=9.5, color=MUTE)
+    fig.text(0.96, 0.04, SITE_URL, fontsize=10, color=ICE, ha='right')
+    buf = io.BytesIO(); fig.savefig(buf, format='png', facecolor=BG); plt.close(fig)
+    return buf.getvalue()
