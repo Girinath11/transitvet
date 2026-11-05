@@ -1,5 +1,5 @@
 """TransitVet dashboard.  Run:  streamlit run app.py"""
-import json, os, sys, io, zipfile
+import gc, json, os, sys, io, zipfile
 os.environ.setdefault('TV_LAZY_MODELS', '1')   # load only the networks a star needs (less memory, e.g. on Streamlit Cloud)
 import numpy as np, pandas as pd, streamlit as st
 
@@ -49,6 +49,11 @@ def get_scorer():
     return P.Scorer()
 
 
+def _show(fig, **kw):
+    """Draw a matplotlib figure, then free it (Streamlit redraws on every click; open figures would pile up in memory)."""
+    st.pyplot(fig, **kw); plots.plt.close(fig)
+
+
 def analyse(loader, *args):
     with st.status(f'Analysing {args[0]} ... watch each step below', expanded=True) as box:
         view = LV.LiveView(st, args[0])
@@ -64,6 +69,7 @@ def analyse(loader, *args):
         view.loaded(segs, meta)
         res = P.run(segs, meta, get_scorer(), progress, stage=view)
         box.update(label=f"{meta['target']}: {len(res['signals'])} signal(s) in {res['seconds']:.0f} s · open to replay the steps", state='complete', expanded=False)
+    gc.collect()
     return res
 
 
@@ -80,7 +86,7 @@ def show_result(res, key):
                    f"light from neighbours {fmt(100 * stp.get('contratio', float('nan')), '.1f', '%')} (TESS Input Catalog)")
     if not res['signals']:
         st.info('No repeating dip strong enough was found (BLS signal-to-noise below 7.1).')
-        st.pyplot(plots.lightcurve_figure(res)); return None
+        _show(plots.lightcurve_figure(res)); return None
     table = P.summary_table(res)
     c = st.columns(3)
     for col, v in zip(c, ['candidate', 'uncertain', 'false alarm']):
@@ -88,7 +94,7 @@ def show_result(res, key):
     st.dataframe(table[['signal', 'verdict', 'trust_check_95', 'p_main', 'catalogue', 'catalogue_name', 'period_days', 'planet_size_earth_radii',
                         'duration_hours', 'depth_ppm', 'nasa_exominer_pp', 'p_gradient_boosting', 'p_cnn', 'p_transformer', 'light_shift_sigma',
                         'source_offset_arcsec', 'pixel_offset_arcsec', 'pixel_sigma', 'flags']], hide_index=True, width='stretch')
-    st.pyplot(plots.lightcurve_figure(res))
+    _show(plots.lightcurve_figure(res))
     for i, r in enumerate(res['signals'], 1):
         with st.expander(f"Signal {i}: {r['verdict'].upper()} · period {r['period']:.4f} d · depth {r['depth_ppm']:.0f} ppm", expanded=i == 1):
             kn = r.get('known', {})
@@ -102,7 +108,7 @@ def show_result(res, key):
                              + (f"; {exm['note']}" if exm['note'] else '') + '. Not used in our score.')
                 else:
                     st.caption('NASA ExoMiner++: ' + exm['note'])
-            st.pyplot(plots.signal_figure(r, i))
+            _show(plots.signal_figure(r, i))
             s = r['scores']
             st.write(f"Chance of being a planet candidate (calibrated): **{P.MODEL_NAMES[r['main_model']]} {s[r['main_model']]:.2f}** "
                      f"(main model for {m['mission'].upper()}) · " + ' · '.join(f"{P.MODEL_NAMES[k]} {v:.2f}" for k, v in s.items() if k != r['main_model']))
@@ -121,7 +127,7 @@ def show_result(res, key):
             pf = plots.pixel_figure(r)
             if pf is not None:
                 st.markdown('**Where does the dip come from?** (difference imaging)')
-                st.pyplot(pf, width='content')
+                _show(pf, width='content')
                 src = r.get('px_source') or {}
                 if src.get('tic'):
                     st.caption(f"Closest catalogue star to the dip's source: TIC {src['tic']} (TESS magnitude {src['tmag']:.1f}), "

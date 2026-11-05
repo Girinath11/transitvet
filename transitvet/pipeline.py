@@ -161,10 +161,27 @@ class _R:   # minimal stand-in for astropy's BLS result, merged from chunks
         (self.period, self.power, self.depth, self.depth_snr, self.duration, self.transit_time) = [np.concatenate(x) for x in zip(*parts)]
 
 
+def cpus():
+    """CPU cores this process may really use: respects container limits (cgroup quota, CPU affinity),
+    which os.cpu_count() ignores. Hosted dashboards often see the whole machine's cores but get only one or two."""
+    n = os.cpu_count() or 1
+    try:
+        n = min(n, len(os.sched_getaffinity(0)))
+    except (AttributeError, OSError):
+        pass
+    try:
+        q, per = open('/sys/fs/cgroup/cpu.max').read().split()[:2]
+        if q != 'max':
+            n = min(n, max(1, int(-(-int(q) // int(per)))))
+    except (OSError, ValueError):
+        pass
+    return max(1, n)
+
+
 def _power(t, f, sd, periods, workers=None, on_chunk=None):
     """BLS power, split over CPU cores by period chunks (same result as one call).
     on_chunk(parts_so_far) is called after each chunk, for the live view (results are identical)."""
-    workers = workers or int(os.environ.get('TV_BLS_WORKERS', max(1, min(8, os.cpu_count() or 1))))
+    workers = workers or int(os.environ.get('TV_BLS_WORKERS', max(1, min(8, cpus()))))
     if on_chunk is None and (workers == 1 or periods.size < 20000):
         return _R([_bls_chunk((t, f, sd, periods))])
     chunks = np.array_split(periods, max(8, workers * 2))
@@ -267,7 +284,7 @@ class Scorer:
     def __init__(self, model_dir=os.path.join(os.path.dirname(__file__), 'models')):
         import joblib, torch
         from . import tv_models as M
-        torch.set_num_threads(max(1, min(4, os.cpu_count() or 1)))
+        torch.set_num_threads(max(1, min(4, cpus())))
         self.M, self.torch = M, torch
         from .fetch_models import ensure
         ensure(model_dir)                 # the two big CNN files come from the GitHub release on first use
@@ -291,8 +308,14 @@ class Scorer:
             if (m, kind) in self.nets:
                 continue
             nets = []
-            for sd in self.torch.load(os.path.join(self.model_dir, f'{m}_{kind}.pt')):
-                net = cls(); net.load_state_dict(sd); net.eval(); nets.append(net)
+            path = os.path.join(self.model_dir, f'{m}_{kind}.pt')
+            try:      # memory-map the weights: they stay in the file instead of being copied into RAM twice
+                sds, assign = self.torch.load(path, map_location='cpu', mmap=True, weights_only=True), True
+            except (TypeError, RuntimeError):
+                sds, assign = self.torch.load(path, map_location='cpu'), False
+            for sd in sds:
+                net = cls(); net.load_state_dict(sd, assign=assign) if assign else net.load_state_dict(sd); net.eval(); nets.append(net)
+            del sds
             self.nets[(m, kind)] = nets
 
     def feature_row(self, rec):
