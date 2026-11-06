@@ -95,6 +95,11 @@ def replay(view, blob, seconds=REPLAY_SECONDS):
         view.replay_clock = t
         if name == 'loaded':
             view.loaded(d['segs'], d['meta'])
+        elif name == 'search':
+            try:
+                view(name, **d)
+            except TypeError:       # an older live view (module not reloaded yet) has no 'done' argument
+                view(name, **{k: v for k, v in d.items() if k != 'done'})
         else:
             view(name, **d)
     return blob['res']
