@@ -262,7 +262,7 @@ class LiveView:
         self.head.markdown(f'<div class="lv-head"><b>Done</b><span>{self.target} · {self.elapsed():.0f} s</span></div>'
                            f'<div class="lv-verdicts">{"".join(cards)}</div>', unsafe_allow_html=True)
 
-    _NAMES = {'gb': 'Gradient boosting', 'cnn': 'AstroNet CNN', 'tf': 'Transformer', 'mamba': 'Mamba', 'combined': 'Combined'}
+    _NAMES = {'gb': 'Gradient boosting', 'cnn': 'AstroNet CNN', 'tf': 'Transformer', 'mamba': 'Mamba-2', 'combined': 'Combined'}
 
     def _model_panel(self, signals):
         """What each model said, how they were joined, and what the guarantee decided: the full path to the verdict."""

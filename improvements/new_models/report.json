@@ -1,0 +1,30 @@
+{
+ "kepler": {
+  "test_pr_auc_combined": 0.9632,
+  "test_pr_auc_mamba": 0.9341,
+  "val_pr_auc_combined": 0.9674,
+  "coef_gb_mamba_tf": [
+   0.542,
+   0.352,
+   0.14
+  ],
+  "conformal95_coverage_planets": 0.9576,
+  "conformal95_coverage_false": 0.9531,
+  "conformal95_needs_human": 18,
+  "n_test": 2373
+ },
+ "tess": {
+  "test_pr_auc_combined": 0.946,
+  "test_pr_auc_mamba": 0.8614,
+  "val_pr_auc_combined": 0.9464,
+  "coef_gb_mamba_tf": [
+   0.912,
+   0.246,
+   -0.056
+  ],
+  "conformal95_coverage_planets": 0.9834,
+  "conformal95_coverage_false": 0.9847,
+  "conformal95_needs_human": 508,
+  "n_test": 1000
+ }
+}

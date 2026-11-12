@@ -303,8 +303,19 @@ class Scorer:
             if not lazy:
                 self._load_nets(m)
 
+    NET_CLASSES = {'cnn': lambda M: M.AstroNet(), 'tf': lambda M: M.PatchTransformer(), 'mamba': lambda M: M.PatchMamba(d=64, drop=0.2)}
+
+    @property
+    def net_kinds(self):          # which neural models this model set uses (v3: Mamba + Transformer; older sets: CNN + Transformer)
+        return self.manifest.get('nets', ['cnn', 'tf'])
+
+    @property
+    def combine_kinds(self):
+        return self.manifest.get('combine', ['gb', 'cnn', 'tf'])
+
     def _load_nets(self, m):
-        for kind, cls in (('cnn', self.M.AstroNet), ('tf', self.M.PatchTransformer)):
+        for kind in self.net_kinds:
+            cls = lambda kind=kind: self.NET_CLASSES[kind](self.M)
             if (m, kind) in self.nets:
                 continue
             nets = []
@@ -332,11 +343,11 @@ class Scorer:
         self._load_nets(mission)
         raw = {'gb': np.mean([m.predict_proba(X)[:, 1] for m in self.gb[mission]], 0)}
         with torch.no_grad():
-            for kind in ('cnn', 'tf'):
+            for kind in self.net_kinds:
                 raw[kind] = np.mean([torch.sigmoid(n(g, l)).numpy() for n in self.nets[(mission, kind)]], 0)
         out = {k: self.cal[f'{mission}_{k}'].predict(v) for k, v in raw.items()}
         if mission in self.comb:      # combined score: logistic regression on the three models' log-odds
-            z = np.column_stack([np.log(np.clip(raw[k], 1e-4, 1 - 1e-4) / (1 - np.clip(raw[k], 1e-4, 1 - 1e-4))) for k in ('gb', 'cnn', 'tf')])
+            z = np.column_stack([np.log(np.clip(raw[k], 1e-4, 1 - 1e-4) / (1 - np.clip(raw[k], 1e-4, 1 - 1e-4))) for k in self.combine_kinds])
             out['combined'] = self.comb[mission].predict_proba(z)[:, 1]
             if mission in self.conf:   # separate combiner used only for the conformal guarantee
                 out['_conformal_p'] = self.conf[mission]['combiner'].predict_proba(z)[:, 1]
@@ -346,7 +357,7 @@ class Scorer:
 # best model per mission in our own tests (E2 for Kepler, E4 for TESS)
 MAIN_MODEL_V1 = {'kepler': 'cnn', 'tess': 'gb'}
 MAIN_MODEL = {'kepler': 'combined', 'tess': 'combined'}    # v2 (3 Nov 2026), if the combiner file is present
-MODEL_NAMES = {'gb': 'Gradient boosting', 'cnn': 'AstroNet CNN', 'tf': 'Transformer', 'combined': 'Combined score'}
+MODEL_NAMES = {'gb': 'Gradient boosting', 'cnn': 'AstroNet CNN', 'tf': 'Transformer', 'mamba': 'Mamba-2', 'combined': 'Combined score'}
 
 
 CONFORMAL_ALPHA = float(os.environ.get('TV_CONFORMAL_ALPHA', 0.05))
@@ -528,8 +539,8 @@ def summary_table(result):
         rows.append({'target': result['meta']['target'], 'mission': result['meta']['mission'], 'signal': i + 1,
                      'verdict': r['verdict'], 'main_model': MODEL_NAMES[r['main_model']],
                      'p_main': round(r['scores'][r['main_model']], 3),
-                     'p_gradient_boosting': round(r['scores']['gb'], 3), 'p_cnn': round(r['scores']['cnn'], 3),
-                     'p_transformer': round(r['scores']['tf'], 3),
+                     'p_gradient_boosting': round(r['scores']['gb'], 3), 'p_cnn': round(r['scores'].get('cnn', np.nan), 3),
+                     'p_mamba': round(r['scores'].get('mamba', np.nan), 3), 'p_transformer': round(r['scores']['tf'], 3),
                      'p_combined': round(r['scores'].get('combined', np.nan), 3),
                      'trust_check_95': (r.get('triage') or {}).get('call', ''),
                      'period_days': round(r['period'], 5), 't0': round(r['t0'], 5), 'duration_hours': round(24 * r['duration'], 2),

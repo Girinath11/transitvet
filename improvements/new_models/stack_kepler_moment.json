@@ -1,0 +1,27 @@
+{
+ "current: gb+cnn+tf": {
+  "test_pr_auc": 0.9675,
+  "coef": [
+   0.537,
+   0.499,
+   0.052
+  ]
+ },
+ "with extra: gb+cnn+tf+moment": {
+  "test_pr_auc": 0.9674,
+  "coef": [
+   0.545,
+   0.518,
+   0.079,
+   -0.062
+  ]
+ },
+ "single gb": 0.9474,
+ "single cnn": 0.9467,
+ "single tf": 0.9321,
+ "single moment": 0.9179,
+ "gain_CI95": [
+  -0.001,
+  0.0008
+ ]
+}

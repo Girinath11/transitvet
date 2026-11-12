@@ -56,3 +56,52 @@ class PatchTransformer(nn.Module):
         width = torch.cat([torch.full((s.ng,), G_PATCH), torch.full((n - s.ng,), L_PATCH)])
         err = ((rec - tgt) ** 2).sum(-1) / width
         return (err * mask).sum() / mask.sum().clamp(min=1)
+
+
+# ---------------------------------------------------------------- Mamba-2 (state-space duality, Dao & Gu 2024)
+class Mamba2Block(nn.Module):
+    """A Mamba-2 block in plain PyTorch. The selective state-space scan is computed in its matrix ("SSD") form,
+    y_t = sum_{s<=t} exp(sum_{s<j<=t} dt_j A) (C_t . B_s) dt_s x_s, which is exact and fast for short sequences.
+    Run in both directions over the patch sequence, because a folded light curve has no arrow of time."""
+    def __init__(s, d, d_state=32, expand=2, headdim=32, d_conv=4):
+        super().__init__()
+        di = expand * d; s.h, s.p, s.n = di // headdim, headdim, d_state; s.di = di
+        s.norm = nn.LayerNorm(d)
+        s.inp = nn.Linear(d, 2 * di + 2 * d_state + s.h)          # x, z, B, C, dt
+        s.conv = nn.Conv1d(di + 2 * d_state, di + 2 * d_state, d_conv, groups=di + 2 * d_state, padding=d_conv - 1)
+        s.A_log = nn.Parameter(torch.log(torch.empty(s.h).uniform_(1, 16))); s.D = nn.Parameter(torch.ones(s.h))
+        s.dt_bias = nn.Parameter(torch.log(torch.expm1(torch.empty(s.h).uniform_(1e-3, 1e-1))))
+        s.gn = nn.LayerNorm(di); s.out = nn.Linear(2 * di, d)
+    def _ssd(s, u):
+        B_, T, _ = u.shape
+        x, z, xbc_dt = torch.split(s.inp(u), [s.di, s.di, 2 * s.n + s.h], -1)
+        xbc, dt = torch.split(torch.cat([x, xbc_dt], -1), [s.di + 2 * s.n, s.h], -1)
+        xbc = F.silu(s.conv(xbc.transpose(1, 2))[..., :T].transpose(1, 2))
+        x, Bm, Cm = torch.split(xbc, [s.di, s.n, s.n], -1)
+        dt = F.softplus(dt + s.dt_bias)                                # (B, T, H)
+        a = dt * -torch.exp(s.A_log)                                   # log decay per step, (B, T, H)
+        cs = torch.cumsum(a, 1).transpose(1, 2)                        # (B, H, T)
+        seg = cs[..., :, None] - cs[..., None, :]                      # sum over (s, t]
+        Lm = torch.exp(seg.masked_fill(~torch.ones(T, T, dtype=torch.bool, device=u.device).tril(), float('-inf')))
+        xh = x.view(B_, T, s.h, s.p)
+        y = torch.einsum('bhts,bts,bsh,bshp->bthp', Lm, Cm @ Bm.transpose(1, 2), dt, xh) + xh * s.D[:, None]
+        return s.gn(y.reshape(B_, T, s.di)) * F.silu(z)
+    def forward(s, u):
+        v = s.norm(u)
+        return u + s.out(torch.cat([s._ssd(v), s._ssd(v.flip(1)).flip(1)], -1))
+
+
+class PatchMamba(nn.Module):
+    """Same patch input as PatchTransformer (63 global + 26 local patches), Mamba-2 blocks instead of attention."""
+    def __init__(s, d=128, layers=4, d_state=32, drop=0.1):
+        super().__init__()
+        s.eg, s.el = nn.Linear(G_PATCH, d), nn.Linear(L_PATCH, d)
+        n = G_PAD // G_PATCH + L_PAD // L_PATCH
+        s.pos = nn.Parameter(torch.randn(1, n, d) * 0.02); s.typ = nn.Parameter(torch.randn(2, d) * 0.02)
+        s.blocks = nn.ModuleList([Mamba2Block(d, d_state) for _ in range(layers)])
+        s.drop = nn.Dropout(drop); s.norm = nn.LayerNorm(d); s.head = nn.Linear(d, 1)
+    def forward(s, g, l):
+        pg, pl = patches(g, l)
+        x = torch.cat([s.eg(pg) + s.typ[0], s.el(pl) + s.typ[1]], 1) + s.pos
+        for b in s.blocks: x = s.drop(b(x))
+        return s.head(s.norm(x).mean(1))[:, 0]

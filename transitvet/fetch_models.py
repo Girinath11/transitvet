@@ -1,6 +1,7 @@
-"""The two CNN model files (199 MB each) are too big for normal GitHub storage, so they are published
-as release downloads. On first use they are downloaded once into transitvet/models and checked."""
+"""Model files too big for normal GitHub storage (the two CNN files, 199 MB each) are published as release
+downloads. On first use, the ones the current model set needs (manifest.json "nets") are downloaded once and checked."""
 import hashlib
+import json
 import os
 import sys
 import urllib.request
@@ -22,7 +23,13 @@ def _sha(path):
 
 def ensure(model_dir):
     """Download any missing big model file; refuse a file whose checksum does not match."""
+    try:
+        nets = json.load(open(os.path.join(model_dir, 'manifest.json'))).get('nets', ['cnn', 'tf'])
+    except (OSError, ValueError):
+        nets = ['cnn', 'tf']
     for name, sha in FILES.items():
+        if name.split('_', 1)[1][:-3] not in nets:
+            continue
         path = os.path.join(model_dir, name)
         if os.path.exists(path):
             continue

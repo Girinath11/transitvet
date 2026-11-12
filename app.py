@@ -102,9 +102,11 @@ def show_result(res, key):
     c = st.columns(3)
     for col, v in zip(c, ['candidate', 'uncertain', 'false alarm']):
         col.metric({'candidate': 'Candidates', 'uncertain': 'Uncertain', 'false alarm': 'False alarms'}[v], int((table.verdict == v).sum()))
-    st.dataframe(table[['signal', 'verdict', 'trust_check_95', 'p_main', 'catalogue', 'catalogue_name', 'period_days', 'planet_size_earth_radii',
-                        'duration_hours', 'depth_ppm', 'nasa_exominer_pp', 'p_gradient_boosting', 'p_cnn', 'p_transformer', 'light_shift_sigma',
-                        'source_offset_arcsec', 'pixel_offset_arcsec', 'pixel_sigma', 'flags']], hide_index=True, width='stretch')
+    cols = ['signal', 'verdict', 'trust_check_95', 'p_main', 'catalogue', 'catalogue_name', 'period_days', 'planet_size_earth_radii',
+            'duration_hours', 'depth_ppm', 'nasa_exominer_pp', 'p_gradient_boosting', 'p_cnn', 'p_mamba', 'p_transformer', 'light_shift_sigma',
+            'source_offset_arcsec', 'pixel_offset_arcsec', 'pixel_sigma', 'flags']
+    cols = [k for k in cols if k in table and not (k.startswith('p_') and table[k].isna().all())]   # only the models this model set uses
+    st.dataframe(table[cols], hide_index=True, width='stretch')
     _show(plots.lightcurve_figure(res))
     for i, r in enumerate(res['signals'], 1):
         with st.expander(f"Signal {i}: {r['verdict'].upper()} · period {r['period']:.4f} d · depth {r['depth_ppm']:.0f} ppm", expanded=i == 1):

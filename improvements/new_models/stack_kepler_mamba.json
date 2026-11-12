@@ -1,0 +1,49 @@
+{
+ "gb+cnn+tf": {
+  "test_pr_auc": 0.9675,
+  "coef": [
+   0.537,
+   0.499,
+   0.052
+  ]
+ },
+ "gb+cnn+tf+mamba": {
+  "test_pr_auc": 0.9675,
+  "coef": [
+   0.537,
+   0.496,
+   0.049,
+   0.005
+  ]
+ },
+ "gb+mamba+tf": {
+  "test_pr_auc": 0.9631,
+  "coef": [
+   0.542,
+   0.352,
+   0.14
+  ]
+ },
+ "gb+mamba": {
+  "test_pr_auc": 0.9625,
+  "coef": [
+   0.552,
+   0.462
+  ]
+ },
+ "gb+cnn": {
+  "test_pr_auc": 0.9674,
+  "coef": [
+   0.547,
+   0.534
+  ]
+ },
+ "single gb": 0.9474,
+ "single cnn": 0.9467,
+ "single tf": 0.9321,
+ "single mamba": 0.9341,
+ "gain_CI95": [
+  -0.0004,
+  0.0001
+ ]
+}
