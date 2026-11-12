@@ -275,7 +275,7 @@ footer .sig i { color: var(--star); font-style: normal }
     <div class="facts-line">
       <div><b>15,737</b><span>Kepler signals with expert labels to learn from</span></div>
       <div><b>6,910</b><span>TESS objects of interest with 2-minute data</span></div>
-      <div><b>0.968</b><span>PR-AUC on Kepler stars it never saw in training</span></div>
+      <div><b>0.963</b><span>PR-AUC on Kepler stars it never saw in training</span></div>
       <div><b>95.8%</b><span>of real Kepler planets kept at the 95% setting</span></div>
     </div>
   </div>
@@ -347,7 +347,7 @@ footer .sig i { color: var(--star); font-style: normal }
       <li><span class="n">3</span><div><h3>Flatten the star</h3><p>Stars drift in brightness on their own. A biweight filter and a spline take out the slow drift so only short dips remain.</p></div></li>
       <li><span class="n">4</span><div><h3>Search</h3><p>Box Least Squares tries 20,000 to 150,000 possible orbits and keeps up to three dips that repeat.</p></div></li>
       <li><span class="n">5</span><div><h3>Fold</h3><p>Stack every orbit on top of the others. We keep two pictures: the whole orbit, and a close-up of the dip.</p></div></li>
-      <li><span class="n">6</span><div><h3>Score</h3><p>Three models look at it: gradient boosting on measured numbers, the AstroNet CNN, and a Transformer. Their scores are joined into one.</p></div></li>
+      <li><span class="n">6</span><div><h3>Score</h3><p>Three models look at it: gradient boosting on measured numbers, a Mamba-2 state-space model, and a Transformer. Their scores are joined into one.</p></div></li>
       <li><span class="n">7</span><div><h3>Decide</h3><p>Candidate, false alarm, or "a person should look at this". Each one comes with a report card in plain words and times to observe the next dip.</p></div></li>
     </ol>
 
@@ -466,8 +466,8 @@ footer .sig i { color: var(--star); font-style: normal }
         <div class="tbl"><table>
           <thead><tr><th>Mission</th><th class="n">Planets kept</th><th class="n">Keep</th><th class="n">Drop</th><th class="n">Ask a person</th></tr></thead>
           <tbody>
-            <tr><td>Kepler · 2,373</td><td class="n">95.8%</td><td class="n">559</td><td class="n">1,792</td><td class="n">22</td></tr>
-            <tr><td>TESS · 1,000</td><td class="n">97.8%</td><td class="n">284</td><td class="n">268</td><td class="n">448</td></tr>
+            <tr><td>Kepler · 2,373</td><td class="n">95.8%</td><td class="n">569</td><td class="n">1,786</td><td class="n">18</td></tr>
+            <tr><td>TESS · 1,000</td><td class="n">98.3%</td><td class="n">247</td><td class="n">245</td><td class="n">508</td></tr>
           </tbody>
         </table></div>
         <p class="src">This uses split conformal prediction, with the cut-offs set on half of the validation stars. On TESS, almost half the signals end up as "ask a person". We'd rather say that than guess.</p>
@@ -734,7 +734,7 @@ function detail() {
   <h3>${s.name}</h3>
   <p class="muted" style="font-size:14px">Expert label: <b style="color:var(--ink)">${s.truth}</b>. ${s.wrong ? 'TransitVet got this one wrong.' : s.v === 'uncertain' ? 'TransitVet was unsure and would send this to a human.' : 'TransitVet agrees with the label.'}</p>
   <div class="views"><div><div class="cap">Whole orbit</div><canvas class="plot" id="dG" height="150"></canvas></div><div><div class="cap">Zoom on the dip</div><canvas class="plot" id="dL" height="150"></canvas></div></div>
-  <div class="bars">${bar('Combined score', s.s.combined, 1)}${bar('Gradient boosting', s.s.gb)}${bar('AstroNet CNN', s.s.cnn)}${bar('Transformer', s.s.tf)}${s.exo !== null && s.exo !== undefined ? bar('NASA ExoMiner++', s.exo) : ''}</div>
+  <div class="bars">${bar('Combined score', s.s.combined, 1)}${bar('Gradient boosting', s.s.gb)}${bar('Mamba-2', s.s.mamba)}${bar('Transformer', s.s.tf)}${s.exo !== null && s.exo !== undefined ? bar('NASA ExoMiner++', s.exo) : ''}</div>
   <div class="facts">
     <div><div class="k">Period</div><div class="v">${f(s.period, 3, ' d')}</div></div>
     <div><div class="k">Depth</div><div class="v">${f(s.depth, 0, ' ppm')}</div></div>
@@ -822,9 +822,9 @@ function prPlot() {
   const cv = $('#prCv'); cv.style.height = '250px';
   const { x, W, H } = setup(cv, 250);
   const rows = [
-    ['Kepler · AstroNet CNN alone', 0.947, C.mute], ['Kepler · TransitVet combined', 0.968, C.ice],
+    ['Kepler · Mamba-2 alone', 0.934, C.mute], ['Kepler · TransitVet combined', 0.963, C.ice],
     ['TESS · best single model before', 0.883, C.mute], ['TESS · TransitVet combined', 0.946, C.ice],
-    ['542 TESS · NASA ExoMiner++', 0.973, C.star], ['542 TESS · TransitVet', 0.967, C.ice], ['542 TESS · average of both', 0.981, C.good]];
+    ['542 TESS · NASA ExoMiner++', 0.973, C.star], ['542 TESS · TransitVet', 0.966, C.ice], ['542 TESS · average of both', 0.981, C.good]];
   const lo = 0.85, hi = 1.0, L = Math.min(210, W * 0.48), Rr = W - 14, top = 8, rowH = (H - 34) / rows.length;
   const X = v => L + (v - lo) / (hi - lo) * (Rr - L);
   x.font = '11px "JetBrains Mono", monospace';

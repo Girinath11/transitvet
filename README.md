@@ -12,7 +12,7 @@ TransitVet looks at a star's brightness over time (its **light curve**), finds s
 
 **Docker:** `docker build -t transitvet .` then `docker run -p 8501:8501 transitvet`. The build runs the tests.
 
-The dashboard opens at http://localhost:8501. The models are in `transitvet/models/`. The two CNN files (199 MB each) are too big for normal GitHub storage, so they are published as a release download; the first run fetches them automatically and checks their SHA-256 checksums (`python -m transitvet.fetch_models` does it by hand).
+The dashboard opens at http://localhost:8501. The models are in `transitvet/models/`. Any model file too big for normal GitHub storage is published as a release download; the first run fetches it automatically and checks its SHA-256 checksum (`python -m transitvet.fetch_models` does it by hand).
 
 The four example stars on the dashboard open from saved runs of the full analysis (`transitvet/examples/`, made with `python -m transitvet.examples`), so they show in about 15 seconds; "Run it live" repeats the whole analysis. Each signal also has a **Share this result** button that saves a one-page image of its verdict and report card.
 
@@ -70,7 +70,7 @@ The tests already caught one real bug, which is now fixed: when an eclipsing bin
 | 3. Detrend | Biweight filter (for the search) and AstroNet's spline (for the model inputs) | high-pass filtering |
 | 4. Search | Box Least Squares (BLS) finds the strongest repeating dip, removes it, searches again (up to 3 signals, SNR ≥ 7.1, at least 3 dips) | matched filtering |
 | 5. Fold | Whole-orbit view (2001 bins) and zoomed dip view (201 bins), plus check numbers (odd/even dips, dip at half phase, shape) | coherent averaging |
-| 6. Score | Gradient boosting (with light-position, size and crowding checks), AstroNet CNN, Transformer, and a combined score | detection / classification, data fusion |
+| 6. Score | Gradient boosting (with light-position, size and crowding checks), Mamba-2, Transformer, and a combined score | detection / classification, data fusion |
 | 7. Verdict | candidate / false alarm / uncertain | thresholding |
 
 **New checks (3 Nov 2026):**
@@ -80,16 +80,16 @@ The tests already caught one real bug, which is now fixed: when an eclipsing bin
 - *Transit fit* (batman): sharper period, planet size with an error bar, V-shape check, and the star density implied by the dip.
 - *Official lists*: each signal is matched against the Kepler KOI and TESS TOI tables (display only, never used in the score).
 - *Next dips*: predicted times with a rough ± error.
-- *NASA second opinion*: for TESS signals in the published ExoMiner++ catalogue (NASA Ames, sectors 1-67), its score is shown next to ours. On 542 shared test signals: ExoMiner++ PR-AUC 0.973, TransitVet 0.967 (no clear difference), average of both 0.981. See `validation/EXOMINER_COMPARISON.md`.
+- *NASA second opinion*: for TESS signals in the published ExoMiner++ catalogue (NASA Ames, sectors 1-67), its score is shown next to ours. On 542 shared test signals: ExoMiner++ PR-AUC 0.973, TransitVet 0.966 (no clear difference), average of both 0.981. See `validation/EXOMINER_COMPARISON.md`.
 
 **Added 4 Nov 2026:**
-- *Trust check (95% guarantee)*: each signal gets one of three calls: **keep** (a false alarm is ruled out), **drop** (a planet is ruled out) or **needs a human**. The thresholds come from split conformal prediction, fitted on half of the validation stars, so that at least 95% of real planets are never dropped and at least 95% of real false alarms are never kept. On test stars: Kepler 95.8% / 95.7%, TESS 97.8% / 98.0%. On TESS 448 of 1,000 test signals go to "needs a human". Change the level with the environment variable `TV_CONFORMAL_ALPHA` (0.05, 0.10 or 0.20). See `validation/GUARANTEE_AND_PLANNER.md`.
+- *Trust check (95% guarantee)*: each signal gets one of three calls: **keep** (a false alarm is ruled out), **drop** (a planet is ruled out) or **needs a human**. The thresholds come from split conformal prediction, fitted on half of the validation stars, so that at least 95% of real planets are never dropped and at least 95% of real false alarms are never kept. On test stars: Kepler 95.8% / 95.3%, TESS 98.3% / 98.5%. On TESS 508 of 1,000 test signals go to "needs a human". Change the level with the environment variable `TV_CONFORMAL_ALPHA` (0.05, 0.10 or 0.20). See `validation/GUARANTEE_AND_PLANNER.md`.
 - *Follow-up planner*: set your site and telescope in the sidebar. For each signal the app lists the next dips that happen at night with the star above 30°, and the expected signal-to-noise for your telescope (photon noise, scintillation, a 500 ppm ground floor): clear (SNR ≥ 7), marginal (4-7) or too faint. The Batch tab builds one observing plan for all candidates. These are planning estimates; weather, the moon and comparison stars also matter.
 
 - *Pixel check (difference images)*: downloads the camera images (Target Pixel Files) and checks which pixels get darker during the dip. If the dip comes from more than 10 arcsec away at more than 5 sigma, the tool warns, names the closest catalogue star to the dip's source and turns a "candidate" into "uncertain". On 1,000 TESS test signals it flagged 25% of false alarms and 3.5% of planets, and cut the false alarms wrongly called candidates from 82 to 65. This is TESS only; it is not validated on Kepler yet. See `validation/PIXEL_CHECK.md`.
 
-**Main score:** the *combined score*, a logistic regression on the log-odds of gradient boosting (now with the new checks), the AstroNet CNN and the Transformer, fitted on validation stars.
-Held-out test (PR-AUC): Kepler 0.968 (AstroNet CNN alone 0.947), TESS 0.946 (best single model before 0.883). Details in `validation/IMPROVEMENTS.md`.
+**Main score:** the *combined score*, a logistic regression on the log-odds of gradient boosting (now with the new checks), a Mamba-2 state-space model and the Transformer, fitted on validation stars. The AstroNet CNN is kept in the study as the reproduced baseline (see `validation/NEW_MODELS.md`).
+Held-out test (PR-AUC): Kepler 0.963 (Mamba-2 alone 0.934; the earlier set with the AstroNet CNN reached 0.968), TESS 0.946 (best single model before 0.883). Details in `validation/IMPROVEMENTS.md`.
 **Verdict rule:** candidate if the combined score is at least 0.5, false alarm if below; *uncertain* if it is between 0.35 and 0.65, if all three single models disagree with it, if fewer than 3 dips were seen, or if a second separate dip shows up at the same period. Warnings (odd/even difference, dip at half phase, light moving, too big, V-shape, density mismatch) are shown in a report card but do not change the verdict.
 
 ## Outputs

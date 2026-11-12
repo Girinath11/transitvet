@@ -14,7 +14,7 @@ def _recs():
 def test_models_load_and_scores_are_probabilities(scorer):
     for mission in P.MISSIONS:
         out = scorer.score(_recs(), mission)
-        for k in ('gb', 'cnn', 'tf', 'combined'):
+        for k in ['gb', 'combined'] + scorer.net_kinds:
             assert 0.0 <= float(out[k][0]) <= 1.0, (mission, k)
 
 
@@ -32,3 +32,8 @@ def test_conformal_thresholds_present(scorer):
 def test_model_manifest_lists_features(scorer):
     assert len(scorer.feats) == len(scorer.feature_row(_recs()[0]))
     json.dumps(scorer.manifest)
+
+
+def test_tool_uses_mamba_and_transformer(scorer):
+    """Model set v3: Mamba-2 + Transformer are the tool's networks; the CNN is only the paper's baseline."""
+    assert scorer.net_kinds == ['mamba', 'tf'] and scorer.combine_kinds == ['gb', 'mamba', 'tf']

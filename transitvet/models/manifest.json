@@ -28,22 +28,42 @@
    "n_val": 259
   },
   "kepler_combined": {
-   "val_pr_auc": 0.9712452814196777,
+   "val_pr_auc": 0.9674,
    "n_val": 2311,
-   "coef_gb_cnn_tf": [
-    0.537,
-    0.499,
-    0.052
+   "coef_gb_mamba_tf": [
+    0.542,
+    0.352,
+    0.14
    ]
   },
   "tess_combined": {
-   "val_pr_auc": 0.9469862142173727,
+   "val_pr_auc": 0.9464,
    "n_val": 259,
-   "coef_gb_cnn_tf": [
-    0.873,
-    0.493,
-    -0.146
+   "coef_gb_mamba_tf": [
+    0.912,
+    0.246,
+    -0.056
    ]
+  },
+  "kepler_mamba": {
+   "val_pr_auc": 0.9455,
+   "n_val": 2311,
+   "cfg": {
+    "d": 64,
+    "layers": 4,
+    "d_state": 32,
+    "drop": 0.2
+   }
+  },
+  "tess_mamba": {
+   "val_pr_auc": 0.8758,
+   "n_val": 259,
+   "cfg": {
+    "d": 64,
+    "layers": 4,
+    "d_state": 32,
+    "drop": 0.2
+   }
   }
  },
  "feats": [
@@ -62,6 +82,16 @@
   "rp_est_re",
   "contratio"
  ],
- "note": "Kepler models trained on Kepler DR24 training stars (70%); TESS models on TESS training stars (50%). Calibrators: isotonic on validation stars. v2: GB retrained with light-position (centroid), planet-size and crowding features; combined score = logistic regression on GB, CNN, Transformer log-odds, fitted on validation stars.",
- "built_v2": "2026-11-03"
+ "note": "Kepler models trained on Kepler DR24 training stars (70%); TESS models on TESS training stars (50%). Calibrators: isotonic on validation stars. v2: GB retrained with light-position (centroid), planet-size and crowding features; combined score = logistic regression on GB, CNN, Transformer log-odds, fitted on validation stars. v3: the tool uses Mamba-2 + Transformer as its neural models (CNN kept in the paper as the reproduced baseline); combiner on gb/mamba/tf.",
+ "built_v2": "2026-11-03",
+ "nets": [
+  "mamba",
+  "tf"
+ ],
+ "combine": [
+  "gb",
+  "mamba",
+  "tf"
+ ],
+ "built_v3": "2026-11-12"
 }

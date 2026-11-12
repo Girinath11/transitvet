@@ -285,21 +285,21 @@ with tab3:
 4. Each dip folded into a whole-orbit view and a zoomed view, plus check numbers (odd/even dips, dip at half phase, shape).
 5. New checks: does the star's light move on the camera during the dip (light-position check)? How big is the object, given the
    star's size from the TESS Input Catalog? How much light comes from neighbouring stars?
-6. Three models score it (gradient boosting with all check numbers, AstroNet CNN, Transformer), and a **combined score** joins them.
+6. Three models score it (gradient boosting with all check numbers, a Mamba-2 state-space model, and a Transformer), and a **combined score** joins them.
    Scores are calibrated on validation stars, so 0.8 means "about 80% of such signals were planet candidates".
 7. A transit model is fitted for a sharper period, the planet size with an error bar, and the dip shape.
 8. Each signal is matched against the official Kepler (KOI) and TESS (TOI) lists, for display only (never used in the score).
 9. For TESS signals, NASA's ExoMiner++ score is shown as a second opinion when the signal is in its published catalogue
    (TESS 2-min data, sectors 1-67; Valizadegan, Martinho et al. 2025). On our 542 shared test signals: ExoMiner++ PR-AUC 0.973,
-   TransitVet 0.967 (difference within the uncertainty); the average of the two: 0.981.
+   TransitVet 0.966 (difference within the uncertainty); the average of the two: 0.981.
 10. **Trust check**: split conformal prediction turns the combined score into keep / drop / needs a human, with a guarantee
-   that at least 95% of real planets are never dropped (measured on test stars: Kepler 95.8%, TESS 97.8%).
+   that at least 95% of real planets are never dropped (measured on test stars: Kepler 95.8%, TESS 98.3%).
 11. **Pixel check** (difference images): which camera pixels get darker during the dip? On TESS, a dip coming from more than
    10 arcsec away (over 5 sigma) raises a warning and turns a candidate into 'uncertain' (test stars: 25% of false alarms flagged, 3.5% of planets).
 12. **Follow-up planner**: for your site and telescope (sidebar), the next dips that are at night with the star above 30 degrees,
    and the expected signal-to-noise (clear / marginal / too faint).
 
-**Main score**: the combined score. In our held-out test it reached PR-AUC 0.968 on Kepler (AstroNet CNN alone: 0.947) and 0.946 on TESS (best single model before: 0.883).
+**Main score**: the combined score. In our held-out test it reached PR-AUC 0.963 on Kepler (Mamba-2 alone: 0.934) and 0.946 on TESS (best single model before: 0.883).
 **Verdict**: candidate if the combined score is at least 0.5, false alarm if below; *uncertain* if the score is between 0.35 and 0.65, all three single models disagree with it,
 fewer than 3 dips were seen, or a second separate dip shows up at the same period.
 
