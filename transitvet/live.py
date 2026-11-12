@@ -51,6 +51,21 @@ CSS = """
 .lv-verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
 .lv-v { border: 1px solid rgba(214,222,240,.16); border-radius: 10px; padding: 12px 14px; background: rgba(10,14,25,.8); animation: lv-in .5s ease both; }
 .lv-v .k { font-size: 12.5px; color: #8f93a0; } .lv-v .t { font: 600 20px "Sora", sans-serif; margin: 2px 0; }
+.lv-chips { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0 0 10px; }
+.lv-chip { font: 500 12.5px "JetBrains Mono", monospace; color: #c9c6bd; border: 1px solid rgba(214,222,240,.16); border-radius: 999px; padding: 3px 10px; background: rgba(10,14,25,.7); }
+.lv-chip b { color: #5ee7ff; font-weight: 600; }
+.lv-models { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin-top: 10px; }
+.lv-m { border: 1px solid rgba(214,222,240,.16); border-radius: 10px; padding: 12px 14px; background: rgba(10,14,25,.8); animation: lv-in .5s ease both; }
+.lv-m .hd { display: flex; justify-content: space-between; font-size: 13px; color: #8f93a0; margin-bottom: 6px; }
+.lv-row { display: grid; grid-template-columns: 128px minmax(0, 1fr) 40px; gap: 8px; align-items: center; font-size: 13px; color: #c9c6bd; margin: 3px 0; }
+.lv-row .tr { height: 6px; border-radius: 3px; background: rgba(214,222,240,.10); position: relative; overflow: hidden; }
+.lv-row .tr i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, #a78bfa, #5ee7ff); }
+.lv-row .tr::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: rgba(214,222,240,.35); }
+.lv-row.main { color: #ece9e1; font-weight: 600; } .lv-row.main .tr { height: 9px; }
+.lv-row span:last-child { font-family: "JetBrains Mono", monospace; text-align: right; }
+.lv-m .ft { font-size: 12.5px; color: #8f93a0; margin-top: 8px; line-height: 1.45; }
+.lv-log { margin-top: 10px; border-top: 1px solid rgba(214,222,240,.12); padding-top: 8px; font: 12.5px/1.6 "JetBrains Mono", monospace; color: #8f93a0; }
+.lv-log b { color: #c9c6bd; font-weight: 500; }
 </style>
 """
 
@@ -76,6 +91,8 @@ class LiveView:
     def __init__(self, st, target):
         self.st, self.target, self.t0 = st, target, time.time()
         self.track, self.head, self.plot, self.feed = st.empty(), st.empty(), st.empty(), st.empty()
+        self.models, self.logbox = st.empty(), st.empty()
+        self.timeline, self.chips, self.chip_key = [], {}, None
         self.items, self.last_draw, self.peaks, self.active = [], 0.0, [], 0
         self.replay_clock = None    # set when a saved run is replayed: shows the original run's elapsed time
         self.set('download', 'Asking NASA MAST for every light curve of this star. Bigger stars with years of data take longer.')
@@ -90,12 +107,32 @@ class LiveView:
     def elapsed(self):
         return self.replay_clock if self.replay_clock is not None else time.time() - self.t0
 
-    def set(self, key, say):
+    def set(self, key, say, chips=None):
+        if chips is not None or not getattr(self, 'chips', None) or key != getattr(self, 'chip_key', None):
+            self.chips, self.chip_key = chips or {}, key
+        if not self.timeline or self.timeline[-1][1] != key:
+            self.timeline.append((self.elapsed(), key))
+            self._draw_log()
         self.active = _IDX[key]
         self.track.markdown(_track(self.active, self.active), unsafe_allow_html=True)
         name = STAGES[self.active][1]
         self.head.markdown(f'<div class="lv-head"><b>{self.active + 1} · {name}</b><span>{self.target} · {self.elapsed():.0f} s</span></div>'
-                           f'<p class="lv-say">{say}</p>', unsafe_allow_html=True)
+                           f'<p class="lv-say">{say}</p>' + self._chips(), unsafe_allow_html=True)
+
+    def _chips(self):
+        if not self.chips:
+            return ''
+        return '<div class="lv-chips">' + ''.join(f'<span class="lv-chip">{k} <b>{v}</b></span>' for k, v in self.chips.items()) + '</div>'
+
+    def _draw_log(self):
+        rows = []
+        for i, (t, k) in enumerate(self.timeline):
+            if k == '__end':
+                continue
+            end = self.timeline[i + 1][0] if i + 1 < len(self.timeline) else None
+            took = f'{end - t:5.1f} s' if end is not None else '  running'
+            rows.append(f'<div><b>{int(t) // 60:02d}:{int(t) % 60:02d}</b>  {STAGES[_IDX[k]][1]:<9}{took}</div>')
+        self.logbox.markdown('<div class="lv-log">Step log (time from start, time taken)' + ''.join(rows) + '</div>', unsafe_allow_html=True)
 
     def show(self, fig):
         self.plot.pyplot(fig, clear_figure=True); plt.close(fig)
@@ -108,7 +145,9 @@ class LiveView:
     # ---- stage handlers (called from the app and from pipeline.run)
     def loaded(self, segs, meta):
         self.set('clean', f"Got {sum(len(s[0]) for s in segs):,} measurements in {len(segs)} piece(s) from {meta['mission'].upper()}. "
-                          'Each piece is scaled to the same level so they join up.')
+                          'Each piece is scaled to the same level so they join up.',
+                 chips={'mission': meta['mission'].upper(), 'pieces': len(segs), 'points': f"{sum(len(x[0]) for x in segs):,}",
+                        'time span': f"{max(np.nanmax(x[0]) for x in segs) - min(np.nanmin(x[0]) for x in segs):.0f} d"})
         fig, ax = _fig()
         cols = [ICE, STAR, '#ff8bd1']
         for k, (t, f) in enumerate(segs):
@@ -120,7 +159,9 @@ class LiveView:
         getattr(self, '_' + name)(**d)
 
     def _flatten(self, t, f):
-        self.set('flatten', f'A sliding filter follows the slow changes of the star and divides them out. What is left: {t.size:,} points, flat except for short dips.')
+        self.set('flatten', f'A sliding filter follows the slow changes of the star and divides them out. What is left: {t.size:,} points, flat except for short dips.',
+                 chips={'points kept': f'{t.size:,}', 'scatter': f'{1.4826e6 * np.nanmedian(np.abs(f - np.nanmedian(f))):.0f} ppm',
+                        'filter': 'biweight, 1 d window'})
         fig, ax = _fig()
         ax.plot(t, (f - 1) * 1e6, '.', ms=0.8, color=ICE, alpha=0.55)
         lo, hi = np.nanpercentile((f - 1) * 1e6, [0.2, 99.8]); ax.set_ylim(lo * 1.3, hi * 1.3)
@@ -133,9 +174,11 @@ class LiveView:
         if self.replay_clock is None and now - self.last_draw < 0.8 and done < n:
             return
         self.last_draw = now
-        self.set('search', f'Search {k + 1}: sliding a box-shaped dip along the data at every trial orbit and scoring the fit. '
-                           f'{done:,} of {n:,} trial orbits tried.')
         per = np.concatenate([p[0] for p in parts]); pw = np.concatenate([p[1] for p in parts])
+        self.chips = {'search': f'{k + 1} of up to 3', 'trial orbits': f'{done:,} / {n:,}', 'range': f'{np.nanmin(per):.2f}–{np.nanmax(per):.0f} d',
+                      'best so far': f'{per[np.nanargmax(pw)]:.4f} d' if pw.size else '—'}
+        self.set('search', f'Search {k + 1}: sliding a box-shaped dip along the data at every trial orbit and scoring the fit. '
+                           f'{done:,} of {n:,} trial orbits tried.', chips=self.chips)
         st = max(1, per.size // 5000)
         fig, ax = _fig()
         ax.plot(per[::st], pw[::st], lw=0.7, color=ICE)
@@ -159,7 +202,9 @@ class LiveView:
 
     def _fold(self, sigs, recs):
         self.set('fold', 'Every orbit is stacked on top of the others. Noise averages away and the dip stands out: '
-                         'one picture of the whole orbit and one close-up of the dip, the two inputs the models read.')
+                         'one picture of the whole orbit and one close-up of the dip, the two inputs the models read.',
+                 chips={'signals': len(recs), 'whole-orbit view': '2001 bins', 'close-up view': '201 bins',
+                        'orbits stacked': ', '.join(str(int(r.get('n_transits', 0))) for r in recs)})
         n = len(recs)
         fig, ax = plt.subplots(n, 2, figsize=(11, 1.9 * n + 0.4), gridspec_kw=dict(width_ratios=[2, 1]), squeeze=False)
         for i, r in enumerate(recs):
@@ -173,7 +218,8 @@ class LiveView:
     def _check(self, i, sig, rec, star):
         if self.active != _IDX['check']:
             self.set('check', 'Each dip is questioned: is it the right size and shape for a planet, does the light stay on the target, '
-                              'and is it already in NASA\'s lists?')
+                              'and is it already in NASA\'s lists?',
+                     chips={'checks per signal': 'repeats, odd/even, second dip, size, shape, light position, pixels, catalogue'})
         rp = rec.get('rp_est_re', np.nan)
         if np.isfinite(rp):
             self.add(f'Signal {i + 1}: size about {rp:.1f} × Earth' + (' (too big for a planet)' if rp > 22.4 else ''), 'bad' if rp > 22.4 else 'good')
@@ -211,5 +257,25 @@ class LiveView:
             cards.append(f'<div class="lv-v"><div class="k">Signal {i + 1} · {r["period"]:.3f} d</div>'
                          f'<div class="t" style="color:{COL[v]}">{v}</div><div class="k">score {p:.2f}</div></div>')
         self.track.markdown(_track(len(STAGES), len(STAGES)), unsafe_allow_html=True)
+        self.models.markdown(self._model_panel(signals), unsafe_allow_html=True)
+        self.timeline.append((self.elapsed(), '__end')); self._draw_log()
         self.head.markdown(f'<div class="lv-head"><b>Done</b><span>{self.target} · {self.elapsed():.0f} s</span></div>'
                            f'<div class="lv-verdicts">{"".join(cards)}</div>', unsafe_allow_html=True)
+
+    _NAMES = {'gb': 'Gradient boosting', 'cnn': 'AstroNet CNN', 'tf': 'Transformer', 'mamba': 'Mamba', 'combined': 'Combined'}
+
+    def _model_panel(self, signals):
+        """What each model said, how they were joined, and what the guarantee decided: the full path to the verdict."""
+        out = []
+        for i, r in enumerate(signals):
+            sc = r.get('scores', {}); main = r.get('main_model', 'combined')
+            rows = ''.join(f'<div class="lv-row{" main" if k == main else ""}"><span>{self._NAMES.get(k, k)}</span>'
+                           f'<span class="tr"><i style="width:{100 * v:.1f}%"></i></span><span>{v:.2f}</span></div>'
+                           for k, v in sc.items() if v == v)
+            tr = r.get('triage') or {}
+            g = f"95% guarantee: <b>{tr.get('call', '—')}</b>. " if tr else ''
+            out.append(f'<div class="lv-m"><div class="hd"><span>Signal {i + 1} · {r["period"]:.3f} d</span>'
+                       f'<span style="color:{COL[r["verdict"]]}">{r["verdict"]}</span></div>{rows}'
+                       f'<div class="ft">Each bar is one model\'s calibrated chance of a planet candidate (line = 0.5). '
+                       f'{self._NAMES.get(main, main)} decides the verdict. {g}</div></div>')
+        return ('<div class="lv-say" style="margin-top:12px">How the verdict was reached</div><div class="lv-models">' + ''.join(out) + '</div>') if out else ''
