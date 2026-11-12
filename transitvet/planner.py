@@ -44,6 +44,7 @@ def plan(ra_deg, dec_deg, period, t0_bjd, duration_d, timing_err_h_per_orbit, de
     from astropy.coordinates import EarthLocation, SkyCoord, AltAz, get_sun
     from astropy.utils import iers
     iers.conf.auto_download = False            # works offline; precision is ample for planning
+    iers.conf.auto_max_age = None              # ...even when the bundled Earth-rotation table is a few months old
     now = now or Time.now()
     site = EarthLocation(lat=lat * u.deg, lon=lon * u.deg, height=height_m * u.m)
     star = SkyCoord(ra=ra_deg * u.deg, dec=dec_deg * u.deg)
