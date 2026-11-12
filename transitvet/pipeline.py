@@ -224,6 +224,29 @@ def _second_dip(tt, ff, sd, g, sig):
     return best
 
 
+def _half_period(tt, ff, sd, sig):
+    """BLS often locks onto half the true period (for example when the true period is longer than the search
+    range, or only a few dips were seen). Then every second folded 'dip' is empty. Compare the dips at odd and
+    even orbit numbers: if one set is a clear dip and the other is flat (no dip at all), the true period is
+    twice as long. Returns (new_period, new_t0, sigma of the difference, depth_ppm of the real dips) or None.
+    An eclipsing binary with a shallower second eclipse still shows a dip in both sets, so it is not changed."""
+    P, T0, D = sig['period'], sig['t0'], sig['duration']
+    n = np.round((tt - T0) / P)
+    inn = np.abs(tt - T0 - n * P) < 0.5 * D
+    res = {}
+    for par in (0, 1):
+        m = inn & (n % 2 == par)
+        if m.sum() < 3:
+            return None
+        res[par] = (-np.mean(ff[m]) + np.median(ff), sd / np.sqrt(m.sum()), np.unique(n[m]).size)
+    deep, flat = (0, 1) if res[0][0] >= res[1][0] else (1, 0)
+    d_deep, e_deep, n_deep = res[deep]; d_flat, e_flat, _ = res[flat]
+    sigma = (d_deep - d_flat) / np.hypot(e_deep, e_flat)
+    if n_deep >= 3 and d_deep / e_deep >= MIN_SNR and d_flat / e_flat < 3 and sigma >= 5:
+        return 2 * P, T0 + deep * P, float(sigma), float(d_deep * 1e6)
+    return None
+
+
 def bls_search(t, f, max_signals=MAX_SIGNALS, min_snr=MIN_SNR, progress=None, on_chunk=None):
     """Box Least Squares, repeated: find the best dip, record it, remove its points, search again."""
     found, keep, periodograms = [], np.ones(t.size, bool), []
@@ -258,6 +281,9 @@ def bls_search(t, f, max_signals=MAX_SIGNALS, min_snr=MIN_SNR, progress=None, on
                    depth_ppm=float(r.depth[i] * 1e6), bls_snr=float(snr[i]))
         st_ = max(1, len(coarse[0]) // 4000)
         periodograms.append(dict(period=coarse[0][::st_], power=coarse[1][::st_]))
+        hp = _half_period(tt, ff, sd, sig) if sig['depth_ppm'] > 0 else None
+        if hp:          # every second dip is empty: the true period is twice as long
+            sig.update(period=hp[0], t0=hp[1], depth_ppm=hp[3], period_doubled=True, half_period_sigma=hp[2])
         if progress:
             progress(k, sig)
         if not np.isfinite(sig['bls_snr']) or sig['bls_snr'] < min_snr or sig['depth_ppm'] <= 0:
@@ -395,6 +421,8 @@ def pixel_warning(rec):
 
 def flags(rec):
     out = []
+    if rec.get('period_doubled'):
+        out.append(f"the search first found half this period, but every second dip was empty ({rec.get('half_period_sigma', 0):.0f} sigma), so the period was doubled")
     if np.isfinite(rec.get('odd_even_sigma', np.nan)) and rec['odd_even_sigma'] > 3:
         out.append(f"odd and even dips differ ({rec['odd_even_sigma']:.1f} sigma): possible eclipsing binary, or the period is half the true one, or the dip times wander")
     if (np.isfinite(rec.get('secondary_sigma', np.nan)) and rec['secondary_sigma'] > 5
@@ -447,6 +475,8 @@ def run(segs, meta, scorer, progress=print, stage=None):
     progress(f'Searching for repeating dips with BLS on {t.size:,} points...')
     def _found(k, s):
         progress(f"  search {k + 1}: period {s['period']:.4f} d, depth {s['depth_ppm']:.0f} ppm, BLS SNR {s['bls_snr']:.1f}")
+        if s.get('period_doubled'):
+            progress(f"    every second dip was empty ({s['half_period_sigma']:.0f} sigma), so the period was doubled")
         stage('peak', k=k, sig=s)
     sigs, pgrams = bls_search(t, f, progress=_found, on_chunk=lambda k, parts, n: stage('search', k=k, parts=parts, n=n))
     out = dict(meta=meta, n_points=int(t.size), time_span_days=float(t.max() - t.min()), signals=[],

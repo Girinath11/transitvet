@@ -38,3 +38,28 @@ def test_secondary_eclipse_is_reported():
     sigs = _search(t, f)
     assert sigs and abs(sigs[0]['period'] - 2.7) / 2.7 < 0.003
     assert 'second_dip_phase' in sigs[0] and abs(sigs[0]['second_dip_phase'] - 0.5) < 0.05
+
+
+def test_half_period_is_doubled_when_every_second_dip_is_empty():
+    rng = np.random.default_rng(3)
+    t = np.arange(0, 1400, 0.0204)
+    f = 1 + rng.normal(0, 3e-4, t.size)
+    sd = 3e-4
+    P_true, dur = 330.0, 0.6
+    f[np.abs((t - 50 + 0.5 * P_true) % P_true - 0.5 * P_true) < 0.5 * dur] -= 0.003
+    sig = dict(period=P_true / 2, t0=50.0, duration=dur, depth_ppm=1500.0, bls_snr=50.0)
+    hp = P._half_period(t, f, sd, sig)
+    assert hp is not None and abs(hp[0] - P_true) < 1e-6 and abs(hp[1] - 50.0) < 1e-6
+    assert 2500 < hp[3] < 3500
+
+
+def test_eclipsing_binary_with_two_dips_is_not_doubled():
+    rng = np.random.default_rng(4)
+    t = np.arange(0, 400, 0.0204)
+    f = 1 + rng.normal(0, 3e-4, t.size)
+    P_bin, dur = 10.0, 0.3
+    ph = (t - 2) % P_bin
+    f[np.abs(ph) < 0.5 * dur] -= 0.004                     # primary eclipse
+    f[np.abs(ph - 0.5 * P_bin) < 0.5 * dur] -= 0.002       # shallower secondary eclipse
+    sig = dict(period=P_bin / 2, t0=2.0, duration=dur, depth_ppm=3000.0, bls_snr=80.0)
+    assert P._half_period(t, f, 3e-4, sig) is None
