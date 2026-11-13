@@ -531,6 +531,10 @@ def run(segs, meta, scorer, progress=print, stage=None):
         r['verdict'] = verdict(p[main], [p[k] for k in p if k != main])
         # (with the combined score, 'others' are the three single models: uncertain only if all three disagree)
         r['flags'] = flags(r)
+        tr = r.get('triage')
+        if tr and ((tr['call'] == 'keep' and r['verdict'] == 'false alarm') or (tr['call'] == 'drop' and r['verdict'] == 'candidate')):
+            # the 95% check and the score point different ways: send it to a person (only widens the set, so the guarantee still holds)
+            r['triage'] = dict(tr, call='needs a human', text='needs a human: the score and the 95% check disagree')
         if r['verdict'] == 'candidate' and (r.get('n_transits', 99) < 3 or 'second_dip_phase' in r or pixel_warning(r)):
             r['verdict'] = 'uncertain'   # too few dips to trust the period, eclipsing-binary sign, or the dip comes from a neighbour
         out['signals'].append(r)
@@ -569,8 +573,7 @@ def summary_table(result):
         rows.append({'target': result['meta']['target'], 'mission': result['meta']['mission'], 'signal': i + 1,
                      'verdict': r['verdict'], 'main_model': MODEL_NAMES[r['main_model']],
                      'p_main': round(r['scores'][r['main_model']], 3),
-                     'p_gradient_boosting': round(r['scores']['gb'], 3), 'p_cnn': round(r['scores'].get('cnn', np.nan), 3),
-                     'p_mamba': round(r['scores'].get('mamba', np.nan), 3), 'p_transformer': round(r['scores']['tf'], 3),
+                     'p_gradient_boosting': round(r['scores']['gb'], 3), 'p_mamba': round(r['scores'].get('mamba', np.nan), 3), 'p_transformer': round(r['scores']['tf'], 3),
                      'p_combined': round(r['scores'].get('combined', np.nan), 3),
                      'trust_check_95': (r.get('triage') or {}).get('call', ''),
                      'period_days': round(r['period'], 5), 't0': round(r['t0'], 5), 'duration_hours': round(24 * r['duration'], 2),
@@ -586,6 +589,8 @@ def summary_table(result):
                      'catalogue': r.get('known', {}).get('status', ''), 'catalogue_name': r.get('known', {}).get('name', ''),
                      'next_dip_utc': (r.get('next_dips') or [{}])[0].get('utc', ''),
                      'flags': '; '.join(r['flags'])})
+        if 'cnn' in r['scores']:      # older model sets only
+            rows[-1]['p_cnn'] = round(r['scores']['cnn'], 3)
     return pd.DataFrame(rows)
 
 

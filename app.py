@@ -293,7 +293,7 @@ with tab3:
    (TESS 2-min data, sectors 1-67; Valizadegan, Martinho et al. 2025). On our 542 shared test signals: ExoMiner++ PR-AUC 0.973,
    TransitVet 0.966 (difference within the uncertainty); the average of the two: 0.981.
 10. **Trust check**: split conformal prediction turns the combined score into keep / drop / needs a human, with a guarantee
-   that at least 95% of real planets are never dropped (measured on test stars: Kepler 95.8%, TESS 98.3%).
+   that at least 95% of real planets are never dropped (measured on test stars: Kepler 96.3%, TESS 98.3%). If this call and the score disagree, it says 'needs a human'.
 11. **Pixel check** (difference images): which camera pixels get darker during the dip? On TESS, a dip coming from more than
    10 arcsec away (over 5 sigma) raises a warning and turns a candidate into 'uncertain' (test stars: 25% of false alarms flagged, 3.5% of planets).
 12. **Follow-up planner**: for your site and telescope (sidebar), the next dips that are at night with the star above 30 degrees,
