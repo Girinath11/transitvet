@@ -28,7 +28,8 @@
 * { box-sizing: border-box }
 html { scroll-behavior: smooth }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto } }
-body { margin: 0; background: linear-gradient(rgba(3,5,11,0.55), rgba(3,5,11,0.55)) fixed, var(--void) url(__IMG_DEEP__) center / cover fixed; color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.65; overflow-x: hidden }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(rgba(3,5,11,0.55), rgba(3,5,11,0.55)), url(__IMG_DEEP__) center / cover no-repeat }
+body { margin: 0; background: var(--void); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.65; overflow-x: hidden }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--void) }
 #sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.75 }
 @keyframes drift { 0% { transform: scale(1.06) translate3d(0, 0, 0) } 100% { transform: scale(1.16) translate3d(-2.5%, 1.5%, 0) } }
@@ -518,6 +519,7 @@ const PM = __PIMEN__;
 const C = { ice: '#5ee7ff', star: '#a78bfa', good: '#66d19e', bad: '#f07b6c', ink: '#ece9e1', mute: '#8f93a0', line: 'rgba(214,222,240,0.14)', dim: '#5d6372' };
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (s, r = document) => r.querySelector(s);
+const PAUSED = () => document.hidden || document.documentElement.classList.contains('pre');
 
 /* ---------- canvas helpers ---------- */
 function setup(cv, h) {
@@ -561,7 +563,7 @@ const lin = (n, a, b) => Array.from({ length: n }, (_, i) => a + (b - a) * i / (
     mets = mets.filter(m => t - m.t0 < 1100); for (const m of mets) { const k = (t - m.t0), px = m.x - Math.cos(m.a) * k * m.v, py = m.y + Math.sin(m.a) * k * m.v, fade = 1 - k / 1100;
       const g = x.createLinearGradient(px, py, px + Math.cos(m.a) * m.L, py - Math.sin(m.a) * m.L); g.addColorStop(0, `rgba(235,240,255,${0.9 * fade})`); g.addColorStop(1, 'rgba(160,140,255,0)');
       x.strokeStyle = g; x.lineWidth = 1.6; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(m.a) * m.L, py - Math.sin(m.a) * m.L); x.stroke() } }
-  function draw(t) { x.clearRect(0, 0, W, H); const sy = scrollY * 0.08; for (const s of stars) { const a = RM ? s.a : s.a * (0.65 + 0.35 * Math.sin(t / 1000 * s.w + s.p)); x.globalAlpha = a; x.fillStyle = s.warm ? '#ffd9a0' : '#dfe8ff'; x.beginPath(); x.arc(s.x, ((s.y - sy) % H + H) % H, s.r, 0, 6.283); x.fill() } x.globalAlpha = 1; if (!RM) meteors(t); if (!RM) requestAnimationFrame(draw) }
+  function draw(t) { if (PAUSED()) { requestAnimationFrame(draw); return } x.clearRect(0, 0, W, H); const sy = scrollY * 0.08; for (const s of stars) { const a = RM ? s.a : s.a * (0.65 + 0.35 * Math.sin(t / 1000 * s.w + s.p)); x.globalAlpha = a; x.fillStyle = s.warm ? '#ffd9a0' : '#dfe8ff'; x.beginPath(); x.arc(s.x, ((s.y - sy) % H + H) % H, s.r, 0, 6.283); x.fill() } x.globalAlpha = 1; if (!RM) meteors(t); if (!RM) requestAnimationFrame(draw) }
   size(); addEventListener('resize', () => { size(); if (RM) draw(0) }); requestAnimationFrame(draw);
 })();
 
@@ -572,14 +574,16 @@ const lin = (n, a, b) => Array.from({ length: n }, (_, i) => a + (b - a) * i / (
   // brightness by numerical integration over the stellar disc (limb-darkened), cached on a grid of positions
   const NB = 241, curve = new Float64Array(NB), xs = lin(NB, -1.6, 1.6);
   (function precompute() {
-    const N = 140; let tot = 0; const I = (r2) => { const mu = Math.sqrt(Math.max(0, 1 - r2)); return 1 - u1 * (1 - mu) - u2 * (1 - mu) ** 2 };
+    const N = 96; let tot = 0; const I = (r2) => { const mu = Math.sqrt(Math.max(0, 1 - r2)); return 1 - u1 * (1 - mu) - u2 * (1 - mu) ** 2 };
     const pts = []; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { const px = -1 + 2 * (i + 0.5) / N, py = -1 + 2 * (j + 0.5) / N, r2 = px * px + py * py; if (r2 <= 1) { const w = I(r2); pts.push(px, py, w); tot += w } }
     const b = 0.25;
     for (let q = 0; q < NB; q++) { let blk = 0; const cx = xs[q]; for (let m = 0; m < pts.length; m += 3) { const dx = pts[m] - cx, dy = pts[m + 1] - b; if (dx * dx + dy * dy < k * k) blk += pts[m + 2] } curve[q] = 1 - blk / tot }
   })();
   let size;
   function resize() { const r = cv.getBoundingClientRect(); size = { W: r.width, H: r.width * 0.86 }; cv.style.height = size.H + 'px'; const d = Math.min(devicePixelRatio || 1, 2); cv.width = size.W * d; cv.height = size.H * d; cv.getContext('2d').setTransform(d, 0, 0, d, 0, 0) }
+  let onScreen = true; new IntersectionObserver(e => { onScreen = e[0].isIntersecting }).observe(cv);
   function frame(t) {
+    if (PAUSED() || !onScreen) { if (!RM) requestAnimationFrame(frame); return }
     const x = cv.getContext('2d'), { W, H } = size;
     x.clearRect(0, 0, W, H);
     const R = Math.min(W, H) * 0.22, cx = W * 0.5, cy = H * 0.40;
@@ -797,7 +801,9 @@ $('#gNew').addEventListener('click', newGame);
     for (let i = 0; i < 260; i++) { t.globalAlpha = 0.05 + rnd() * 0.06; t.strokeStyle = rnd() < 0.5 ? '#eef2ff' : '#2b2a6e'; t.lineWidth = 1 + rnd() * 3; const yy = rnd() * 256, x0 = rnd() * tw, L = 60 + rnd() * 220; t.beginPath(); t.moveTo(x0, yy); for (let q = 0; q <= 12; q++) t.lineTo(x0 + q * L / 12, yy + Math.sin(q * 0.9 + i) * 2.2); t.stroke() }
     t.globalAlpha = 0.35; t.fillStyle = '#3a3a9a'; t.beginPath(); t.ellipse(330, 170, 26, 11, 0, 0, 6.283); t.fill(); t.globalAlpha = 1;
   }
+  let onScreen = true; new IntersectionObserver(e => { onScreen = e[0].isIntersecting }).observe(cv);
   function draw(time) {
+    if (PAUSED() || !onScreen) { if (!RM) requestAnimationFrame(draw); return }
     x.clearRect(0, 0, W, H);
     const R = Math.max(H * 0.62, W * 0.26), cx = W > 700 ? W * 0.74 : W * 0.5, cy = W > 700 ? H * 0.5 : R * 0.15;
     // star glow from the right
@@ -873,6 +879,11 @@ if (!RM) { const plates = [...document.querySelectorAll('.plate')], hb = documen
 function drawAll() { sim(); rawPlot(); fold(); document.querySelectorAll('.check canvas').forEach(glyph); cards(); detail(); prPlot(); round() }
 tab('win');
 G = { order: SIG.map(s => s.i).sort((a, b) => ((a * 37) % 70) - ((b * 37) % 70)).slice(0, 10), k: 0, you: 0, model: 0 };
-drawAll();
+(function boot() {
+  const jobs = [sim, rawPlot, fold, () => document.querySelectorAll('.check canvas').forEach(glyph), cards, detail, prPlot, round];
+  const idle = window.requestIdleCallback || (cb => setTimeout(() => cb({ timeRemaining: () => 8 }), 30));
+  const next = () => { const j = jobs.shift(); if (!j) return; try { j() } catch (e) { console.error(e) } idle(next, { timeout: 400 }) };
+  idle(next, { timeout: 400 });
+})();
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { sim(); rawPlot(); fold(); document.querySelectorAll('.check canvas').forEach(glyph); cards(); detail(); prPlot(); round() }, 150) });
 </script>

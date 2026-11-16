@@ -67,7 +67,7 @@ The tests already caught one real bug, which is now fixed: when an eclipsing bin
 |---|---|---|
 | 1. Load | Light curve from NASA's MAST archive (Kepler long cadence; TESS 2-minute, averaged to 30 min), or an uploaded FITS / CSV file | sampling, resampling |
 | 2. Clean | Keep good-quality points; each segment normalised; upward spikes removed | outlier rejection |
-| 3. Detrend | Biweight filter (for the search) and AstroNet's spline (for the model inputs) | high-pass filtering |
+| 3. Detrend | Biweight filter (for the search) and a spline fit, the standard Kepler method (for the model inputs) | high-pass filtering |
 | 4. Search | Box Least Squares (BLS) finds the strongest repeating dip, removes it, searches again (up to 3 signals, SNR ≥ 7.1, at least 3 dips) | matched filtering |
 | 5. Fold | Whole-orbit view (2001 bins) and zoomed dip view (201 bins), plus check numbers (odd/even dips, dip at half phase, shape) | coherent averaging |
 | 6. Score | Gradient boosting (with light-position, size and crowding checks), Mamba-2, Transformer, and a combined score | detection / classification, data fusion |

@@ -24,6 +24,10 @@ with st.sidebar:
     PIXEL = st.checkbox('Pixel check (camera images)', value=True,
                         help='Downloads the Target Pixel Files (TESS: about 100 MB per sector, up to 3 sectors; Kepler: about 1 MB per quarter) '
                              'and makes difference images to see whether the dip comes from the target star or a neighbour.')
+    st.header('Display')
+    ANIMATE = st.checkbox('Step-by-step animation', value=True,
+                          help='Plays an animated scene for every step (download, flatten, search, fold, checks, models), drawn from the '
+                               "star's real data. It adds about a minute; untick it to see the results as soon as they are ready.")
 
 
 def plan_signal(res, r):
@@ -56,7 +60,7 @@ def _show(fig, **kw):
 
 def analyse(loader, *args):
     with st.status(f'Analysing {args[0]} ... watch each step below', expanded=True) as box:
-        view = LV.LiveView(st, args[0])
+        view = LV.LiveView(st, args[0], animate=ANIMATE)
         with st.expander('Technical log', expanded=False):
             log = st.empty()
         lines = []
@@ -77,7 +81,7 @@ def replay_saved(blob):
     """Example stars: replay a saved real run (see transitvet/examples.py) instead of re-downloading and re-searching."""
     tg = blob['target']
     with st.status(f'{tg}: replaying a saved run of the full analysis ...', expanded=True) as box:
-        view = LV.LiveView(st, tg + ' · replay')
+        view = LV.LiveView(st, tg + ' · replay', animate=ANIMATE)
         res = EX.replay(view, blob)
         box.update(label=f"{tg}: {len(res['signals'])} signal(s) · saved run from {blob['made']} (took {blob['events'][-1][0]:.0f} s) · open to replay the steps",
                    state='complete', expanded=False)
@@ -184,10 +188,10 @@ def show_result(res, key):
 st.markdown(UI.HERO, unsafe_allow_html=True)
 tab1, tab2, tab3 = st.tabs(['One star', 'Batch', 'About the models'])
 
-EXAMPLES = [('TIC 1333933', 'Known hot Jupiter (TOI-7719.01)', 'saved run, ~15 s'),
-            ('TIC 184952758', 'A dip that comes from a nearby star', 'saved run, ~15 s'),
-            ('TIC 261136679', 'Pi Mensae: a small planet, 7 years of data', 'saved run, ~15 s'),
-            ('KIC 11442793', 'Kepler-90: a star with many planets', 'saved run, ~15 s')]
+EXAMPLES = [('TIC 1333933', 'Known hot Jupiter (TOI-7719.01)', 'saved run, ~1 min walkthrough'),
+            ('TIC 184952758', 'A dip that comes from a nearby star', 'saved run, ~1 min walkthrough'),
+            ('TIC 261136679', 'Pi Mensae: a small planet, 7 years of data', 'saved run, ~1 min walkthrough'),
+            ('KIC 11442793', 'Kepler-90: a star with many planets', 'saved run, ~1 min walkthrough')]
 
 
 def _pick(t):
@@ -280,7 +284,7 @@ with tab3:
     st.markdown("""
 **What happens to each star**
 1. Light curve from NASA's MAST archive (Kepler long cadence, or TESS 2-minute data averaged to 30 minutes).
-2. Slow brightness changes removed (biweight filter for the search; AstroNet's spline for the model inputs).
+2. Slow brightness changes removed (biweight filter for the search; a spline fit, the standard Kepler method, for the model inputs).
 3. Box Least Squares search for repeating dips (up to 3 per star, signal-to-noise at least 7.1).
 4. Each dip folded into a whole-orbit view and a zoomed view, plus check numbers (odd/even dips, dip at half phase, shape).
 5. New checks: does the star's light move on the camera during the dip (light-position check)? How big is the object, given the

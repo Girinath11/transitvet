@@ -6,7 +6,7 @@ Steps (each is a standard signal-processing step):
  3. detrend   biweight filter (for the search) and the AstroNet spline (for the model views)
  4. search    Box Least Squares (BLS): find the strongest repeating dip, mask it, repeat
  5. fold      global view (whole orbit, 2001 bins) and local view (dip, 201 bins) + check numbers
- 6. classify  gradient boosting, AstroNet CNN and Transformer, each calibrated on validation stars
+ 6. classify  gradient boosting, Mamba-2 and Transformer, each calibrated on validation stars, then combined
  7. verdict   candidate / false alarm / uncertain
 Outputs are planet CANDIDATES, never confirmed planets.
 """
@@ -380,6 +380,59 @@ class Scorer:
         return out
 
 
+    def explain(self, recs, mission):
+        """What drove each score, for the live view (display only, never changes a result).
+        Neural models: hide one patch of the folded views at a time (set it to the flat level, 0) and measure how much the
+        model's log-odds drop, averaged over its copies. Gradient boosting: the same, swapping one check number at a time
+        for its typical value among the training signals (models/gb_reference.json). Combined score: the weight of each model and its log-odds, so the sum can be shown."""
+        torch, M = self.torch, self.M
+        lgt = lambda p: np.log(np.clip(p, 1e-4, 1 - 1e-4) / (1 - np.clip(p, 1e-4, 1 - 1e-4)))
+        ng, nl = M.G_PAD // M.G_PATCH, M.L_PAD // M.L_PATCH
+        out = []
+        X = np.stack([self.feature_row(r) for r in recs])
+        gbs = self.gb[mission]
+        try:
+            with open(os.path.join(self.model_dir, 'gb_reference.json')) as fh:
+                ref = [np.nan if v is None else v for v in json.load(fh)[mission]]
+        except (OSError, KeyError):
+            ref = [np.nan] * len(self.feats)
+        raw_gb = np.mean([m.predict_proba(X)[:, 1] for m in gbs], 0)
+        for i, r in enumerate(recs):
+            g0 = torch.tensor(np.asarray(r['global_astronet'], np.float32)); l0 = torch.tensor(np.asarray(r['local_astronet'], np.float32))
+            G = g0.repeat(1 + ng + nl, 1); L = l0.repeat(1 + ng + nl, 1)
+            for j in range(ng):
+                G[1 + j, j * M.G_PATCH:(j + 1) * M.G_PATCH] = 0
+            for j in range(nl):
+                L[1 + ng + j, j * M.L_PATCH:(j + 1) * M.L_PATCH] = 0
+            e = dict(n_global=ng, n_local=nl, g_patch=M.G_PATCH, l_patch=M.L_PATCH, nets={})
+            with torch.no_grad():
+                for kind in self.net_kinds:
+                    z = np.mean([n(G, L).numpy() for n in self.nets[(mission, kind)]], 0)
+                    p = float(np.mean([torch.sigmoid(n(G[:1], L[:1])).numpy()[0] for n in self.nets[(mission, kind)]]))
+                    e['nets'][kind] = dict(raw=p, importance=(z[0] - z[1:]).round(4).tolist())
+            def val(k):
+                v = r.get(k)
+                return float(v) if v is not None and np.isfinite(float(v)) else None
+            Xh = np.repeat(X[i:i + 1], 1 + X.shape[1], 0)
+            for j in range(X.shape[1]):
+                Xh[1 + j, j] = ref[j]          # swap in the typical value of the training signals
+            zg = np.mean([lgt(m.predict_proba(Xh)[:, 1]) for m in gbs], 0)
+            imp = zg[0] - zg[1:]
+            e['gb'] = dict(raw=float(raw_gb[i]), inputs=[(self.feats[j], val(self.feats[j]), round(float(imp[j]), 4)) for j in np.argsort(-np.abs(imp))])
+            raws = {'gb': float(raw_gb[i]), **{k: v['raw'] for k, v in e['nets'].items()}}
+            if mission in self.comb:
+                c = self.comb[mission]
+                e['combine'] = dict(kinds=list(self.combine_kinds), weights=[float(w) for w in c.coef_[0]], intercept=float(c.intercept_[0]),
+                                    logodds=[float(lgt(raws[k])) for k in self.combine_kinds])
+            if mission in self.conf:
+                a = self.conf[mission]['alphas']; a = a.get(CONFORMAL_ALPHA) or a[min(a, key=lambda k: abs(k - CONFORMAL_ALPHA))]
+                e['conformal'] = dict(q0=float(a['q0']), q1=float(a['q1']))
+            e['calibrated'] = {k: float(self.cal[f'{mission}_{k}'].predict([v])[0]) for k, v in raws.items()}
+            e['raw'] = raws
+            out.append(e)
+        return out
+
+
 # best model per mission in our own tests (E2 for Kepler, E4 for TESS)
 MAIN_MODEL_V1 = {'kepler': 'cnn', 'tess': 'gb'}
 MAIN_MODEL = {'kepler': 'combined', 'tess': 'combined'}    # v2 (3 Nov 2026), if the combiner file is present
@@ -485,7 +538,7 @@ def run(segs, meta, scorer, progress=print, stage=None):
     if not sigs:
         out['seconds'] = time.time() - t_start
         return out
-    progress(f'Found {len(sigs)} signal(s). Building views (AstroNet spline) and check numbers...')
+    progress(f'Found {len(sigs)} signal(s). Building the folded views (spline fit) and check numbers...')
     rows = [dict(tce_period=s['period'], tce_time0bk=s['t0'], tce_duration=s['duration']) for s in sigs]
     recs = tv.process_star([s[0] for s in segs], [s[1] for s in segs], rows)
     stage('fold', sigs=sigs, recs=recs)
@@ -522,12 +575,18 @@ def run(segs, meta, scorer, progress=print, stage=None):
             progress(f'  pixel check skipped: {e}')
     progress('Scoring with the three models and the combined score...')
     probs = scorer.score(recs, meta['mission'])
+    try:
+        expl = scorer.explain(recs, meta['mission'])
+    except Exception as e:          # display only: never fail the run because of it
+        progress(f'  (explanations skipped: {e})'); expl = [None] * len(recs)
     main = MAIN_MODEL[meta['mission']] if meta['mission'] in scorer.comb else MAIN_MODEL_V1[meta['mission']]
     for i, (s, r) in enumerate(zip(sigs, recs)):
         p = {k: float(v[i]) for k, v in probs.items() if not k.startswith('_')}
         if '_conformal_p' in probs:
             r['triage'] = triage(float(probs['_conformal_p'][i]), scorer.conf[meta['mission']], CONFORMAL_ALPHA)
         r.update(s); r['scores'] = p; r['main_model'] = main; r['mission_'] = meta['mission']
+        if expl[i]:
+            r['explain'] = expl[i]
         r['verdict'] = verdict(p[main], [p[k] for k in p if k != main])
         # (with the combined score, 'others' are the three single models: uncertain only if all three disagree)
         r['flags'] = flags(r)

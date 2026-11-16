@@ -20,8 +20,8 @@
 #intro .enter.show { opacity: 1; pointer-events: auto }
 #intro.leave { transform: scale(1.12); opacity: 0; filter: blur(16px); pointer-events: none }
 html.pre body { overflow: hidden }
-html.pre header.nav, html.pre main, html.pre footer { transform: scale(.94); opacity: 0; filter: blur(10px) }
-html.reveal header.nav, html.reveal main, html.reveal footer { transition: transform 1.3s cubic-bezier(.2,.7,.1,1), opacity 1.1s ease, filter 1.1s ease; transform-origin: 50% 30vh }
+html.pre header.nav, html.pre main, html.pre footer { transform: scale(.94); opacity: 0; visibility: hidden }
+html.reveal header.nav, html.reveal main, html.reveal footer { transition: transform 1.3s cubic-bezier(.2,.7,.1,1), opacity 1.1s ease; transform-origin: 50% 30vh }
 #replay { font: inherit; font-size: 15px; color: var(--soft); background: none; border: 0; cursor: pointer; padding: 0 }
 #replay:hover { color: var(--star) }
 @media (prefers-reduced-motion: reduce) { #intro, #intro .w, html.reveal header.nav, html.reveal main, html.reveal footer { transition: none !important } }
@@ -49,7 +49,7 @@ html.reveal header.nav, html.reveal main, html.reveal footer { transition: trans
     { d: 8.0, a: 'TransitVet <em>questions every dip.</em>', b: 'It finds dips that repeat, runs them through checks and three models, and says which could be planet candidates.' },
     { d: 7.0, a: 'Explore real signals. <em>Try any star.</em>', b: 'Everything it finds is a candidate until astronomers confirm it.' }];
   const TOTAL = SC.reduce((s, x) => s + x.d, 0);
-  let x, W, H, D, stars = [], t0 = 0, raf = 0, cur = -1, done = false;
+  let x, W, H, D, stars = [], t0 = 0, T = 0, raf = 0, cur = -1, done = false;
   function size() { D = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * D; cv.height = H * D; x = cv.getContext('2d'); x.setTransform(D, 0, 0, D, 0, 0);
     let s = 7; const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
     stars = Array.from({ length: Math.round(W * H / 1500) }, () => ({ x: r() * 2 - 1, y: r() * 2 - 1, z: r(), c: r() < .2 ? '#cbbcff' : r() < .3 ? '#9fe9ff' : '#eef2ff' })) }
@@ -107,7 +107,7 @@ html.reveal header.nav, html.reveal main, html.reveal footer { transition: trans
   function caption(i) { const s = SC[i]; cap.classList.add('out');
     setTimeout(() => { cap.classList.remove('out'); cap.innerHTML = `<div class="l1">${words(s.a)}</div><div class="l2">${words(s.b)}</div>`;
       requestAnimationFrame(() => requestAnimationFrame(() => cap.querySelectorAll('.w').forEach(w => w.classList.add('in')))) }, cur < 0 ? 0 : 420) }
-  function frame(now) { if (done) return; if (!t0) t0 = now; const T = (now - t0) / 1000;
+  function frame(now) { if (done) return; if (!t0) t0 = now; T += Math.min(0.05, (now - t0) / 1000); t0 = now;   // a slow frame slows the film instead of making it jump
     let acc = 0, i = 0; while (i < SC.length - 1 && T > acc + SC[i].d) { acc += SC[i].d; i++ }
     if (i !== cur) { caption(i); cur = i }
     const k = cl((T - acc) / SC[i].d); x.clearRect(0, 0, W, H); SCN[i](k, T);
@@ -121,13 +121,13 @@ html.reveal header.nav, html.reveal main, html.reveal footer { transition: trans
     const h = document.documentElement; h.classList.add('reveal'); el.classList.add('leave');
     requestAnimationFrame(() => h.classList.remove('pre'));
     setTimeout(() => { el.hidden = true; h.classList.remove('reveal'); removeEventListener('resize', size) }, 1400) }
-  function start() { done = false; cur = -1; t0 = 0; el.hidden = false; el.classList.remove('leave'); enter.classList.remove('show'); cap.innerHTML = '';
+  function start() { done = false; cur = -1; t0 = 0; T = 0; el.hidden = false; el.classList.remove('leave'); enter.classList.remove('show'); cap.innerHTML = '';
     document.documentElement.classList.add('pre'); size(); addEventListener('resize', size);
     if (RMo) { cap.innerHTML = `<div class="l1">${SC[6].a}</div><div class="l2">${SC[6].b}</div>`; enter.classList.add('show'); skip.disabled = false; skip.textContent = 'Skip intro →'; x.clearRect(0, 0, W, H); sky(0.2); return }
     raf = requestAnimationFrame(frame); skip.focus({ preventScroll: true }) }
   skip.addEventListener('click', leave); enter.addEventListener('click', leave);
   addEventListener('keydown', e => { if (!el.hidden && !skip.disabled && (e.key === 'Escape')) leave() });
   window.tvReplayIntro = () => { scrollTo(0, 0); start() };
-  if (!seen) start();
+  if (!seen) { if (document.readyState === 'loading') { document.documentElement.classList.add('pre'); el.hidden = false; addEventListener('DOMContentLoaded', start, { once: true }) } else start() }
 })();
 </script>

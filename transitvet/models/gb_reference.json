@@ -1,0 +1,51 @@
+{
+ "note": "median of each gradient-boosting input over the training signals, in the model's own units (some are signed-log); used only to explain scores",
+ "feats": [
+  "depth_ppm",
+  "snr",
+  "odd_even_sigma",
+  "secondary_ppm",
+  "secondary_sigma",
+  "shape_ratio",
+  "n_transits",
+  "tce_period",
+  "tce_duration",
+  "local_cover_biweight",
+  "cen_sigma",
+  "cen_offset_arcsec",
+  "rp_est_re",
+  "contratio"
+ ],
+ "kepler": [
+  5.01827,
+  2.98223,
+  1.08972,
+  -0.6053,
+  -0.10235,
+  0.8548,
+  6.00389,
+  1.38326,
+  0.13092,
+  1.0,
+  20.27025,
+  3.00558,
+  2.08223,
+  0.18743
+ ],
+ "tess": [
+  7.65316,
+  3.46753,
+  1.31694,
+  2.34736,
+  0.21051,
+  0.83512,
+  3.09104,
+  1.57493,
+  0.10578,
+  1.0,
+  11.1783,
+  4.88979,
+  6.048,
+  0.03308
+ ]
+}

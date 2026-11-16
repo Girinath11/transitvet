@@ -2,7 +2,7 @@
 
 A saved run is a real, complete analysis of that star (same code, same models), recorded once with
 `python -m transitvet.examples` and stored in transitvet/examples/. The dashboard replays its live-view
-steps in about 15-20 seconds and shows the stored result, so visitors don't wait minutes or load the
+steps in about 15-20 seconds (about a minute with the step-by-step animation) and shows the stored result, so visitors don't wait minutes or load the
 hosted server. Any other star, or "Run it live" on an example, does the full analysis as usual.
 
 A saved run is used only if it was made with the same models (checked through the models' manifest)."""
