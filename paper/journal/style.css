@@ -1,0 +1,13 @@
+body{font-family:"Times New Roman",Georgia,serif;font-size:10.5pt;line-height:1.38;max-width:none;margin:0;color:#111}
+h1.title{font-size:16pt;text-align:center;margin:0 0 6pt}
+p.author{text-align:center;margin:2pt 0;font-size:10pt}
+p.date{text-align:center;font-size:9pt;color:#555}
+h1{font-size:12.5pt;margin:16pt 0 6pt}
+h2{font-size:11pt;margin:12pt 0 4pt}
+table{border-collapse:collapse;margin:8pt 0;font-size:9pt;width:100%}
+th,td{border-top:1px solid #999;border-bottom:1px solid #999;padding:3pt 5pt;text-align:left;vertical-align:top}
+th{background:#f2f2f2}
+figure{margin:10pt 0;text-align:center;break-inside:avoid}
+figure img{max-width:100%}
+figcaption{font-size:9pt;text-align:left;margin-top:4pt}
+li{margin:2pt 0}
