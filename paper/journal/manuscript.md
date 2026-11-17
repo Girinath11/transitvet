@@ -1,7 +1,7 @@
 ---
 title: "TransitVet: an open, calibrated pipeline for vetting Kepler and TESS transit signals, with a 95 per cent coverage check and an injection-recovery test"
 author:
-  - "Akilan S, Misham Samuel Daystar, Sachin Sarlin K R S, Girinath A, and R. A. Rakhi"
+  - "Girinath A, Akilan S, Misham Samuel Daystar, Sachin Sarlin K R S, and R. A. Rakhi"
   - "Department of Electronics and Communication Engineering, Karunya Institute of Technology and Sciences, Coimbatore, India [CHECK affiliation wording and emails]"
 date: "Manuscript draft, 17 November 2026"
 ---
@@ -64,9 +64,9 @@ Figure 1 shows the pipeline.
 ![The TransitVet pipeline. The three models feed a logistic combiner. The combined score sets the verdict, and a separate conformal combiner sets the 95 per cent check. The transit fit, the dip-timing check and the detection chance are shown to the user but do not change the score.](../figures/fig_pipeline.png){width=100%}
 
 1. **Cleaning.** We keep points with quality flag 0. TESS sectors are binned to 30 minutes before detrending, so Kepler and TESS views have similar sampling.
-2. **Detrending.** For the search, a time-windowed biweight filter (wōtan; Hippke et al. 2019) with a 1-day window. Upward outliers above 5 robust standard deviations are removed; dips are kept. For the folded views, the piecewise spline of AstroNet, so that our views match its inputs.
+2. **Detrending.** For the search we use a time-windowed biweight filter (wōtan; Hippke et al. 2019) with a 1-day window. Upward outliers above 5 robust standard deviations are removed; dips are kept. For the folded views we use the piecewise spline of AstroNet, so that our views match its inputs.
 3. **Search.** Box least squares (BLS; Kovács et al. 2002) from 0.6 d to a third of the data span (at most 500 d). A signal needs a BLS signal-to-noise ratio of at least 7.1. Up to five signals are kept per star, and each is masked before the next search. If every second dip is empty, the period is doubled.
-4. **Folded views.** As in AstroNet: a global view of 2,001 bins over the whole orbit and a local view of 201 bins spanning ±4 transit durations (Figure 2).
+4. **Folded views.** As in AstroNet, each signal gives a global view of 2,001 bins over the whole orbit and a local view of 201 bins spanning ±4 transit durations (Figure 2).
 
 ![Global and local views of two Kepler test signals: a planet candidate (top) and a false alarm on a strongly variable star (bottom). These two views are the input to the CNN, the Transformer and Mamba-2.](../figures/fig_views.png){width=100%}
 
@@ -148,7 +148,7 @@ Two further outputs are display only. A batman transit fit (Kreidberg 2015) give
 
 ## 5.1 Reproducing AstroNet
 
-Under AstroNet's own split by signal (random seed 123; test 1,574 signals), our PyTorch reproduction with 10 models reaches accuracy 0.955 and ROC-AUC 0.989 (average of 10 models). The original paper reports 0.960 and 0.988. The mean single model reaches 0.951 ± 0.004 and 0.987 ± 0.001. Under a split by star with the same proportions (80/10/10; test 1,576 signals), the 10-model average gives accuracy 0.951, ROC-AUC 0.982 and PR-AUC 0.943, against PR-AUC 0.948 under the split by signal. The two test sets differ, so the gap is not a paired comparison. It is, however, in the direction expected if a split by signal leaks information through shared stars.
+Under AstroNet's own split by signal (random seed 123; test 1,574 signals), the average of 10 models in our PyTorch reproduction reaches accuracy 0.955 and ROC-AUC 0.989. The original paper reports 0.960 and 0.988. The mean single model reaches 0.951 ± 0.004 and 0.987 ± 0.001. Under a split by star with the same proportions (80/10/10; test 1,576 signals), the 10-model average gives accuracy 0.951, ROC-AUC 0.982 and PR-AUC 0.943, against PR-AUC 0.948 under the split by signal. The two test sets differ, so the gap is not a paired comparison. It is, however, in the direction expected if a split by signal leaks information through shared stars.
 
 ## 5.2 Kepler
 
@@ -219,7 +219,7 @@ The difference-image check could be measured for about 70 per cent of TESS test 
 | Kepler (2,373) | 95.8% | 95.3% | 532 | 1,786 | 55 | 19 |
 | TESS (1,000) | 98.0% | 96.3% | 387 | 295 | 318 | 11 |
 
-Coverage meets the 95 per cent target for both classes on both missions (Figure 4). With the disagreement rule, 96.3 per cent of Kepler planets avoid a drop call and 97.3 per cent of Kepler false signals avoid a keep call. Without it, the conformal sets alone give 569 keep and 18 person calls on Kepler; on TESS the rule changes nothing. On Kepler the classes are well separated, so almost every signal gets a firm call. Of the keep calls, 90.6 per cent are planet candidates; of the drop calls, 98.9 per cent are false. On TESS, about a third of signals go to a person. With 129 calibration signals the cut-offs are noisy, and the classes overlap more. We think this is the honest outcome: the tool says when it cannot separate a signal rather than giving a confident score it cannot back up. Of the TESS keep calls, 95.6 per cent are planets.
+Coverage meets the 95 per cent target for both classes on both missions (Figure 4). With the disagreement rule, 96.3 per cent of Kepler planets avoid a drop call and 97.3 per cent of Kepler false signals avoid a keep call. Without it, the conformal sets alone give 569 keep and 18 person calls on Kepler; on TESS the rule changes nothing. On Kepler the classes are well separated, so almost every signal gets a firm call. Of the keep calls, 90.6 per cent are planet candidates; of the drop calls, 98.9 per cent are false. On TESS, about a third of signals go to a person. With 129 calibration signals the cut-offs are noisy, and the classes overlap more. This is the intended behaviour: the tool says when it cannot separate a signal, rather than giving a confident score it cannot back up. Of the TESS keep calls, 95.6 per cent are planets.
 
 ![Left and centre: scores of the conformal combiner on test stars, for planets and false signals, with the two cut-offs (dashed). Right: share of test signals called keep, needs a person, or drop at the 95 per cent level.](../figures/fig_conformal.png){width=100%}
 
@@ -259,7 +259,7 @@ A logistic fit in log signal-to-noise gives 50 per cent recovery at an expected 
 
 What a recovered planet was then called depends strongly on the host star:
 
-- On 7 stars whose own TOI is a confirmed or known planet, 13 of 20 recovered planets were called candidates. Two more were uncertain, 4 were called false alarms, and the coverage check said keep for 14.
+- On 7 stars whose own TOI is a confirmed or known planet, 13 of 20 recovered planets were called candidates. Three more were uncertain, 4 were called false alarms, and the coverage check said keep for 14.
 - On 10 stars whose own TOI is a false positive, only 3 of 27 were called candidates. Six were uncertain, 18 were called false alarms, and the coverage check said keep for 1.
 
 We re-ran four of these cases with and without the Gaia inputs. All three models scored the injected planets low, not only the GB model that reads Gaia, and removing Gaia made the score lower, not higher. Several of these hosts are hot stars (about 7,000 to 10,000 K). There, pulsation and other eclipses may make any folded dip look less like a planet, but we have not verified this [CHECK]. One possible reading is that the models have learned that some kinds of stars rarely host planets.
@@ -270,11 +270,7 @@ For each analysed star, the dashboard turns this curve into the chance that the 
 
 # 7 Open TESS signals and a forward test
 
-We scored all 4,408 TOIs that were still open on 1 November 2026 (Figure 6):
-
-- 1,304 are strong candidates (score at least 0.5, at least 3 dips, coverage check keep). Of these, 398 have an estimated size under 4 Earth radii.
-- 1,603 look like false alarms.
-- 1,988 go to a person.
+We scored all 4,408 TOIs that were still open on 1 November 2026 (Figure 6). The verdicts are 2,013 candidates, 792 uncertain and 1,603 false alarms. The coverage check says keep for 1,392, drop for 1,028 and sends 1,988 to a person. We call a signal a strong candidate when its score is at least 0.5, it has at least 3 dips and the coverage check says keep. There are 1,304 strong candidates, and 398 of them have an estimated size under 4 Earth radii.
 
 As a consistency check, 66 per cent of APC signals and 33 per cent of PC signals come out as false alarms. ExoMiner++ also scores 2,502 of these signals. The two place 72 per cent on the same side of 0.5, with a Spearman correlation of 0.59. The list is meant for planning follow-up and is released as a table.
 
@@ -309,11 +305,11 @@ A batch mode writes the same results for many stars. Repeat runs of a star are s
 
 # 10 Conclusions
 
-Under one honest protocol (split by star, choices on validation stars, test stars used once), a light, open pipeline reaches a PR-AUC of 0.963 on Kepler and 0.950 on TESS. That puts it within the uncertainty of ExoMiner++ on shared TESS signals. A class-conditional conformal check holds its 95 per cent coverage on test stars and tells users which signals it cannot place. An injection-recovery test of the whole pipeline measures what the search can find and exposes a host-star effect in what the classifier then calls it. The tool, the scores for 4,408 open TESS signals and the frozen forward test are public, so others can check these results and extend them.
+Under one strict protocol (split by star, choices on validation stars, test stars used once), a light, open pipeline reaches a PR-AUC of 0.963 on Kepler and 0.950 on TESS. That puts it within the uncertainty of ExoMiner++ on shared TESS signals. A class-conditional conformal check holds its 95 per cent coverage on test stars and tells users which signals it cannot place. An injection-recovery test of the whole pipeline measures what the search can find and exposes a host-star effect in what the classifier then calls it. The tool, the scores for 4,408 open TESS signals and the frozen forward test are public, so others can check these results and extend them.
 
 # Acknowledgements
 
-We thank the ExoMiner++ team for publishing their scores. This paper includes data collected by the Kepler mission and obtained from the MAST data archive at the Space Telescope Science Institute (STScI). Funding for the Kepler mission is provided by the NASA Science Mission Directorate. STScI is operated by the Association of Universities for Research in Astronomy, Inc., under NASA contract NAS 5-26555. This paper includes data collected by the TESS mission. Funding for the TESS mission is provided by the NASA Science Mission Directorate. This research has made use of the NASA Exoplanet Archive and the Exoplanet Follow-up Observation Program (ExoFOP) website, which are operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program. This work has made use of data from the European Space Agency (ESA) mission Gaia (https://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis Consortium (DPAC, https://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC has been provided by national institutions, in particular the institutions participating in the Gaia Multilateral Agreement.
+We thank the ExoMiner++ team for publishing their scores. This paper includes data collected by the Kepler mission and obtained from the MAST data archive at the Space Telescope Science Institute (STScI). Funding for the Kepler mission is provided by the NASA Science Mission Directorate. STScI is operated by the Association of Universities for Research in Astronomy, Inc., under NASA contract NAS 5-26555. This paper includes data collected by the TESS mission. Funding for the TESS mission is provided by the NASA Science Mission Directorate. This research has made use of the NASA Exoplanet Archive and the Exoplanet Follow-up Observation Program (ExoFOP) website, which are operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program. This work has made use of data from the European Space Agency (ESA) mission Gaia (https://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis Consortium (DPAC, https://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC has been provided by national institutions, in particular the institutions participating in the Gaia Multilateral Agreement. The authors used an AI assistant (Claude, Anthropic) to help write code and edit the text. The authors checked all code, numbers and text, and take full responsibility for the content.
 
 # Software
 
@@ -355,7 +351,7 @@ This appendix gives the ablations (Table A1), the calibration errors of single m
 
 **Table A1.** Ablations on Kepler test (PR-AUC; CNN 3 seeds, full model 5; GB 5 seeds).
 
-| Change | PR-AUC | Change |
+| Variant | PR-AUC | Change |
 |---|---|---|
 | CNN, both views (full) | 0.941 ± 0.003 | |
 | CNN, global view only | 0.922 ± 0.007 | −0.019 |

@@ -172,11 +172,11 @@ tex = r"""% TransitVet manuscript, MNRAS / RASTI layout.
 \title[TransitVet: calibrated vetting of Kepler and TESS signals]{<<TITLE>>}
 
 % Author list and affiliation from the team. [CHECK affiliation wording, ORCIDs and the corresponding e-mail.]
-\author[Akilan S et al.]{
+\author[Girinath A et al.]{
+Girinath A,$^{1}$\thanks{E-mail: corresponding author e-mail [CHECK]}
 Akilan S,$^{1}$
 Misham Samuel Daystar,$^{1}$
-Sachin Sarlin K R S,$^{1}$
-Girinath A$^{1}$\thanks{E-mail: corresponding author e-mail [CHECK]}
+Sachin Sarlin K R S$^{1}$
 and R. A. Rakhi$^{1}$
 \\
 $^{1}$Department of Electronics and Communication Engineering, Karunya Institute of Technology and Sciences, Coimbatore, Tamil Nadu, India

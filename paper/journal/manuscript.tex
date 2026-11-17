@@ -71,15 +71,15 @@
 \urlstyle{same}
 \hypersetup{
   pdftitle={TransitVet: an open, calibrated pipeline for vetting Kepler and TESS transit signals, with a 95 per cent coverage check and an injection-recovery test},
-  pdfauthor={Akilan S, Misham Samuel Daystar, Sachin Sarlin K R S, Girinath A, and R. A. Rakhi; Department of Electronics and Communication Engineering, Karunya Institute of Technology and Sciences, Coimbatore, India {[}CHECK affiliation wording and emails{]}},
+  pdfauthor={Girinath A, Akilan S, Misham Samuel Daystar, Sachin Sarlin K R S, and R. A. Rakhi; Department of Electronics and Communication Engineering, Karunya Institute of Technology and Sciences, Coimbatore, India {[}CHECK affiliation wording and emails{]}},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
 \title{TransitVet: an open, calibrated pipeline for vetting Kepler and
 TESS transit signals, with a 95 per cent coverage check and an
 injection-recovery test}
-\author{Akilan S, Misham Samuel Daystar, Sachin Sarlin K R S, Girinath
-A, and R. A. Rakhi \and Department of Electronics and Communication
+\author{Girinath A, Akilan S, Misham Samuel Daystar, Sachin Sarlin K R
+S, and R. A. Rakhi \and Department of Electronics and Communication
 Engineering, Karunya Institute of Technology and Sciences, Coimbatore,
 India {[}CHECK affiliation wording and emails{]}}
 \date{Manuscript draft, 17 November 2026}
@@ -309,11 +309,11 @@ the score.}
   are binned to 30 minutes before detrending, so Kepler and TESS views
   have similar sampling.
 \item
-  \textbf{Detrending.} For the search, a time-windowed biweight filter
-  (wōtan; Hippke et al.~2019) with a 1-day window. Upward outliers above
-  5 robust standard deviations are removed; dips are kept. For the
-  folded views, the piecewise spline of AstroNet, so that our views
-  match its inputs.
+  \textbf{Detrending.} For the search we use a time-windowed biweight
+  filter (wōtan; Hippke et al.~2019) with a 1-day window. Upward
+  outliers above 5 robust standard deviations are removed; dips are
+  kept. For the folded views we use the piecewise spline of AstroNet, so
+  that our views match its inputs.
 \item
   \textbf{Search.} Box least squares (BLS; Kovács et al.~2002) from 0.6
   d to a third of the data span (at most 500 d). A signal needs a BLS
@@ -321,9 +321,9 @@ the score.}
   star, and each is masked before the next search. If every second dip
   is empty, the period is doubled.
 \item
-  \textbf{Folded views.} As in AstroNet: a global view of 2,001 bins
-  over the whole orbit and a local view of 201 bins spanning ±4 transit
-  durations (Figure 2).
+  \textbf{Folded views.} As in AstroNet, each signal gives a global view
+  of 2,001 bins over the whole orbit and a local view of 201 bins
+  spanning ±4 transit durations (Figure 2).
 \end{enumerate}
 
 \begin{figure}
@@ -571,15 +571,15 @@ least 5 sigma.
 \subsection{5.1 Reproducing AstroNet}\label{reproducing-astronet}}
 
 Under AstroNet's own split by signal (random seed 123; test 1,574
-signals), our PyTorch reproduction with 10 models reaches accuracy 0.955
-and ROC-AUC 0.989 (average of 10 models). The original paper reports
-0.960 and 0.988. The mean single model reaches 0.951 ± 0.004 and 0.987 ±
-0.001. Under a split by star with the same proportions (80/10/10; test
-1,576 signals), the 10-model average gives accuracy 0.951, ROC-AUC 0.982
-and PR-AUC 0.943, against PR-AUC 0.948 under the split by signal. The
-two test sets differ, so the gap is not a paired comparison. It is,
-however, in the direction expected if a split by signal leaks
-information through shared stars.
+signals), the average of 10 models in our PyTorch reproduction reaches
+accuracy 0.955 and ROC-AUC 0.989. The original paper reports 0.960 and
+0.988. The mean single model reaches 0.951 ± 0.004 and 0.987 ± 0.001.
+Under a split by star with the same proportions (80/10/10; test 1,576
+signals), the 10-model average gives accuracy 0.951, ROC-AUC 0.982 and
+PR-AUC 0.943, against PR-AUC 0.948 under the split by signal. The two
+test sets differ, so the gap is not a paired comparison. It is, however,
+in the direction expected if a split by signal leaks information through
+shared stars.
 
 \hypertarget{kepler}{%
 \subsection{5.2 Kepler}\label{kepler}}
@@ -822,8 +822,8 @@ are well separated, so almost every signal gets a firm call. Of the keep
 calls, 90.6 per cent are planet candidates; of the drop calls, 98.9 per
 cent are false. On TESS, about a third of signals go to a person. With
 129 calibration signals the cut-offs are noisy, and the classes overlap
-more. We think this is the honest outcome: the tool says when it cannot
-separate a signal rather than giving a confident score it cannot back
+more. This is the intended behaviour: the tool says when it cannot
+separate a signal, rather than giving a confident score it cannot back
 up. Of the TESS keep calls, 95.6 per cent are planets.
 
 \begin{figure}
@@ -945,7 +945,7 @@ star:
 \tightlist
 \item
   On 7 stars whose own TOI is a confirmed or known planet, 13 of 20
-  recovered planets were called candidates. Two more were uncertain, 4
+  recovered planets were called candidates. Three more were uncertain, 4
   were called false alarms, and the coverage check said keep for 14.
 \item
   On 10 stars whose own TOI is a false positive, only 3 of 27 were
@@ -980,19 +980,12 @@ to it.
 test}\label{open-tess-signals-and-a-forward-test}}
 
 We scored all 4,408 TOIs that were still open on 1 November 2026 (Figure
-6):
-
-\begin{itemize}
-\tightlist
-\item
-  1,304 are strong candidates (score at least 0.5, at least 3 dips,
-  coverage check keep). Of these, 398 have an estimated size under 4
-  Earth radii.
-\item
-  1,603 look like false alarms.
-\item
-  1,988 go to a person.
-\end{itemize}
+6). The verdicts are 2,013 candidates, 792 uncertain and 1,603 false
+alarms. The coverage check says keep for 1,392, drop for 1,028 and sends
+1,988 to a person. We call a signal a strong candidate when its score is
+at least 0.5, it has at least 3 dips and the coverage check says keep.
+There are 1,304 strong candidates, and 398 of them have an estimated
+size under 4 Earth radii.
 
 As a consistency check, 66 per cent of APC signals and 33 per cent of PC
 signals come out as false alarms. ExoMiner++ also scores 2,502 of these
@@ -1102,7 +1095,7 @@ repository includes all validation scripts and notes.
 \hypertarget{conclusions}{%
 \section{10 Conclusions}\label{conclusions}}
 
-Under one honest protocol (split by star, choices on validation stars,
+Under one strict protocol (split by star, choices on validation stars,
 test stars used once), a light, open pipeline reaches a PR-AUC of 0.963
 on Kepler and 0.950 on TESS. That puts it within the uncertainty of
 ExoMiner++ on shared TESS signals. A class-conditional conformal check
@@ -1133,7 +1126,10 @@ Program. This work has made use of data from the European Space Agency
 Gaia Data Processing and Analysis Consortium (DPAC,
 https://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the
 DPAC has been provided by national institutions, in particular the
-institutions participating in the Gaia Multilateral Agreement.
+institutions participating in the Gaia Multilateral Agreement. The
+authors used an AI assistant (Claude, Anthropic) to help write code and
+edit the text. The authors checked all code, numbers and text, and take
+full responsibility for the content.
 
 \hypertarget{software}{%
 \section{Software}\label{software}}
@@ -1223,7 +1219,7 @@ model 5; GB 5 seeds).
 
 \begin{longtable}[]{@{}lll@{}}
 \toprule\noalign{}
-Change & PR-AUC & Change \\
+Variant & PR-AUC & Change \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
