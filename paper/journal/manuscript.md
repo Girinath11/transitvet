@@ -10,7 +10,7 @@ date: "Manuscript draft, 17 November 2026"
 
 Transit surveys find far more periodic dips than people can check by hand, and most are not planets. We present TransitVet, an open pipeline that takes a Kepler or TESS light curve, searches it for repeating dips, and gives each signal a calibrated score and a three-way call (keep, drop, or needs a person). We first reproduce the AstroNet convolutional network on Kepler DR24 (accuracy 0.955, ROC-AUC 0.989 under its split by signal) and show that a split by star gives lower numbers. Under one protocol (split by star, every choice made on validation stars, test stars used once) we compare a threshold rule, gradient boosting on vetting statistics, AstroNet, a pretrained patch Transformer and a Mamba-2 state-space model. The released tool combines gradient boosting, Mamba-2 and the Transformer through a logistic combiner. On held-out stars it reaches a precision-recall AUC of 0.963 on Kepler (2,373 signals) and 0.950 on TESS (1,000 signals). On 542 TESS test signals also scored by ExoMiner++, the two are within the uncertainty (0.968 and 0.973). Class-conditional split conformal prediction keeps at least 95 per cent coverage for both classes on test stars. An injection-recovery test with 90 synthetic planets shows the search recovers half of them at an expected signal-to-noise ratio of about 10. It also shows that the call on a recovered planet depends strongly on the host star. We release the code, a web dashboard and scores for 4,408 TESS objects of interest that are still open.
 
-**Keywords:** planets and satellites: detection; methods: data analysis; methods: statistical; techniques: photometric; software: public release [CHECK against the journal's keyword list]
+**Keywords:** planets and satellites: detection; methods: data analysis; methods: statistical; techniques: photometric; software: public release
 
 # 1 Introduction
 
@@ -35,7 +35,7 @@ We make no claim of planet discoveries. Every positive output is a planet candid
 
 **Models that add diagnostics.** ExoMiner (Valizadegan et al. 2022) feeds the network the same diagnostics a human vetter uses: odd and even transits, secondary eclipses, centroid motion and difference images. It was used to validate 301 Kepler planets. ExoMiner++ (Valizadegan et al. 2025) extends this to TESS 2-minute data with transfer learning from Kepler, and publishes scores for all TESS SPOC signals. Our gradient-boosting model follows the same idea with a smaller set of hand-built statistics. ExoMiner++ is the main external comparison in Section 5.6.
 
-**Attention and state-space models.** Transformers have been applied to TESS vetting (Salinas et al. 2023). Masked-patch pretraining, borrowed from vision and language models, lets a Transformer learn from unlabelled light curves. Mamba-2 (Dao & Gu 2024) is a selective state-space model that scales linearly with sequence length. It has, to our knowledge, seen little use on folded light curves [CHECK]. We test both under the same inputs as AstroNet.
+**Attention and state-space models.** Transformers have been applied to TESS vetting (Salinas et al. 2023). Masked-patch pretraining, borrowed from vision and language models, lets a Transformer learn from unlabelled light curves. Mamba-2 (Dao & Gu 2024) is a selective state-space model that scales linearly with sequence length. In the vetting papers we read, we did not find it applied to folded light curves. We test both under the same inputs as AstroNet.
 
 **Calibration and uncertainty.** A vetting score is most useful when a score of 0.8 means that about 8 in 10 such signals are planets. Isotonic regression and temperature scaling are standard fixes for a model that is too confident. Conformal prediction (Vovk et al. 2005; Lei et al. 2018) gives prediction sets with a coverage guarantee that does not depend on the model. ExoVeil (Priyanshu 2026) uses conformal prediction to rank transit detections from a learned model of stellar behaviour. We use the class-conditional (Mondrian) form to give a per-class guarantee for vetting.
 
@@ -208,7 +208,7 @@ Adding the 13 Gaia numbers to GB raises its TESS test PR-AUC from 0.940 to 0.947
 
 Dropping one Gaia number at a time on validation stars shows the radial-velocity error matters most (0.014 PR-AUC), followed by the neighbour-depth test and parallax signal-to-noise (0.005 each). Radial-velocity errors exist only for stars brighter than about G = 13, so about half the stars lack this input. Gradient boosting handles missing values natively.
 
-The difference-image check could be measured for 69 per cent of TESS test signals. With a threshold chosen on validation stars (offset above 5 sigma and more than 10 arcsec), it flags 19 of 542 test planets (3.5 per cent) and 113 of 458 false signals (24.7 per cent). Used as a score input it did not change PR-AUC, so we use it as a verdict rule. A flagged candidate becomes uncertain. That moved 17 of the 82 false signals the combined score had called candidates, at the cost of 18 planets moved to uncertain. These figures were measured with the tool version before Gaia was added [CHECK: re-run with v4].
+The difference-image check could be measured for about 70 per cent of TESS test signals. With a threshold chosen on validation stars (offset above 5 sigma and more than 10 arcsec), it flags 19 of 542 test planets (3.5 per cent) and 113 of 458 false signals (24.7 per cent). Used as a score input in an earlier model version it did not change PR-AUC, so we use it as a verdict rule: a flagged candidate becomes uncertain. With the released models, this moves 19 of the 76 false signals that the combined score calls candidates, at the cost of 16 of 493 candidate planets moved to uncertain.
 
 ## 5.5 The 95 per cent check
 
@@ -227,7 +227,7 @@ Coverage meets the 95 per cent target for both classes on both missions (Figure 
 
 ExoMiner++ publishes out-of-fold scores for TESS SPOC 2-minute signals from sectors 1–67. We matched our TESS test signals by TIC number and period (within 1 per cent). 542 of the 1,000 matched: 347 planets and 195 false signals. The rest were not detected by the SPOC 2-minute pipeline in those sectors. On these 542 signals, TransitVet reaches a PR-AUC of 0.968 and ExoMiner++ 0.973. The difference is −0.005, with a bootstrap interval over stars of −0.019 to +0.010. The average of the two scores reaches 0.982. This average was examined on the test set, so we treat it as a finding to confirm, not a tuned result.
 
-The comparison is not like for like. ExoMiner++ uses SPOC data-validation products, including difference images, and its own training set. TransitVet starts from light-curve files and catalogues, and also scores dips found by its own search and Kepler stars. Whether the ExoMiner++ folds are split by star is not stated in the material we used [CHECK].
+The comparison is not like for like. ExoMiner++ uses SPOC data-validation products, including difference images, and its own training set. TransitVet starts from light-curve files and catalogues, and also scores dips found by its own search and Kepler stars. We did not establish whether the ExoMiner++ cross-validation folds keep all signals of a star together; if they do not, its out-of-fold scores could be slightly optimistic.
 
 ## 5.7 Errors, attention and speed
 
@@ -313,19 +313,19 @@ Under one honest protocol (split by star, choices on validation stars, test star
 
 # Acknowledgements
 
-This paper includes data collected by the Kepler and TESS missions, obtained from the Mikulski Archive for Space Telescopes (MAST). Funding for the Kepler mission is provided by NASA's Science Mission Directorate; funding for the TESS mission is provided by NASA's Science Mission Directorate. This research has made use of the NASA Exoplanet Archive, operated by the California Institute of Technology under contract with NASA, and of data from the European Space Agency mission Gaia, processed by the Gaia Data Processing and Analysis Consortium. We thank the ExoMiner++ team for publishing their scores. [CHECK the exact acknowledgement wording each archive asks for.]
+We thank the ExoMiner++ team for publishing their scores. This paper includes data collected by the Kepler mission and obtained from the MAST data archive at the Space Telescope Science Institute (STScI). Funding for the Kepler mission is provided by the NASA Science Mission Directorate. STScI is operated by the Association of Universities for Research in Astronomy, Inc., under NASA contract NAS 5-26555. This paper includes data collected by the TESS mission. Funding for the TESS mission is provided by the NASA Science Mission Directorate. This research has made use of the NASA Exoplanet Archive and the Exoplanet Follow-up Observation Program (ExoFOP) website, which are operated by the California Institute of Technology, under contract with the National Aeronautics and Space Administration under the Exoplanet Exploration Program. This work has made use of data from the European Space Agency (ESA) mission Gaia (https://www.cosmos.esa.int/gaia), processed by the Gaia Data Processing and Analysis Consortium (DPAC, https://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the DPAC has been provided by national institutions, in particular the institutions participating in the Gaia Multilateral Agreement.
 
 # Software
 
-Python, NumPy, SciPy, pandas, scikit-learn, PyTorch, Astropy, astroquery, lightkurve, wōtan (Hippke et al. 2019), batman (Kreidberg 2015), Matplotlib and Streamlit. [CHECK versions and add the software citations each package asks for.]
+NumPy 2.5, SciPy 1.18, pandas 2.3, scikit-learn 1.9, PyTorch 2.15, Astropy 8.0, astroquery 0.4.11, lightkurve 2.6, wōtan 2.0 (Hippke et al. 2019), batman 2.5.3 (Kreidberg 2015), Matplotlib 3.11 and Streamlit 1.66.
 
 # Data availability
 
-The code, trained models, validation scripts, the scores for the 4,408 open TESS signals and the weekly forward-test tally are available at https://github.com/Girinath11/transitvet. The web dashboard is at https://transitvet.streamlit.app and the project website at https://girinath11.github.io/transitvet. Kepler and TESS light curves are available from MAST, the label tables from the NASA Exoplanet Archive, and Gaia DR2 from the Gaia archive and MAST. [Consider a Zenodo archive with a DOI for the release.]
+The code, trained models, validation scripts, the scores for the 4,408 open TESS signals and the weekly forward-test tally are available at https://github.com/Girinath11/transitvet. The web dashboard is at https://transitvet.streamlit.app and the project website at https://girinath11.github.io/transitvet. Kepler and TESS light curves are available from MAST, the label tables from the NASA Exoplanet Archive, and Gaia DR2 from the Gaia archive and MAST.
 
 # References
 
-- Borucki W. J., et al., 2010, Science, 327, 977 [CHECK]
+- Borucki W. J., et al., 2010, Science, 327, 977
 - Cabrera J., et al., 2014, ApJ, 781, 18
 - Carter J. A., Yee J. C., Eastman J., Gaudi B. S., Winn J. N., 2008, ApJ, 689, 499
 - Coughlin J. L., et al., 2016, ApJS, 224, 12
@@ -340,15 +340,18 @@ The code, trained models, validation scripts, the scores for the 4,408 open TESS
 - Liang Y., Robnik J., Seljak U., 2021, AJ, 161, 202
 - Priyanshu P., 2026, arXiv:2606.02778
 - Ricker G. R., et al., 2015, J. Astron. Telesc. Instrum. Syst., 1, 014003
-- Salinas H., et al., 2023, arXiv:2304.14283 [CHECK author list and journal]
+- Salinas H., et al., 2023, MNRAS, 522, 3201
 - Shallue C. J., Vanderburg A., 2018, AJ, 155, 94
 - Tey E., et al., 2023, AJ, 165, 95
 - Valizadegan H., et al., 2022, ApJ, 926, 120
-- Valizadegan H., et al., 2025, arXiv:2502.09790 [CHECK journal reference]
+- Valizadegan H., et al., 2025, AJ, 170, 287
 - Vovk V., Gammerman A., Shafer G., 2005, Algorithmic Learning in a Random World. Springer, New York
-- Yu L., et al., 2019, AJ, 158, 25 [CHECK]
+- Yu L., et al., 2019, AJ, 158, 25
 
 # Appendix A: further tables
+
+This appendix gives the ablations (Table A1), the calibration errors of single models (Table A2), the reliability of the combined score (Figure A1), the Gaia inputs the TESS gradient-boosting model relies on (Figure A2) and the dip-timing check on Kepler-90 (Figure A3).
+
 
 **Table A1.** Ablations on Kepler test (PR-AUC; CNN 3 seeds, full model 5; GB 5 seeds).
 
@@ -376,7 +379,7 @@ The code, trained models, validation scripts, the scores for the 4,408 open TESS
 | Transformer | TESS, Kepler model unchanged | 0.182 | 0.092 | 0.060 |
 | Transformer | TESS, fine-tuned | 0.066 | 0.038 | 0.054 |
 
-![Reliability diagrams before and after isotonic calibration.](../figures/fig_reliability.png){width=90%}
+![Reliability of the combined score on the test stars: the share of signals that are planets in each of 10 equal-width score bins, against the mean score in the bin. The dashed line is perfect calibration. With these bins the calibration error is 0.009 on Kepler and 0.040 on TESS.](../figures/fig_reliability.png){width=90%}
 
 ![Which Gaia inputs the TESS gradient-boosting model relies on.](../figures/fig_gaia_importance.png){width=80%}
 

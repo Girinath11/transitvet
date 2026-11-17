@@ -115,7 +115,7 @@ that are still open.
 
 \textbf{Keywords:} planets and satellites: detection; methods: data
 analysis; methods: statistical; techniques: photometric; software:
-public release {[}CHECK against the journal's keyword list{]}
+public release
 
 \hypertarget{introduction}{%
 \section{1 Introduction}\label{introduction}}
@@ -206,9 +206,9 @@ Section 5.6.
 applied to TESS vetting (Salinas et al.~2023). Masked-patch pretraining,
 borrowed from vision and language models, lets a Transformer learn from
 unlabelled light curves. Mamba-2 (Dao \& Gu 2024) is a selective
-state-space model that scales linearly with sequence length. It has, to
-our knowledge, seen little use on folded light curves {[}CHECK{]}. We
-test both under the same inputs as AstroNet.
+state-space model that scales linearly with sequence length. In the
+vetting papers we read, we did not find it applied to folded light
+curves. We test both under the same inputs as AstroNet.
 
 \textbf{Calibration and uncertainty.} A vetting score is most useful
 when a score of 0.8 means that about 8 in 10 such signals are planets.
@@ -763,15 +763,15 @@ Radial-velocity errors exist only for stars brighter than about G = 13,
 so about half the stars lack this input. Gradient boosting handles
 missing values natively.
 
-The difference-image check could be measured for 69 per cent of TESS
-test signals. With a threshold chosen on validation stars (offset above
-5 sigma and more than 10 arcsec), it flags 19 of 542 test planets (3.5
-per cent) and 113 of 458 false signals (24.7 per cent). Used as a score
-input it did not change PR-AUC, so we use it as a verdict rule. A
-flagged candidate becomes uncertain. That moved 17 of the 82 false
-signals the combined score had called candidates, at the cost of 18
-planets moved to uncertain. These figures were measured with the tool
-version before Gaia was added {[}CHECK: re-run with v4{]}.
+The difference-image check could be measured for about 70 per cent of
+TESS test signals. With a threshold chosen on validation stars (offset
+above 5 sigma and more than 10 arcsec), it flags 19 of 542 test planets
+(3.5 per cent) and 113 of 458 false signals (24.7 per cent). Used as a
+score input in an earlier model version it did not change PR-AUC, so we
+use it as a verdict rule: a flagged candidate becomes uncertain. With
+the released models, this moves 19 of the 76 false signals that the
+combined score calls candidates, at the cost of 16 of 493 candidate
+planets moved to uncertain.
 
 \hypertarget{the-95-per-cent-check}{%
 \subsection{5.5 The 95 per cent check}\label{the-95-per-cent-check}}
@@ -852,9 +852,10 @@ we treat it as a finding to confirm, not a tuned result.
 The comparison is not like for like. ExoMiner++ uses SPOC
 data-validation products, including difference images, and its own
 training set. TransitVet starts from light-curve files and catalogues,
-and also scores dips found by its own search and Kepler stars. Whether
-the ExoMiner++ folds are split by star is not stated in the material we
-used {[}CHECK{]}.
+and also scores dips found by its own search and Kepler stars. We did
+not establish whether the ExoMiner++ cross-validation folds keep all
+signals of a star together; if they do not, its out-of-fold scores could
+be slightly optimistic.
 
 \hypertarget{errors-attention-and-speed}{%
 \subsection{5.7 Errors, attention and
@@ -1115,24 +1116,32 @@ others can check these results and extend them.
 \hypertarget{acknowledgements}{%
 \section{Acknowledgements}\label{acknowledgements}}
 
-This paper includes data collected by the Kepler and TESS missions,
-obtained from the Mikulski Archive for Space Telescopes (MAST). Funding
-for the Kepler mission is provided by NASA's Science Mission
-Directorate; funding for the TESS mission is provided by NASA's Science
-Mission Directorate. This research has made use of the NASA Exoplanet
-Archive, operated by the California Institute of Technology under
-contract with NASA, and of data from the European Space Agency mission
-Gaia, processed by the Gaia Data Processing and Analysis Consortium. We
-thank the ExoMiner++ team for publishing their scores. {[}CHECK the
-exact acknowledgement wording each archive asks for.{]}
+We thank the ExoMiner++ team for publishing their scores. This paper
+includes data collected by the Kepler mission and obtained from the MAST
+data archive at the Space Telescope Science Institute (STScI). Funding
+for the Kepler mission is provided by the NASA Science Mission
+Directorate. STScI is operated by the Association of Universities for
+Research in Astronomy, Inc., under NASA contract NAS 5-26555. This paper
+includes data collected by the TESS mission. Funding for the TESS
+mission is provided by the NASA Science Mission Directorate. This
+research has made use of the NASA Exoplanet Archive and the Exoplanet
+Follow-up Observation Program (ExoFOP) website, which are operated by
+the California Institute of Technology, under contract with the National
+Aeronautics and Space Administration under the Exoplanet Exploration
+Program. This work has made use of data from the European Space Agency
+(ESA) mission Gaia (https://www.cosmos.esa.int/gaia), processed by the
+Gaia Data Processing and Analysis Consortium (DPAC,
+https://www.cosmos.esa.int/web/gaia/dpac/consortium). Funding for the
+DPAC has been provided by national institutions, in particular the
+institutions participating in the Gaia Multilateral Agreement.
 
 \hypertarget{software}{%
 \section{Software}\label{software}}
 
-Python, NumPy, SciPy, pandas, scikit-learn, PyTorch, Astropy,
-astroquery, lightkurve, wōtan (Hippke et al.~2019), batman (Kreidberg
-2015), Matplotlib and Streamlit. {[}CHECK versions and add the software
-citations each package asks for.{]}
+NumPy 2.5, SciPy 1.18, pandas 2.3, scikit-learn 1.9, PyTorch 2.15,
+Astropy 8.0, astroquery 0.4.11, lightkurve 2.6, wōtan 2.0 (Hippke et
+al.~2019), batman 2.5.3 (Kreidberg 2015), Matplotlib 3.11 and Streamlit
+1.66.
 
 \hypertarget{data-availability}{%
 \section{Data availability}\label{data-availability}}
@@ -1143,8 +1152,7 @@ https://github.com/Girinath11/transitvet. The web dashboard is at
 https://transitvet.streamlit.app and the project website at
 https://girinath11.github.io/transitvet. Kepler and TESS light curves
 are available from MAST, the label tables from the NASA Exoplanet
-Archive, and Gaia DR2 from the Gaia archive and MAST. {[}Consider a
-Zenodo archive with a DOI for the release.{]}
+Archive, and Gaia DR2 from the Gaia archive and MAST.
 
 \hypertarget{references}{%
 \section{References}\label{references}}
@@ -1152,7 +1160,7 @@ Zenodo archive with a DOI for the release.{]}
 \begin{itemize}
 \tightlist
 \item
-  Borucki W. J., et al., 2010, Science, 327, 977 {[}CHECK{]}
+  Borucki W. J., et al., 2010, Science, 327, 977
 \item
   Cabrera J., et al., 2014, ApJ, 781, 18
 \item
@@ -1186,8 +1194,7 @@ Zenodo archive with a DOI for the release.{]}
   Ricker G. R., et al., 2015, J. Astron. Telesc. Instrum. Syst., 1,
   014003
 \item
-  Salinas H., et al., 2023, arXiv:2304.14283 {[}CHECK author list and
-  journal{]}
+  Salinas H., et al., 2023, MNRAS, 522, 3201
 \item
   Shallue C. J., Vanderburg A., 2018, AJ, 155, 94
 \item
@@ -1195,17 +1202,21 @@ Zenodo archive with a DOI for the release.{]}
 \item
   Valizadegan H., et al., 2022, ApJ, 926, 120
 \item
-  Valizadegan H., et al., 2025, arXiv:2502.09790 {[}CHECK journal
-  reference{]}
+  Valizadegan H., et al., 2025, AJ, 170, 287
 \item
   Vovk V., Gammerman A., Shafer G., 2005, Algorithmic Learning in a
   Random World. Springer, New York
 \item
-  Yu L., et al., 2019, AJ, 158, 25 {[}CHECK{]}
+  Yu L., et al., 2019, AJ, 158, 25
 \end{itemize}
 
 \hypertarget{appendix-a-further-tables}{%
 \section{Appendix A: further tables}\label{appendix-a-further-tables}}
+
+This appendix gives the ablations (Table A1), the calibration errors of
+single models (Table A2), the reliability of the combined score (Figure
+A1), the Gaia inputs the TESS gradient-boosting model relies on (Figure
+A2) and the dip-timing check on Kepler-90 (Figure A3).
 
 \textbf{Table A1.} Ablations on Kepler test (PR-AUC; CNN 3 seeds, full
 model 5; GB 5 seeds).
@@ -1250,7 +1261,11 @@ Transformer & TESS, fine-tuned & 0.066 & 0.038 & 0.054 \\
 \begin{figure}
 \centering
 \includegraphics[width=0.9\textwidth,height=\textheight]{../figures/fig_reliability.png}
-\caption{Reliability diagrams before and after isotonic calibration.}
+\caption{Reliability of the combined score on the test stars: the share
+of signals that are planets in each of 10 equal-width score bins,
+against the mean score in the bin. The dashed line is perfect
+calibration. With these bins the calibration error is 0.009 on Kepler
+and 0.040 on TESS.}
 \end{figure}
 
 \begin{figure}
