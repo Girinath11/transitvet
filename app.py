@@ -4,7 +4,8 @@ os.environ.setdefault('TV_LAZY_MODELS', '1')   # load only the networks a star n
 import numpy as np, pandas as pd, streamlit as st
 
 sys.path.insert(0, os.path.dirname(__file__))
-from transitvet import pipeline as P, plots, extras as E, planner as PL, ui_theme as UI, live as LV, examples as EX
+from transitvet import pipeline as P, plots, extras as E, planner as PL, ui_theme as UI, live as LV, examples as EX, sonify, system_view
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title='TransitVet', page_icon='🪐', layout='wide')
 st.markdown(UI.CSS, unsafe_allow_html=True)
@@ -115,7 +116,23 @@ def show_result(res, key):
             'duration_hours', 'depth_ppm', 'nasa_exominer_pp', 'p_gradient_boosting', 'p_cnn', 'p_mamba', 'p_transformer', 'light_shift_sigma',
             'source_offset_arcsec', 'pixel_offset_arcsec', 'pixel_sigma', 'flags']
     cols = [k for k in cols if k in table and not (k.startswith('p_') and table[k].isna().all())]   # only the models this model set uses
-    st.dataframe(table[cols], hide_index=True, width='stretch')
+    lines = []
+    for i, r in enumerate(res['signals'], 1):
+        tr = (r.get('triage') or {}).get('call')
+        say = {'candidate': 'looks like a **planet candidate**', 'uncertain': 'is **uncertain**', 'false alarm': 'looks like a **false alarm**'}[r['verdict']]
+        nm = (r.get('known') or {}).get('name')
+        lines.append(f"- Signal {i} ({r['period']:.2f}-day orbit{', ' + nm if nm else ''}) {say}: score {r['scores'][r['main_model']]:.2f}"
+                     + (f", 95% check says *{tr}*" if tr else '') + (f". Main warning: {r['flags'][0]}" if r['flags'] and r['verdict'] != 'candidate' else '') + '.')
+    st.markdown('**In short**\n' + '\n'.join(lines))
+    st.caption('A score is the models\' estimate, calibrated so 0.8 means about 8 in 10 such signals were planet candidates. '
+               '"Candidate" means worth following up, not a confirmed planet.')
+    with st.expander('Table of all signals', expanded=False):
+        st.dataframe(table[cols], hide_index=True, width='stretch')
+    if len(res['signals']) > 1:
+        sv = system_view.page(res)
+        if sv:
+            st.markdown('**The system from above**')
+            components.html(sv, height=400)
     _show(plots.lightcurve_figure(res))
     for i, r in enumerate(res['signals'], 1):
         with st.expander(f"Signal {i}: {r['verdict'].upper()} · period {r['period']:.4f} d · depth {r['depth_ppm']:.0f} ppm", expanded=i == 1):
@@ -131,6 +148,11 @@ def show_result(res, key):
                 else:
                     st.caption('NASA ExoMiner++: ' + exm['note'])
             _show(plots.signal_figure(r, i))
+            try:
+                st.markdown('**Hear it**: three orbits as sound, brightness sets the pitch, so each dip is a short drop.')
+                st.audio(sonify.tone(r['global_astronet']), format='audio/wav')
+            except Exception:
+                pass
             s = r['scores']
             st.write(f"Chance of being a planet candidate (calibrated): **{P.MODEL_NAMES[r['main_model']]} {s[r['main_model']]:.2f}** "
                      f"(main model for {m['mission'].upper()}) · " + ' · '.join(f"{P.MODEL_NAMES[k]} {v:.2f}" for k, v in s.items() if k != r['main_model']))
@@ -191,7 +213,7 @@ def show_result(res, key):
 
 
 st.markdown(UI.HERO, unsafe_allow_html=True)
-tab1, tab2, tab3 = st.tabs(['One star', 'Batch', 'About the models'])
+tab1, tab4, tab2, tab3 = st.tabs(['One star', 'Open TESS candidates', 'Batch', 'About the models'])
 
 EXAMPLES = [('TIC 1333933', 'Known hot Jupiter (TOI-7719.01)', 'saved run, ~1 min walkthrough'),
             ('TIC 184952758', 'A dip that comes from a nearby star', 'saved run, ~1 min walkthrough'),
@@ -300,6 +322,51 @@ with tab2:
             st.dataframe(pl, hide_index=True, width='stretch')
         st.download_button('Download ranked table (CSV)', allt.to_csv(index=False), 'transitvet_batch.csv', on_click='ignore')
 
+with tab4:
+    st.markdown('**4,408 TESS signals that are still open on ExoFOP, scored with these models.** They are candidates for follow-up, not '
+                'confirmed planets. Click a TIC number to analyse that star (opens in a new tab).')
+    _here = os.path.dirname(__file__)
+    try:
+        cand = pd.read_csv(os.path.join(_here, 'validation', 'unlabelled_tess_scores.csv'))
+    except OSError:
+        cand = None
+    if cand is not None:
+        strong = (cand.verdict == 'candidate') & (cand.check_95 == 'keep')
+        k = st.columns(4)
+        k[0].metric('Open signals scored', f'{len(cand):,}'); k[1].metric('Strong candidates', f'{int(strong.sum()):,}')
+        k[2].metric('Strong and under 4 Earth sizes', f'{int((strong & (cand.planet_radius_re < 4)).sum()):,}'); k[3].metric('Look like false alarms', f'{int((cand.verdict == "false alarm").sum()):,}')
+        f1, f2, f3 = st.columns([2, 2, 3])
+        show = f1.selectbox('Show', ['Strong candidates', 'Small strong candidates (under 4 Earth sizes)', 'Needs a person', 'All'], key='cand_show')
+        q = f3.text_input('Search a TOI or TIC number', key='cand_q').strip().upper().replace('TOI', '').replace('TIC', '').strip(' -')
+        rmax = f2.slider('Longest orbit (days)', 1, int(np.ceil(cand.period_days.max())), int(np.ceil(cand.period_days.max())), key='cand_p')
+        v = cand[cand.period_days <= rmax]
+        if show.startswith('Strong'):
+            v = v[(v.verdict == 'candidate') & (v.check_95 == 'keep')]
+        if show.startswith('Small'):
+            v = v[v.planet_radius_re < 4]
+        if show == 'Needs a person':
+            v = v[v.check_95 == 'needs a human']
+        if q:
+            v = v[v.toi.map(lambda x: f'{x:.2f}').str.startswith(q) | v.tic.astype(str).str.startswith(q)]
+        v = v.assign(analyse='https://transitvet.streamlit.app/?star=TIC+' + v.tic.astype(str))
+        st.dataframe(v[['toi', 'analyse', 'exofop_disp', 'period_days', 'planet_radius_re', 'n_dips', 'score', 'verdict', 'check_95', 'exominer', 'notes']],
+                     hide_index=True, width='stretch', height=460,
+                     column_config={'analyse': st.column_config.LinkColumn('TIC (click to analyse)', display_text=r'TIC\+(\d+)'),
+                                    'score': st.column_config.ProgressColumn('score', min_value=0, max_value=1, format='%.3f'), 'toi': st.column_config.NumberColumn('TOI', format='%.2f'),
+                                    'exofop_disp': 'ExoFOP', 'period_days': st.column_config.NumberColumn('orbit (days)', format='%.3f'), 'n_dips': 'dips',
+                                    'check_95': '95% check',
+                                    'planet_radius_re': st.column_config.NumberColumn('size (Earth = 1)', format='%.1f'),
+                                    'exominer': st.column_config.NumberColumn('NASA ExoMiner++', format='%.2f')})
+        st.caption(f'{len(v):,} shown. Scored on 17 Nov 2026 with the TESS models (labels we trained on date from 1 Nov 2026). Full method: validation/UNLABELLED_TESS.md.')
+        try:
+            F = json.load(open(os.path.join(_here, 'docs', 'forward.json')))
+            st.markdown(f"**Forward check: were we right?** Every Monday a script compares these frozen calls with NASA's latest TOI list. "
+                        f"As of {F['checked']}, {F['resolved']} of {F['scored']:,} have been resolved (too few to judge yet).")
+            st.dataframe(pd.DataFrame([dict(our_call=k2, resolved=x['n'], now_planets=x['planets'], now_false_alarms=x['false_alarms']) for k2, x in F['summary'].items()]),
+                         hide_index=True)
+        except (OSError, ValueError, KeyError):
+            pass
+
 with tab3:
     st.markdown("""
 **What happens to each star**
@@ -323,13 +390,18 @@ with tab3:
    10 arcsec away (over 5 sigma) raises a warning and turns a candidate into 'uncertain' (test stars: 25% of false alarms flagged, 3.5% of planets).
 12. **Follow-up planner**: for your site and telescope (sidebar), the next dips that are at night with the star above 30 degrees,
    and the expected signal-to-noise (clear / marginal / too faint).
+13. **Dip timing**: each dip is timed; if the dips do not keep a regular clock (often other planets pulling), the report card says so. Display only.
+14. **Single dips look alike**: for signals with 6 dips or fewer, at least 3 single dips must look like the typical one, or a candidate becomes uncertain.
+15. **Extras**: a top-down view of the system (orbit sizes to scale with each other) and the dip played as sound.
 
 **Main score**: the combined score. In our held-out test it reached PR-AUC 0.963 on Kepler (Mamba-2 alone: 0.934) and 0.950 on TESS (best single model before: 0.883).
 **Verdict**: candidate if the combined score is at least 0.5, false alarm if below; *uncertain* if the score is between 0.35 and 0.65, all three single models disagree with it,
-fewer than 3 dips were seen, or a second separate dip shows up at the same period.
+fewer than 3 dips were seen, a second separate dip shows up at the same period, the pixel check points to a neighbour,
+or (6 dips or fewer) fewer than 3 single dips look alike.
 
 **Known limits**: the light-position check cannot see a nearby star closer than about a pixel (4 arcsec Kepler, 21 arcsec TESS);
 TESS labels are fewer and scores there are less reliable; the period found by the search can differ from the official catalogue period;
-next-dip times get less exact the further they are from the data.
+next-dip times get less exact the further they are from the data; very small planets can be missed by the search
+(for example Kepler-910 b, under 1 Earth radius).
 """)
     st.json(get_scorer().manifest)

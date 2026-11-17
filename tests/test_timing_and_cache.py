@@ -45,3 +45,13 @@ def test_gaia_numbers_from_rows():
     # a 1% dip on the target would need about a 11% dip on the neighbour (it gives 1/10 of the target's light, plus all light in the aperture)
     assert abs(10 ** G.nb_depth(10000, g) - 0.01 * (1 + 0.1 + 0.01) / 0.1) < 1e-9
     assert G.from_rows(11.0, -20.0, rows) == {}
+
+
+def test_sound_and_system_view():
+    from transitvet import sonify, system_view
+    v = np.zeros(2001); v[990:1010] = -1
+    wav = sonify.tone(v)
+    assert wav[:4] == b'RIFF' and len(wav) > 100000
+    res = {'signals': [dict(period=3.0, verdict='candidate', rp_est_re=2.0), dict(period=30.0, verdict='false alarm', rp_est_re=float('nan'))]}
+    html = system_view.page(res)
+    assert '<canvas' in html and '3.0 d' in html and '30.0 d' in html
