@@ -91,7 +91,7 @@ The tests already caught one real bug, which is now fixed: when an eclipsing bin
 - *Forward check*: every Monday, `scripts/forward_check.py` (GitHub Actions) compares our frozen calls on the open TOIs with NASA's latest TOI table and writes `docs/forward.json`, which the website shows.
 - *Links into the dashboard*: `https://transitvet.streamlit.app/?star=TIC+219508169` opens that star at once. The website's candidate list uses it.
 - *9 example stars* with saved runs, covering a timing-variation system, eclipsing binaries, a blend and open TOIs.
-- *Paper figures*: `paper/figures/`.
+- *Paper*: full draft in `paper/PAPER.md`, figures (pipeline diagram included) in `paper/figures/`.
 - *Easier results*: an "In short" summary in plain words, a top-down view of the system (orbit sizes to scale with each other), and each dip played as sound.
 - *Open TESS candidates tab* in the dashboard: filter, search, click a TIC to analyse it, and see the forward check.
 - *Faster repeat runs*: the dashboard keeps the last 40 live runs on the server. A star someone already analysed with the same code and models opens at once.

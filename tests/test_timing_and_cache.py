@@ -55,3 +55,16 @@ def test_sound_and_system_view():
     res = {'signals': [dict(period=3.0, verdict='candidate', rp_est_re=2.0), dict(period=30.0, verdict='false alarm', rp_est_re=float('nan'))]}
     html = system_view.page(res)
     assert '<canvas' in html and '3.0 d' in html and '30.0 d' in html
+
+
+def test_detection_chance_grows_with_size():
+    import numpy as np
+    from transitvet import sensitivity as S
+    curve = {'fit': {'found': [-3.0, 3.5], 'candidate': [-3.5, 3.5]}}
+    rng = np.random.default_rng(0)
+    t = np.arange(0, 27, 2 / 1440.0); f = 1 + rng.normal(0, 1e-3, t.size)
+    rows = S.star_table({'search_curve': (t, f), 'star': {'star_rad': 1.0}}, curve)
+    assert len(rows) == 9
+    by = {(r['size'], r['period']): r for r in rows}
+    assert by[(1.0, 3.0)]['p_candidate'] < by[(4.0, 3.0)]['p_candidate']
+    assert by[(4.0, 30.0)]['note']                     # 30 d is longer than a third of 27 d

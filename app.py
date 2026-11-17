@@ -4,7 +4,7 @@ os.environ.setdefault('TV_LAZY_MODELS', '1')   # load only the networks a star n
 import numpy as np, pandas as pd, streamlit as st
 
 sys.path.insert(0, os.path.dirname(__file__))
-from transitvet import pipeline as P, plots, extras as E, planner as PL, ui_theme as UI, live as LV, examples as EX, sonify, system_view
+from transitvet import pipeline as P, plots, extras as E, planner as PL, ui_theme as UI, live as LV, examples as EX, sonify, system_view, sensitivity as SENS
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title='TransitVet', page_icon='🪐', layout='wide')
@@ -94,6 +94,27 @@ def replay_saved(blob):
     return res
 
 
+
+def _detect_chance(res, open_=False):
+    """'Chance we'd catch a planet like this', from this star's own noise and the injection-recovery curve."""
+    rows = SENS.star_table(res)
+    if not rows:
+        return
+    with st.expander('Chance we would catch a planet like this around this star', expanded=open_):
+        tab = pd.DataFrame({f"{p:g}-day orbit": [next(x for x in rows if x['size'] == r and x['period'] == p) for r in SENS.SIZES]
+                            for p in SENS.PERIODS}, index=[f"{r:g} Earth radii" for r in SENS.SIZES])
+        show = tab.map(lambda x: x['note'] or ('under 1%' if x['p_found'] < 0.01 else f"{100 * x['p_found']:.0f}%"))
+        st.dataframe(show, width='stretch')
+        cv = SENS.load_curve() or {}
+        bh = cv.get('by_host') or {}
+        ph, fh = bh.get('planet host') or {}, bh.get('false-alarm host') or {}
+        extra = (f" Being found is not the same as being called a candidate: in the test, {ph.get('candidate', 0)} of {ph.get('found', 0)} "
+                 f"found fake planets on stars with a known planet were called candidates, but only {fh.get('candidate', 0)} of "
+                 f"{fh.get('found', 0)} on stars whose own signal was a false alarm.") if ph and fh else ''
+        st.caption('Chance that the search finds such a planet, read from our injection-recovery test (fake planets added to real '
+                   'held-out stars, whole pipeline run) at this star\'s own noise level and number of points. An estimate for planning: '
+                   'it assumes a circular orbit and even coverage.' + extra)
+
 def show_result(res, key):
     scorer = get_scorer()
     m = res['meta']
@@ -107,7 +128,7 @@ def show_result(res, key):
                    f"light from neighbours {fmt(100 * stp.get('contratio', float('nan')), '.1f', '%')} (TESS Input Catalog)")
     if not res['signals']:
         st.info('No repeating dip strong enough was found (BLS signal-to-noise below 7.1).')
-        _show(plots.lightcurve_figure(res)); return None
+        _show(plots.lightcurve_figure(res)); _detect_chance(res, open_=True); return None
     table = P.summary_table(res)
     c = st.columns(3)
     for col, v in zip(c, ['candidate', 'uncertain', 'false alarm']):
@@ -134,6 +155,7 @@ def show_result(res, key):
             st.markdown('**The system from above**')
             components.html(sv, height=400)
     _show(plots.lightcurve_figure(res))
+    _detect_chance(res)
     for i, r in enumerate(res['signals'], 1):
         with st.expander(f"Signal {i}: {r['verdict'].upper()} · period {r['period']:.4f} d · depth {r['depth_ppm']:.0f} ppm", expanded=i == 1):
             kn = r.get('known', {})
@@ -402,6 +424,7 @@ or (6 dips or fewer) fewer than 3 single dips look alike.
 **Known limits**: the light-position check cannot see a nearby star closer than about a pixel (4 arcsec Kepler, 21 arcsec TESS);
 TESS labels are fewer and scores there are less reliable; the period found by the search can differ from the official catalogue period;
 next-dip times get less exact the further they are from the data; very small planets can be missed by the search
-(for example Kepler-910 b, under 1 Earth radius).
+(for example Kepler-910 b, under 1 Earth radius). In our injection test, planets around stars whose own signal was a false alarm
+were mostly called false alarms even when the search found them, so read a false-alarm call on such a star with care.
 """)
     st.json(get_scorer().manifest)

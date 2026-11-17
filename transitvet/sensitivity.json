@@ -1,0 +1,35 @@
+{
+ "fit": {
+  "found": [
+   -9.8708318351277,
+   10.016073007841783
+  ],
+  "candidate": [
+   -4.580034236661911,
+   2.4516836302489002
+  ]
+ },
+ "by_host": {
+  "planet host": {
+   "stars": 7,
+   "found": 20,
+   "candidate": 13,
+   "uncertain": 3,
+   "false_alarm": 4,
+   "keep": 14
+  },
+  "false-alarm host": {
+   "stars": 10,
+   "found": 27,
+   "candidate": 3,
+   "uncertain": 6,
+   "false_alarm": 18,
+   "keep": 1
+  }
+ },
+ "snr50_found": 9.671619225601065,
+ "snr90_found": 16.027620631338355,
+ "n": 90,
+ "date": "2026-11-17",
+ "note": "logistic in log10(expected SNR); from the injection-recovery test, see validation/INJECTION.md"
+}
