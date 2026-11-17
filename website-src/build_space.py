@@ -9,7 +9,7 @@ for s in S:
     sig.append(o)
 pm = dict(t=r(P['allflat']['t'], 3), f=[int(v) for v in P['allflat']['f']], t0=P['t0'], period=P['period'])
 img = lambda n: 'data:image/jpeg;base64,' + base64.b64encode(open(f'img/{n}.jpg', 'rb').read()).decode()
-html = open('space.html').read().replace('<!--INTRO-->', open('intro_part.html').read()).replace('__SIGNALS__', json.dumps(sig, separators=(',', ':'))).replace('__PIMEN__', json.dumps(pm, separators=(',', ':')))
+html = open('space.html').read().replace('<!--INTRO-->', open('intro_part.html').read()).replace('__SIGNALS__', json.dumps(sig, separators=(',', ':'))).replace('__PIMEN__', json.dumps(pm, separators=(',', ':'))).replace('__CANDS__', open('candidates.json').read().replace('</', '<\\/'))
 for k, n in (('__IMG_HERO__', 'hero'), ('__IMG_GALAXY__', 'galaxy'), ('__IMG_NEBULA__', 'nebula2'), ('__IMG_DEEP__', 'deepfield')):
     html = html.replace(k, img(n))
 os_ = __import__('os'); os_.makedirs('build', exist_ok=True); OUT = 'build/transitvet-explorer.html'

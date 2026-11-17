@@ -58,7 +58,7 @@ def _show(fig, **kw):
     st.pyplot(fig, **kw); plots.plt.close(fig)
 
 
-def analyse(loader, *args):
+def analyse(loader, *args, cache=None):
     with st.status(f'Analysing {args[0]} ... watch each step below', expanded=True) as box:
         view = LV.LiveView(st, args[0], animate=ANIMATE)
         with st.expander('Technical log', expanded=False):
@@ -70,8 +70,13 @@ def analyse(loader, *args):
         segs, meta = loader(*args)
         meta['_pixel'] = PIXEL
         progress(f"Loaded {meta['target']} ({meta['mission'].upper()}, {meta['n_files']} file(s), {sum(len(s[0]) for s in segs):,} points)")
+        rec = EX.Recorder() if cache else None
         view.loaded(segs, meta)
-        res = P.run(segs, meta, get_scorer(), progress, stage=view)
+        if rec:
+            rec.loaded(segs, meta)
+        res = P.run(segs, meta, get_scorer(), progress, stage=EX.Tee(view, rec) if rec else view)
+        if rec:
+            EX.store(*cache, rec, res)
         box.update(label=f"{meta['target']}: {len(res['signals'])} signal(s) in {res['seconds']:.0f} s · open to replay the steps", state='complete', expanded=False)
     gc.collect()
     return res
@@ -83,7 +88,7 @@ def replay_saved(blob):
     with st.status(f'{tg}: replaying a saved run of the full analysis ...', expanded=True) as box:
         view = LV.LiveView(st, tg + ' · replay', animate=ANIMATE)
         res = EX.replay(view, blob)
-        box.update(label=f"{tg}: {len(res['signals'])} signal(s) · saved run from {blob['made']} (took {blob['events'][-1][0]:.0f} s) · open to replay the steps",
+        box.update(label=f"{tg}: {len(res['signals'])} signal(s) · {'earlier run on this server' if blob.get('cached') else 'saved run'} from {blob['made']} (took {blob['events'][-1][0]:.0f} s) · open to replay the steps",
                    state='complete', expanded=False)
     return res
 
@@ -214,17 +219,19 @@ with tab1:
     if go and target:
         try:
             live = st.session_state.pop('_live', False)
-            blob = None if live or mission != 'auto' else EX.saved(target)
-            st.session_state['res_saved'] = blob['made'] if blob else None
-            st.session_state['res_one'] = replay_saved(blob) if blob else analyse(P.load_star, target, None if mission == 'auto' else mission)
+            mis = None if mission == 'auto' else mission
+            blob = None if live else (EX.saved(target) if mis is None else None) or EX.cached(target, mis, PIXEL)
+            st.session_state['res_saved'] = (blob['made'], bool(blob.get('cached'))) if blob else None
+            st.session_state['res_one'] = replay_saved(blob) if blob else analyse(P.load_star, target, mis, cache=(target, mis, PIXEL))
         except Exception as e:
             st.session_state.pop('res_one', None)
             st.error(f'Could not analyse {target}: {e}. Check the ID (KIC or TIC number) and your internet connection.')
     if 'res_one' in st.session_state:          # kept across reruns, so the result stays while you use other controls
         if st.session_state.get('res_saved'):
             a, b = st.columns([4, 1], vertical_alignment='center')
-            a.caption(f"This example opened from a saved run of the full analysis ({st.session_state['res_saved']}), so you don't wait. "
-                      'Same code and models as a live run.')
+            made, was_cached = st.session_state['res_saved']
+            a.caption((f"Someone analysed this star on this server earlier ({made}), so it opened from that run. " if was_cached else
+                       f"This example opened from a saved run of the full analysis ({made}), so you don't wait. ") + 'Same code and models as a live run.')
             b.button('Run it live', key='run_live', on_click=lambda: st.session_state.update(_live=True, _go=True), width='stretch')
         show_result(st.session_state['res_one'], 'one')
     st.divider()
@@ -285,25 +292,26 @@ with tab3:
 **What happens to each star**
 1. Light curve from NASA's MAST archive (Kepler long cadence, or TESS 2-minute data averaged to 30 minutes).
 2. Slow brightness changes removed (biweight filter for the search; a spline fit, the standard Kepler method, for the model inputs).
-3. Box Least Squares search for repeating dips (up to 3 per star, signal-to-noise at least 7.1).
+3. Box Least Squares search for repeating dips (up to 5 per star, orbits up to 500 days with at least 3 dips, signal-to-noise at least 7.1).
 4. Each dip folded into a whole-orbit view and a zoomed view, plus check numbers (odd/even dips, dip at half phase, shape).
 5. New checks: does the star's light move on the camera during the dip (light-position check)? How big is the object, given the
-   star's size from the TESS Input Catalog? How much light comes from neighbouring stars?
+   star's size from the TESS Input Catalog? How much light comes from neighbouring stars? For TESS stars, Gaia DR2 adds the star's
+   own wobble and velocity scatter (signs of a hidden companion) and its neighbours within 42 arcsec.
 6. Three models score it (gradient boosting with all check numbers, a Mamba-2 state-space model, and a Transformer), and a **combined score** joins them.
    Scores are calibrated on validation stars, so 0.8 means "about 80% of such signals were planet candidates".
 7. A transit model is fitted for a sharper period, the planet size with an error bar, and the dip shape.
 8. Each signal is matched against the official Kepler (KOI) and TESS (TOI) lists, for display only (never used in the score).
 9. For TESS signals, NASA's ExoMiner++ score is shown as a second opinion when the signal is in its published catalogue
    (TESS 2-min data, sectors 1-67; Valizadegan, Martinho et al. 2025). On our 542 shared test signals: ExoMiner++ PR-AUC 0.973,
-   TransitVet 0.966 (difference within the uncertainty); the average of the two: 0.981.
+   TransitVet 0.968 (difference within the uncertainty); the average of the two: 0.982.
 10. **Trust check**: split conformal prediction turns the combined score into keep / drop / needs a human, with a guarantee
-   that at least 95% of real planets are never dropped (measured on test stars: Kepler 96.3%, TESS 98.3%). If this call and the score disagree, it says 'needs a human'.
+   that at least 95% of real planets are never dropped (measured on test stars: Kepler 96.3%, TESS 98.0%). If this call and the score disagree, it says 'needs a human'.
 11. **Pixel check** (difference images): which camera pixels get darker during the dip? On TESS, a dip coming from more than
    10 arcsec away (over 5 sigma) raises a warning and turns a candidate into 'uncertain' (test stars: 25% of false alarms flagged, 3.5% of planets).
 12. **Follow-up planner**: for your site and telescope (sidebar), the next dips that are at night with the star above 30 degrees,
    and the expected signal-to-noise (clear / marginal / too faint).
 
-**Main score**: the combined score. In our held-out test it reached PR-AUC 0.963 on Kepler (Mamba-2 alone: 0.934) and 0.946 on TESS (best single model before: 0.883).
+**Main score**: the combined score. In our held-out test it reached PR-AUC 0.963 on Kepler (Mamba-2 alone: 0.934) and 0.950 on TESS (best single model before: 0.883).
 **Verdict**: candidate if the combined score is at least 0.5, false alarm if below; *uncertain* if the score is between 0.35 and 0.65, all three single models disagree with it,
 fewer than 3 dips were seen, or a second separate dip shows up at the same period.
 

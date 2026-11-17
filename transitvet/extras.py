@@ -27,7 +27,7 @@ def star_props(target, mission):
         r = r.to_pandas().sort_values('rad', na_position='last').iloc[0]
         f = lambda k: float(r[k]) if k in r and pd.notna(r[k]) else np.nan
         return dict(tic=int(r['ID']), star_rad=f('rad'), star_teff=f('Teff'), star_logg=f('logg'),
-                    tmag=f('Tmag'), vmag=f('Vmag'), ra=f('ra'), dec=f('dec'), contratio=f('contratio'))
+                    tmag=f('Tmag'), vmag=f('Vmag'), ra=f('ra'), dec=f('dec'), contratio=f('contratio'), pmra=f('pmRA'), pmdec=f('pmDEC'))
     except Exception:
         return {}
 

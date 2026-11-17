@@ -15,9 +15,9 @@
    "n_val": 2311
   },
   "tess_gb": {
-   "val_pr_auc": 0.9422832451280118,
+   "val_pr_auc": 0.9653,
    "n_val": 259,
-   "feats": "FEATS + new checks"
+   "feats": "FEATS + new checks + Gaia DR2 (transitvet/gaia.py)"
   },
   "tess_cnn": {
    "val_pr_auc": 0.8828425782989477,
@@ -37,12 +37,12 @@
    ]
   },
   "tess_combined": {
-   "val_pr_auc": 0.9464,
+   "val_pr_auc": 0.9667,
    "n_val": 259,
    "coef_gb_mamba_tf": [
-    0.912,
-    0.246,
-    -0.056
+    0.993,
+    0.009,
+    0.169
    ]
   },
   "kepler_mamba": {
@@ -82,7 +82,7 @@
   "rp_est_re",
   "contratio"
  ],
- "note": "Kepler models trained on Kepler DR24 training stars (70%); TESS models on TESS training stars (50%). Calibrators: isotonic on validation stars. v2: GB retrained with light-position (centroid), planet-size and crowding features; combined score = logistic regression on GB, CNN, Transformer log-odds, fitted on validation stars. v3: the tool uses Mamba-2 + Transformer as its neural models (CNN kept in the paper as the reproduced baseline); combiner on gb/mamba/tf.",
+ "note": "Kepler models trained on Kepler DR24 training stars (70%); TESS models on TESS training stars (50%). Calibrators: isotonic on validation stars. v2: GB retrained with light-position (centroid), planet-size and crowding features; combined score = logistic regression on GB, CNN, Transformer log-odds, fitted on validation stars. v3: the tool uses Mamba-2 + Transformer as its neural models (CNN kept in the paper as the reproduced baseline); combiner on gb/mamba/tf. v4: the TESS gradient-boosting model also reads Gaia DR2 numbers about the star and its neighbours.",
  "built_v2": "2026-11-03",
  "nets": [
   "mamba",
@@ -93,5 +93,23 @@
   "mamba",
   "tf"
  ],
- "built_v3": "2026-11-12"
+ "built_v3": "2026-11-12",
+ "feats_extra": {
+  "tess": [
+   "g_aen",
+   "g_aen_sig",
+   "g_gof",
+   "g_rv_err",
+   "g_bprp_exc",
+   "g_plx_snr",
+   "g_n21",
+   "g_fr21",
+   "g_n42",
+   "g_fr42",
+   "g_nb_dmag",
+   "g_nb_sep",
+   "g_log_nb_depth"
+  ]
+ },
+ "built_v4": "2026-11-17"
 }

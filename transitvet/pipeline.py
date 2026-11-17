@@ -17,7 +17,12 @@ from . import tv_kepler as tv
 
 MISSIONS = ('kepler', 'tess')
 SEARCH_DURATIONS = np.array([0.04, 0.06, 0.08, 0.12, 0.17, 0.25, 0.35])   # days
-MIN_PERIOD, MAX_SIGNALS, MIN_SNR = 0.6, 3, 7.1
+MIN_PERIOD, MAX_SIGNALS, MIN_SNR, MAX_PERIOD = 0.6, 5, 7.1, 500.0
+
+
+def max_period(span):
+    """Longest orbit searched: at least 3 dips must fit in the data, and never above MAX_PERIOD days."""
+    return max(MIN_PERIOD * 2, min(span / 3.0, MAX_PERIOD))
 # light-position warning: (min sigma, min source offset in arcsec). Chosen on TRAINING signals so that the warning
 # hits <1% of Kepler planet candidates (0.8%) and 9% of Kepler false alarms. On TESS no setting separated planets
 # from false alarms (big 21-arcsec pixels), so no warning there; the models still use the numbers.
@@ -247,11 +252,68 @@ def _half_period(tt, ff, sd, sig):
     return None
 
 
+def transit_timing(t, f, sig, min_pts=4):
+    """Time of every single dip, to see whether the dips arrive on a regular clock.
+    Each dip is matched with a box of the signal's depth and duration slid in time (grid of 1/40 of a duration);
+    its error is where the fit gets worse by 1 in chi-square. A straight-line ephemeris is then fitted to the dip
+    times. Big leftovers = transit-timing variations (TTVs, usually pulls from other planets); they also make
+    odd and even dips look different when the dips are stacked on a fixed clock.
+    Returns dict(n, epochs, oc_min, err_min, chi2, dof, sigma) or None if fewer than 3 dips can be timed."""
+    from scipy import stats
+    P, t0, D, dep = sig['period'], sig['t0'], sig['duration'], sig['depth_ppm'] * 1e-6
+    if not (dep > 0 and D > 0):
+        return None
+    sd = 1.4826 * np.median(np.abs(f - np.median(f)))
+    cad = float(np.median(np.diff(t))) if t.size > 1 else 0.02
+    tau = min(0.5 * D, max(cad, D * np.sqrt(dep)))          # ingress time: about duration x (planet/star size)
+    def model(x):                                            # trapezoid dip: flat bottom, straight ingress/egress
+        a = np.abs(x)
+        return -dep * np.clip((0.5 * D - a) / tau + 0.5, 0, 1)
+    e = np.round((t - t0) / P)
+    grid = np.linspace(-0.6 * D, 0.6 * D, 121)
+    ep, tt, er = [], [], []
+    for n in np.unique(e[np.abs(t - t0 - e * P) < 1.5 * D]):
+        m = (e == n) & (np.abs(t - t0 - n * P) < 2.0 * D)
+        x, y = t[m] - (t0 + n * P), f[m] - 1
+        nin = int((np.abs(x) < 0.5 * D).sum())
+        if nin < min_pts:
+            continue
+        chi = np.array([np.sum((y - model(x - g)) ** 2) for g in grid]) / sd ** 2
+        j = int(np.argmin(chi))
+        if j in (0, len(grid) - 1):
+            continue                       # best time at the edge of the window: not a usable timing
+        c0, c1, c2 = chi[j - 1], chi[j], chi[j + 1]
+        h = grid[1] - grid[0]; den = c0 - 2 * c1 + c2
+        best = grid[j] + (0.5 * h * (c0 - c2) / den if den > 0 else 0.0)
+        # timing error: the larger of the chi-square width and the textbook estimate (Carter et al. 2008)
+        Q = np.sqrt(nin) * dep / sd
+        carter = D / max(Q, 1e-9) * np.sqrt(tau / (2 * D))
+        ok = grid[chi <= c1 + 1]
+        ep.append(n); tt.append(t0 + n * P + best); er.append(max((ok.max() - ok.min()) / 2, carter, cad / 10))
+    if len(ep) < 3:
+        return None
+    ep, tt, er = np.array(ep), np.array(tt), np.array(er)
+    A = np.vstack([np.ones_like(ep), ep]).T
+    w = 1 / er ** 2
+    coef = np.linalg.solve(A.T @ (A * w[:, None]), A.T @ (w * tt))
+    oc = tt - A @ coef
+    z = oc / er
+    dof = len(ep) - 2
+    # robust scatter of the dip times in units of their errors (a few bad dips, e.g. at data gaps, should not decide it)
+    ratio = float(1.4826 * np.median(np.abs(z - np.median(z)))) if len(z) >= 5 else float(np.sqrt(np.sum(z ** 2) / max(dof, 1)))
+    chi2 = float(dof * ratio ** 2)
+    p = stats.chi2.sf(chi2, dof)
+    sigma = float(stats.norm.isf(max(p, 1e-300) / 2)) if p < 0.5 else 0.0
+    return dict(n=int(len(ep)), epochs=ep.astype(int).tolist(), oc_min=(oc * 1440).round(2).tolist(), err_min=(er * 1440).round(2).tolist(),
+                scatter_ratio=round(ratio, 2), wanders=bool(len(ep) >= 4 and ratio >= 3 and sigma >= 5),
+                chi2=round(chi2, 2), dof=int(dof), sigma=round(sigma, 2))
+
+
 def bls_search(t, f, max_signals=MAX_SIGNALS, min_snr=MIN_SNR, progress=None, on_chunk=None):
     """Box Least Squares, repeated: find the best dip, record it, remove its points, search again."""
     found, keep, periodograms = [], np.ones(t.size, bool), []
     span = t.max() - t.min()
-    max_p = max(MIN_PERIOD * 2, min(span / 3.0, 300.0))   # need >= 3 dips
+    max_p = max_period(span)   # need >= 3 dips
     for k in range(max_signals):
         tt, ff = t[keep], f[keep]
         if tt.size < 100:
@@ -355,15 +417,19 @@ class Scorer:
             del sds
             self.nets[(m, kind)] = nets
 
-    def feature_row(self, rec):
-        x = np.array([float(rec.get(k, np.nan)) if rec.get(k) is not None else np.nan for k in self.feats], float)
+    def feats_for(self, mission):
+        """Inputs of this mission's gradient-boosting model (v4: TESS also reads Gaia numbers, see gaia.py)."""
+        return self.feats + self.manifest.get('feats_extra', {}).get(mission, [])
+
+    def feature_row(self, rec, mission=None):
+        x = np.array([float(rec.get(k, np.nan)) if rec.get(k) is not None else np.nan for k in self.feats_for(mission)], float)
         for j in [0, 1, 3, 4, 6, 7, 8]:     # same signed log as training (tv_common.feature_matrix)
             x[j] = np.sign(x[j]) * np.log1p(np.abs(x[j]))
         return x
 
     def score(self, recs, mission):
         torch = self.torch
-        X = np.stack([self.feature_row(r) for r in recs])
+        X = np.stack([self.feature_row(r, mission) for r in recs])
         g = torch.tensor(np.stack([r['global_astronet'] for r in recs]))
         l = torch.tensor(np.stack([r['local_astronet'] for r in recs]))
         self._load_nets(mission)
@@ -389,13 +455,15 @@ class Scorer:
         lgt = lambda p: np.log(np.clip(p, 1e-4, 1 - 1e-4) / (1 - np.clip(p, 1e-4, 1 - 1e-4)))
         ng, nl = M.G_PAD // M.G_PATCH, M.L_PAD // M.L_PATCH
         out = []
-        X = np.stack([self.feature_row(r) for r in recs])
+        X = np.stack([self.feature_row(r, mission) for r in recs])
+        feats = self.feats_for(mission)
         gbs = self.gb[mission]
         try:
             with open(os.path.join(self.model_dir, 'gb_reference.json')) as fh:
                 ref = [np.nan if v is None else v for v in json.load(fh)[mission]]
         except (OSError, KeyError):
-            ref = [np.nan] * len(self.feats)
+            ref = []
+        ref = (ref + [np.nan] * len(feats))[:len(feats)]
         raw_gb = np.mean([m.predict_proba(X)[:, 1] for m in gbs], 0)
         for i, r in enumerate(recs):
             g0 = torch.tensor(np.asarray(r['global_astronet'], np.float32)); l0 = torch.tensor(np.asarray(r['local_astronet'], np.float32))
@@ -418,7 +486,7 @@ class Scorer:
                 Xh[1 + j, j] = ref[j]          # swap in the typical value of the training signals
             zg = np.mean([lgt(m.predict_proba(Xh)[:, 1]) for m in gbs], 0)
             imp = zg[0] - zg[1:]
-            e['gb'] = dict(raw=float(raw_gb[i]), inputs=[(self.feats[j], val(self.feats[j]), round(float(imp[j]), 4)) for j in np.argsort(-np.abs(imp))])
+            e['gb'] = dict(raw=float(raw_gb[i]), inputs=[(feats[j], val(feats[j]), round(float(imp[j]), 4)) for j in np.argsort(-np.abs(imp))])
             raws = {'gb': float(raw_gb[i]), **{k: v['raw'] for k, v in e['nets'].items()}}
             if mission in self.comb:
                 c = self.comb[mission]
@@ -476,6 +544,10 @@ def flags(rec):
     out = []
     if rec.get('period_doubled'):
         out.append(f"the search first found half this period, but every second dip was empty ({rec.get('half_period_sigma', 0):.0f} sigma), so the period was doubled")
+    tv_ = rec.get('ttv') or {}
+    if tv_.get('wanders'):
+        out.append(f"the dips do not arrive on a regular clock (timing variations, {tv_['sigma']:.0f} sigma, {tv_['n']} dips timed): "
+                   'common when other planets tug on this one; it also makes odd and even dips look different')
     if np.isfinite(rec.get('odd_even_sigma', np.nan)) and rec['odd_even_sigma'] > 3:
         out.append(f"odd and even dips differ ({rec['odd_even_sigma']:.1f} sigma): possible eclipsing binary, or the period is half the true one, or the dip times wander")
     if (np.isfinite(rec.get('secondary_sigma', np.nan)) and rec['secondary_sigma'] > 5
@@ -549,6 +621,16 @@ def run(segs, meta, scorer, progress=print, stage=None):
     else:
         star = E.star_props(meta['target'], meta['mission']) if meta['target'].upper().startswith(('KIC', 'TIC')) else {}
     out['star'] = star
+    if '_gaia' in meta:
+        gaia = meta['_gaia']
+    elif meta['mission'] == 'tess' and np.isfinite(star.get('ra', np.nan)):
+        progress('Gaia DR2: the star\'s wobble and its neighbours ...')
+        from . import gaia as GA
+        ra, dec = GA.to_gaia_epoch(star['ra'], star['dec'], star.get('pmra', np.nan), star.get('pmdec', np.nan))
+        gaia = GA.star_features(round(ra, 6), round(dec, 6))
+    else:
+        gaia = {}
+    out['gaia'] = gaia
     span = float(t.max() - t.min())
     for s, r in zip(sigs, recs):
         others = [(o['period'], o['t0'], o['duration']) for o in sigs if o is not s]
@@ -556,8 +638,15 @@ def run(segs, meta, scorer, progress=print, stage=None):
         r['cen_sigma'], r['cen_offset_arcsec'] = C.combine(sh, r.get('depth_ppm', np.nan), meta['mission'])
         r['contratio'] = star.get('contratio', np.nan); r['star_rad'] = star.get('star_rad', np.nan)
         r['rp_est_re'] = E.planet_radius(r.get('depth_ppm', np.nan), r['star_rad'])
+        if gaia:
+            from . import gaia as GA
+            r.update(gaia); r['g_log_nb_depth'] = GA.nb_depth(r.get('depth_ppm', np.nan), gaia)
         r['known'] = E.known_match(meta['target'], meta['mission'], s['period'])
         r['exominer'] = E.exominer_match(meta['target'], meta['mission'], s['period'])
+        try:
+            r['ttv'] = transit_timing(t, f, s)
+        except Exception:
+            r['ttv'] = None
         from .fit import fit_transit
         r['fit'] = fit_transit(t, f, s['period'], s['t0'], s['duration'], s['depth_ppm'], r['star_rad'],
                                star.get('star_logg', np.nan), meta['mission'])
@@ -676,7 +765,16 @@ def report_card(rec):
     n = rec.get('n_transits')
     add('Repeats', None if n is None else n >= 3, f'{n} dips seen' if n is not None else 'unknown')
     oe = f('odd_even_sigma')
-    add('Odd and even dips alike', None if not np.isfinite(oe) else oe <= 3, f'difference {oe:.1f} sigma' if np.isfinite(oe) else 'not measured')
+    tv_ = rec.get('ttv') or {}
+    wander = bool(tv_.get('wanders'))
+    if wander and np.isfinite(oe) and oe > 3:
+        add('Odd and even dips alike', None, f'difference {oe:.1f} sigma, but the dip times wander, which can cause it')
+    else:
+        add('Odd and even dips alike', None if not np.isfinite(oe) else oe <= 3, f'difference {oe:.1f} sigma' if np.isfinite(oe) else 'not measured')
+    if tv_:
+        rms = float(np.sqrt(np.mean(np.square(tv_['oc_min']))))
+        add('Dips arrive on a regular clock', None if wander else True,
+            f"{tv_['n']} dips timed, scatter {rms:.0f} min ({tv_['scatter_ratio']:.1f}x the expected)" + (f', timing variations {tv_["sigma"]:.0f} sigma (often a sign of other planets)' if wander else ''))
     ss = f('secondary_sigma')
     add('No dip half an orbit later', None if not np.isfinite(ss) else ss <= 5, f'{ss:.1f} sigma' if np.isfinite(ss) else 'not measured')
     if 'second_dip_phase' in rec:

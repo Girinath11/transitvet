@@ -222,6 +222,19 @@ th, td { text-align: left; padding: 9px 10px 9px 0; border-bottom: 1px solid var
 th { font-weight: 500; font-size: 13px; color: var(--mute) }
 td.n, th.n { text-align: right; padding-right: 0; padding-left: 12px }
 
+
+/* candidates list */
+.cand-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 18px 0 12px }
+.cand-bar input { flex: 1 1 220px; font: inherit; font-size: 15px; color: var(--ink); background: rgba(3,5,11,0.6); border: 1px solid var(--line-2); border-radius: 8px; padding: 9px 12px }
+.cand-bar button { font: inherit; font-size: 14px; color: var(--soft); background: rgba(3,5,11,0.5); border: 1px solid var(--line-2); border-radius: 999px; padding: 6px 14px; cursor: pointer }
+.cand-bar button[aria-pressed="true"] { color: #0a0820; background: var(--ice); border-color: var(--ice) }
+.cand-stats { display: flex; flex-wrap: wrap; gap: 26px; margin: 22px 0 4px }
+.cand-stats div { display: flex; flex-direction: column } .cand-stats b { font-family: var(--f-display); font-size: 30px; font-weight: 600 } .cand-stats span { font-size: 13px; color: var(--mute) }
+#candTbl td.note { white-space: normal; min-width: 180px; font-size: 13px; color: var(--mute) }
+#candTbl td.n + td:not(.n), #candTbl th.n + th:not(.n) { padding-left: 18px }
+#candTbl th[data-k] { cursor: pointer } #candTbl th[data-k]:hover { color: var(--ink) }
+.v-c { color: var(--good) } .v-f { color: var(--bad) } .v-u { color: var(--warn) }
+
 /* run */
 .run { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; max-width: 820px }
 .tabs { display: flex; gap: 18px; flex-wrap: wrap; border-bottom: 1px solid var(--line) }
@@ -247,7 +260,7 @@ footer .sig i { color: var(--star); font-style: normal }
   <div class="wrap">
     <a class="logo" href="#top">Transit<i>Vet</i></a>
     <nav aria-label="Sections">
-      <a href="#method">The dip</a><a href="#pipeline">How we check</a><a href="#explore">The signals</a><a href="#game">Play</a><a href="#results">Results</a><button type="button" id="replay" onclick="tvReplayIntro()">Watch intro</button>
+      <a href="#method">The dip</a><a href="#pipeline">How we check</a><a href="#explore">The signals</a><a href="#game">Play</a><a href="#results">Results</a><a href="#candidates">Candidates</a><button type="button" id="replay" onclick="tvReplayIntro()">Watch intro</button>
     </nav>
     <a class="btn primary" href="https://transitvet.streamlit.app/" target="_blank" rel="noopener">Open the dashboard</a>
   </div>
@@ -468,10 +481,10 @@ footer .sig i { color: var(--star); font-style: normal }
           <thead><tr><th>Mission</th><th class="n">Planets kept</th><th class="n">Keep</th><th class="n">Drop</th><th class="n">Ask a person</th></tr></thead>
           <tbody>
             <tr><td>Kepler · 2,373</td><td class="n">96.3%</td><td class="n">532</td><td class="n">1,786</td><td class="n">55</td></tr>
-            <tr><td>TESS · 1,000</td><td class="n">98.3%</td><td class="n">247</td><td class="n">245</td><td class="n">508</td></tr>
+            <tr><td>TESS · 1,000</td><td class="n">98.0%</td><td class="n">387</td><td class="n">295</td><td class="n">318</td></tr>
           </tbody>
         </table></div>
-        <p class="src">This uses split conformal prediction, with the cut-offs set on half of the validation stars. When this check and the score point different ways, the signal goes to a person. On TESS, almost half the signals end up as "ask a person". We'd rather say that than guess.</p>
+        <p class="src">This uses split conformal prediction, with the cut-offs set on half of the validation stars. When this check and the score point different ways, the signal goes to a person. On TESS, about a third of the signals still end up as "ask a person" (down from half before the Gaia numbers were added). We'd rather say that than guess.</p>
         <h3 style="margin-top:22px">Fifty stars, start to finish</h3>
         <p class="small">Download, search and score, with nothing prepared in advance. TESS false alarms wrongly called candidates went from 5 of 10 down to 2 of 10 once we added the light-position, size and crowding checks.</p>
       </div>
@@ -479,10 +492,36 @@ footer .sig i { color: var(--star); font-style: normal }
   </div>
 </section>
 
+<!-- CANDIDATES -->
+<section id="candidates">
+  <div class="wrap">
+    <div class="chapter-head">
+      <div class="kicker">Seven · signals still waiting for an answer</div>
+      <h2>4,408 open TESS signals, <em>ranked.</em></h2>
+      <p class="lede">These TESS Objects of Interest are still open on ExoFOP (PC or APC). We scored every one with the same models as the dashboard. They are candidates for follow-up, not confirmed planets.</p>
+    </div>
+    <div class="cand-stats" id="candStats"></div>
+    <div class="cand-bar" role="group" aria-label="Filter the list">
+      <input type="search" id="candQ" placeholder="Search a TOI or TIC number" aria-label="Search a TOI or TIC number">
+      <button type="button" data-f="strong" aria-pressed="true">Strong candidates</button>
+      <button type="button" data-f="small" aria-pressed="false">Small (under 4 Earth sizes)</button>
+      <button type="button" data-f="human" aria-pressed="false">Needs a person</button>
+      <button type="button" data-f="all" aria-pressed="false">All</button>
+    </div>
+    <div class="panel tbl"><table id="candTbl">
+      <thead><tr><th data-k="0">TOI</th><th>TIC</th><th class="n" data-k="3">Orbit (d)</th><th class="n" data-k="4">Size (Earth = 1)</th><th class="n" data-k="5">Dips</th><th class="n" data-k="6">Score</th><th>Verdict</th><th>95% check</th><th class="n" data-k="9">ExoMiner++</th><th>Notes</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <p class="cand-bar"><button type="button" id="candMore">Show 50 more</button><span class="muted" id="candCount"></span></p>
+    <p class="src">"Strong" means the score is at least 0.5, at least 3 dips were seen, and the 95% check says keep. Size uses the star radius from the TESS Input Catalog. ExoMiner++ is NASA's published score for the same signal, when it has one; on the 2,502 signals both of us scored, the two land on the same side of 0.5 for 72% of them. Scored on 17 Nov 2026. The full table is in the code repository as <span class="mono">validation/unlabelled_tess_scores.csv</span>.</p>
+  </div>
+</section>
+<script type="application/json" id="candData">__CANDS__</script>
+
 <!-- RUN -->
 <section id="run">
   <div class="wrap run">
-    <div class="kicker">Seven · try it yourself</div>
+    <div class="kicker">Eight · try it yourself</div>
     <h2>Pick a star. <em>See what's going round it.</em></h2>
     <p class="lede">Give it a Kepler (KIC) or TESS (TIC) number, or upload a FITS or CSV light curve. It runs on an ordinary laptop, no GPU needed.</p>
     <p class="live-cta"><a class="btn primary" href="https://transitvet.streamlit.app/" target="_blank" rel="noopener">Open the live dashboard</a><span>Nothing to install. The first star after a quiet spell can take an extra minute while the app wakes up. Or run it on your own machine:</span></p>
@@ -504,7 +543,7 @@ footer .sig i { color: var(--star); font-style: normal }
     <div>
       <div class="sig">Transit<i>Vet</i></div>
       <p style="margin-top:10px">Find and vet planet candidates in Kepler and TESS light curves. Open models, a plain-language report for every signal, and a stated guarantee on how many real planets it keeps.</p>
-      <p style="margin-top:14px"><a href="#explore">Signals</a> · <a href="#results">Results</a> · <a href="#run">Get it</a> · <a href="https://transitvet.streamlit.app/" target="_blank" rel="noopener">Live dashboard</a></p>
+      <p style="margin-top:14px"><a href="#explore">Signals</a> · <a href="#results">Results</a> · <a href="#candidates">Candidates</a> · <a href="#run">Get it</a> · <a href="https://transitvet.streamlit.app/" target="_blank" rel="noopener">Live dashboard</a></p>
     </div>
     <div>
       <p>Everything this tool finds is a planet candidate until someone confirms it with more observations.</p>
@@ -829,8 +868,8 @@ function prPlot() {
   const { x, W, H } = setup(cv, 250);
   const rows = [
     ['Kepler · Mamba-2 alone', 0.934, C.mute], ['Kepler · TransitVet combined', 0.963, C.ice],
-    ['TESS · best single model before', 0.883, C.mute], ['TESS · TransitVet combined', 0.946, C.ice],
-    ['542 TESS · NASA ExoMiner++', 0.973, C.star], ['542 TESS · TransitVet', 0.966, C.ice], ['542 TESS · average of both', 0.981, C.good]];
+    ['TESS · best single model before', 0.883, C.mute], ['TESS · TransitVet combined', 0.950, C.ice],
+    ['542 TESS · NASA ExoMiner++', 0.973, C.star], ['542 TESS · TransitVet', 0.968, C.ice], ['542 TESS · average of both', 0.982, C.good]];
   const lo = 0.85, hi = 1.0, L = Math.min(210, W * 0.48), Rr = W - 14, top = 8, rowH = (H - 34) / rows.length;
   const X = v => L + (v - lo) / (hi - lo) * (Rr - L);
   x.font = '11px "JetBrains Mono", monospace';
@@ -886,4 +925,41 @@ G = { order: SIG.map(s => s.i).sort((a, b) => ((a * 37) % 70) - ((b * 37) % 70))
   idle(next, { timeout: 400 });
 })();
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { sim(); rawPlot(); fold(); document.querySelectorAll('.check canvas').forEach(glyph); cards(); detail(); prPlot(); round() }, 150) });
+
+/* ---------- ranked list of open TESS signals (data parsed only when the section comes near) ---------- */
+(function () {
+  const sec = document.getElementById('candidates'); if (!sec) return;
+  let D = null, f = 'strong', q = '', n = 50, sk = 6, sd = -1;
+  const V = { c: 'candidate', f: 'false alarm', u: 'uncertain' }, K = { k: 'keep', d: 'drop', h: 'needs a person' };
+  const fx = (v, d) => v === null ? '–' : v.toFixed(d);
+  const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  function rows() {
+    let r = D;
+    if (q) r = r.filter(x => x[0].startsWith(q) || String(x[1]).startsWith(q));
+    else if (f === 'strong') r = r.filter(x => x[7] === 'c' && x[8] === 'k');
+    else if (f === 'small') r = r.filter(x => x[7] === 'c' && x[8] === 'k' && x[4] !== null && x[4] < 4);
+    else if (f === 'human') r = r.filter(x => x[8] === 'h');
+    return r.slice().sort((a, b) => { const A = a[sk] === null ? -1e9 : (sk === 0 ? +a[0] : a[sk]), B = b[sk] === null ? -1e9 : (sk === 0 ? +b[0] : b[sk]); return (A < B ? -1 : A > B ? 1 : 0) * sd; });
+  }
+  function draw() {
+    const r = rows(), tb = sec.querySelector('tbody');
+    tb.innerHTML = r.slice(0, n).map(x => `<tr><td class="mono">${x[0]}${x[2] === 'APC' ? ' <span class="muted">APC</span>' : ''}</td><td class="mono">${x[1]}</td><td class="n">${fx(x[3], 3)}</td><td class="n">${fx(x[4], 1)}</td><td class="n">${x[5]}</td><td class="n">${fx(x[6], 3)}</td><td class="v-${x[7]}">${V[x[7]]}</td><td>${K[x[8]]}</td><td class="n">${fx(x[9], 2)}</td><td class="note">${esc(x[10])}</td></tr>`).join('');
+    sec.querySelector('#candCount').textContent = `showing ${Math.min(n, r.length).toLocaleString()} of ${r.length.toLocaleString()}`;
+    sec.querySelector('#candMore').style.display = n < r.length ? '' : 'none';
+  }
+  function init() {
+    D = JSON.parse(document.getElementById('candData').textContent);
+    const strong = D.filter(x => x[7] === 'c' && x[8] === 'k');
+    sec.querySelector('#candStats').innerHTML = [[D.length, 'open signals scored'], [strong.length, 'strong candidates'], [strong.filter(x => x[4] !== null && x[4] < 4).length, 'of them smaller than 4 Earths'],
+      [D.filter(x => x[7] === 'f').length, 'look like false alarms'], [D.filter(x => x[8] === 'h').length, 'need a person']].map(([a, b]) => `<div><b class="num">${a.toLocaleString()}</b><span>${b}</span></div>`).join('');
+    sec.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { f = b.dataset.f; n = 50; q = ''; sec.querySelector('#candQ').value = '';
+      sec.querySelectorAll('[data-f]').forEach(o => o.setAttribute('aria-pressed', String(o === b))); draw(); }));
+    sec.querySelector('#candQ').addEventListener('input', e => { q = e.target.value.trim().replace(/^(toi|tic)[\s-]*/i, ''); n = 50; draw(); });
+    sec.querySelector('#candMore').addEventListener('click', () => { n += 50; draw(); });
+    sec.querySelectorAll('th[data-k]').forEach(th => th.addEventListener('click', () => { const k = +th.dataset.k; sd = sk === k ? -sd : (k === 0 ? 1 : -1); sk = k; draw(); }));
+    draw();
+  }
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); init(); } }, { rootMargin: '600px' });
+  io.observe(sec);
+})();
 </script>

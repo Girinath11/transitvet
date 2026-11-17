@@ -84,6 +84,65 @@ def saved(target):
     return blob if blob.get('models') == _models_id() else None
 
 
+class Tee:
+    """Hands every stage event to the live view and to a Recorder, so a live run can be saved as it happens."""
+
+    def __init__(self, view, rec):
+        self.view, self.rec = view, rec
+
+    def __call__(self, name, **d):
+        self.rec(name, **d)
+        self.view(name, **d)
+
+
+# ---- server-side cache of live runs: a star someone already analysed opens at once for the next visitor
+CACHE_DIR = os.environ.get('TV_CACHE_DIR', os.path.join(__import__('tempfile').gettempdir(), 'transitvet-cache'))
+CACHE_MAX_FILES = int(os.environ.get('TV_CACHE_MAX_FILES', 40))
+
+
+def _code_id():
+    h = hashlib.sha256(_models_id().encode())
+    for n in ('pipeline.py', 'tv_kepler.py', 'fit.py', 'extras.py'):
+        try:
+            with open(os.path.join(os.path.dirname(__file__), n), 'rb') as fh:
+                h.update(fh.read())
+        except OSError:
+            pass
+    return h.hexdigest()[:16]
+
+
+def _cache_path(target, mission, pixel):
+    key = f"{target.strip().upper()}|{mission or 'auto'}|{int(bool(pixel))}"
+    return os.path.join(CACHE_DIR, hashlib.sha256(key.encode()).hexdigest()[:20] + '.pkl.gz')
+
+
+def cached(target, mission, pixel):
+    """An earlier live run of this star on this server, made with the same code and models, or None."""
+    p = _cache_path(target, mission, pixel)
+    try:
+        with gzip.open(p, 'rb') as fh:
+            blob = pickle.load(fh)       # written by this app itself (store below)
+    except Exception:
+        return None
+    return blob if blob.get('code') == _code_id() else None
+
+
+def store(target, mission, pixel, rec, res):
+    try:
+        os.makedirs(CACHE_DIR, exist_ok=True)
+        blob = dict(target=target, made=_dt.date.today().isoformat(), models=_models_id(), code=_code_id(), seconds=res['seconds'],
+                    events=rec.events, res=res, cached=True)
+        p = _cache_path(target, mission, pixel)
+        with gzip.open(p + '.tmp', 'wb', compresslevel=6) as fh:
+            pickle.dump(blob, fh, protocol=pickle.HIGHEST_PROTOCOL)
+        os.replace(p + '.tmp', p)
+        files = sorted((os.path.join(CACHE_DIR, f) for f in os.listdir(CACHE_DIR) if f.endswith('.pkl.gz')), key=os.path.getmtime)
+        for old in files[:-CACHE_MAX_FILES]:
+            os.remove(old)
+    except Exception:
+        pass      # the cache is only a convenience
+
+
 def replay(view, blob, seconds=REPLAY_SECONDS):
     """Plays the stored stage events into a LiveView, squeezed into about `seconds`."""
     ev = blob['events']

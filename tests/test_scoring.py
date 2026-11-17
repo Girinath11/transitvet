@@ -53,7 +53,7 @@ def test_explanations_add_up_to_the_scores(scorer):
         assert abs(1 / (1 + np.exp(-z)) - float(out['combined'][0])) < 1e-6
         for k in ['gb'] + scorer.net_kinds:
             assert abs(e['calibrated'][k] - float(out[k][0])) < 1e-6
-        assert len(e['gb']['inputs']) == len(scorer.feats)
+        assert len(e['gb']['inputs']) == len(scorer.feats_for(mission))
 
 
 def test_animation_pages_build(scorer):

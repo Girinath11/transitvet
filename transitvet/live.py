@@ -7,6 +7,7 @@ import time
 import numpy as np
 
 from . import anim, plots
+from .pipeline import MAX_SIGNALS as MAXS
 from .plots import plt, ICE, STAR, MUTE, INK, COL
 
 STAGES = [('download', 'Download', 'Fetch the light curve from NASA MAST'),
@@ -211,9 +212,9 @@ class LiveView:
             self._scene('flatten', 'STEP 3 · FLATTEN', anim.flatten_data(self.segs, *self.t_f), anim.DWELL['flatten'])
 
     def _search_range(self):
-        from .pipeline import MIN_PERIOD
-        t = self.t_f[0]; span = float(t.max() - t.min())
-        return MIN_PERIOD, max(MIN_PERIOD * 2, min(span / 3.0, 300.0))
+        from .pipeline import MIN_PERIOD, max_period
+        t = self.t_f[0]
+        return MIN_PERIOD, max_period(float(t.max() - t.min()))
 
     def _search(self, k, parts, n, done=None):
         now = time.time()
@@ -223,12 +224,12 @@ class LiveView:
         if k not in self.search_base and self.t_f is not None:
             pmin, pmax = self._search_range()
             prev = [s for kk, s in self.peaks if kk < k and s['bls_snr'] >= 7.1]
-            self.search_base[k] = anim.search_data(*self.t_f, k, prev, n, pmin, pmax)
+            self.search_base[k] = dict(anim.search_data(*self.t_f, k, prev, n, pmin, pmax), max_signals=MAXS)
             self._scene('search', f'STEP 4 · SEARCH {k + 1}', self.search_base[k], anim.DWELL['search'])
         if self.replay_clock is None and now - self.last_draw < 0.8 and done < n:
             return
         self.last_draw = now
-        self.chips = {'search': f'{k + 1} of up to 3', 'trial orbits': f'{done:,} / {n:,}', 'range': f'{np.nanmin(per):.2f}–{np.nanmax(per):.0f} d',
+        self.chips = {'search': f'{k + 1} of up to {MAXS}', 'trial orbits': f'{done:,} / {n:,}', 'range': f'{np.nanmin(per):.2f}–{np.nanmax(per):.0f} d',
                       'best so far': f'{per[np.nanargmax(pw)]:.4f} d' if pw.size else '—'}
         self.set('search', f'Search {k + 1}: sliding a box-shaped dip along the data at every trial orbit and scoring the fit. '
                            f'{done:,} of {n:,} trial orbits tried.', chips=self.chips)
@@ -284,7 +285,7 @@ class LiveView:
             self.check_sigs.append(dict(period=sig['period'], rows=[list(x) for x in report_card(dict(rec, mission_=self.mission))],
                                         tr=anim.transits(t, f, sig), sec=anim.half_orbit(t, f, sig), oe=fl('odd_even_sigma'),
                                         ss=fl('secondary_sigma'), rp=(rec.get('fit') or {}).get('planet_radius_re', fl('rp_est_re')),
-                                        cs=fl('cen_sigma'), co=fl('cen_offset_arcsec'),
+                                        cs=fl('cen_sigma'), co=fl('cen_offset_arcsec'), wander=bool((rec.get('ttv') or {}).get('wanders')),
                                         px=dict(off=fl('px_offset_arcsec'), sig=fl('px_sigma')) if fl('px_offset_arcsec') is not None else None))
             if i == len(self.fold_sigs) - 1 or len(self.check_sigs) == len(self.fold_sigs):
                 self._scene('check', 'STEP 6 · CHECKS', dict(sigs=self.check_sigs, mission=self.mission), anim.DWELL['check'] * len(self.check_sigs))

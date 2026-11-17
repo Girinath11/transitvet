@@ -72,7 +72,9 @@ const MCOL = { gb: C.warn, mamba: C.ice, tf: C.star };
 const FEAT = { depth_ppm: 'dip depth (ppm)', snr: 'signal-to-noise', odd_even_sigma: 'odd/even difference (σ)', secondary_ppm: 'dip at half orbit (ppm)',
   secondary_sigma: 'dip at half orbit (σ)', shape_ratio: 'dip shape (U vs V)', n_transits: 'dips seen', tce_period: 'period (days)', tce_duration: 'duration (days)',
   local_cover_biweight: 'close-up data coverage', cen_sigma: 'light-position shift (σ)', cen_offset_arcsec: 'source offset (″)', rp_est_re: 'size (Earth radii)',
-  contratio: 'light from neighbours' };
+  contratio: 'light from neighbours', g_aen: 'Gaia wobble (mas)', g_aen_sig: 'Gaia wobble (σ)', g_gof: 'Gaia fit quality', g_rv_err: 'Gaia velocity scatter (km/s)',
+  g_bprp_exc: 'Gaia colour excess', g_plx_snr: 'Gaia distance S/N', g_n21: 'Gaia stars within 21″', g_fr21: 'neighbour light within 21″', g_n42: 'Gaia stars within 42″',
+  g_fr42: 'neighbour light within 42″', g_nb_dmag: 'brightest neighbour (mag fainter)', g_nb_sep: 'brightest neighbour (″)', g_log_nb_depth: 'dip a neighbour would need (log)' };
 
 /* ---------- scene: download and join ---------- */
 function sceneLoad() {
@@ -186,9 +188,9 @@ function sceneSearch() {
   return {
     dur, loop: !found,
     say,
-    nums: found ? [[0, 'search', `${D.k + 1} of up to 3`], [.2, 'trial orbits', fmt(D.n_trials)], [2.2, 'tallest spike', fmt(Pp, 4) + ' d'], ...(sig.doubled ? [[5.6, 'true orbit (doubled)', fmt(sig.period, 4) + ' d']] : []),
+    nums: found ? [[0, 'search', `${D.k + 1} of up to ${D.max_signals || 3}`], [.2, 'trial orbits', fmt(D.n_trials)], [2.2, 'tallest spike', fmt(Pp, 4) + ' d'], ...(sig.doubled ? [[5.6, 'true orbit (doubled)', fmt(sig.period, 4) + ' d']] : []),
                    [3.9, 'depth', fmt(sig.depth) + ' ppm'], [4.1, 'duration', fmt(sig.dur_h, 1) + ' h'], [4.3, 'signal-to-noise', fmt(sig.snr, 1)], [4.5, 'dips with data', fmt(sig.n_dips)]]
-                 : [[0, 'search', `${D.k + 1} of up to 3`], [0, 'trial orbits', fmt(D.n_trials)], [0, 'orbit range', `${fmt(D.pmin, 1)}–${fmt(D.pmax, 0)} d`], [0, 'points', fmt(D.n_all)]],
+                 : [[0, 'search', `${D.k + 1} of up to ${D.max_signals || 3}`], [0, 'trial orbits', fmt(D.n_trials)], [0, 'orbit range', `${fmt(D.pmin, 1)}–${fmt(D.pmax, 0)} d`], [0, 'points', fmt(D.n_all)]],
     draw(T) {
       const x = 14, w = W - 28, gap = 12, hTop = Math.round((H - 30) * .58), wL = Math.round(w * .56), y1 = 12, y2 = y1 + hTop + gap, h2 = H - y2 - 20;
       const px = x + 10, pw = wL - 20, fxp = logsc(D.pmin, D.pmax, px, px + pw);
@@ -358,6 +360,7 @@ function sceneCheck() {
         ctx.globalAlpha = 1;
         txt('odd', X + 10, Y + th - 8, { c: C.ice, s: 10.5 }); txt('even', X + 40, Y + th - 8, { c: C.pink, s: 10.5 });
         mono(isFinite(s.oe) ? `differ ${fmt(s.oe, 1)} σ` : 'not measured', X + tw2 - 10, Y + th - 8, { a: 'right', c: s.oe > 3 ? C.warn : C.good });
+        if (s.wander) txt('but the dip times wander (TTVs)', X + tw2 - 10, Y + 32, { a: 'right', s: 10, c: C.warn });
       })();
       // 2 half-orbit
       (function () {

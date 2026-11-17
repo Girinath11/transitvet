@@ -1,4 +1,4 @@
-"""Re-score the same 70 showcase signals with model set v3 (gradient boosting + Mamba-2 + Transformer)."""
+"""Re-score the same 70 showcase signals with the current model set (v4: gradient boosting + Mamba-2 + Transformer; TESS GB also reads Gaia)."""
 import sys, json, numpy as np, pandas as pd, joblib, torch, warnings
 warnings.filterwarnings('ignore')
 sys.path.insert(0, '/home/user/tv/src'); sys.path.insert(0, '/home/user/tv/repo')
@@ -14,6 +14,11 @@ for mis in ('kepler', 'tess'):
         G, L, t = c.load_tess(); lab = np.where(t.label.notna())[0]; G, L, t = G[lab], L[lab], t.iloc[lab].reset_index(drop=True)
         te = np.array(json.load(open('/home/user/tv/e4/tess_star_split.json'))['test']); sid = t.tid.values.astype(int)
     X = np.hstack([c.feature_matrix(t), pd.read_csv(f'/home/user/tv/imp/new_feats_{mis}.csv')[NEW].values])
+    extra = sc.manifest.get('feats_extra', {}).get(mis, [])
+    if extra:      # v4: TESS gradient boosting also reads Gaia numbers (same table as training, transitvet/gaia.py)
+        g = pd.read_csv('/home/user/tv/gaia/gaia_star_feats.csv').set_index('tid').reindex(t.tid.astype('int64').values)
+        g['g_log_nb_depth'] = np.log10(np.clip(t.depth_ppm.values * 1e-6 * (1 + g.g_fr42.values) / np.maximum(g.g_nb_fr.values, 1e-6), 1e-6, 1e3))
+        X = np.hstack([X, g[extra].astype(float).values])
     items = [s for s in S if s['mission'] == mis]; ix = []
     for s in items:
         num = int(s['star'].split()[1]); m = [i for i in te if sid[i] == num and abs(t.tce_period.values[i] - s['period']) < 1e-3]
