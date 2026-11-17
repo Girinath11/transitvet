@@ -87,6 +87,11 @@ The tests already caught one real bug, which is now fixed: when an eclipsing bin
 - *Open TESS signals, ranked*: all 4,408 TOIs still open on ExoFOP were scored. The list is on the website and in `validation/unlabelled_tess_scores.csv` (see `validation/UNLABELLED_TESS.md`).
 - *Dip timing (TTVs)*: each dip is timed with a trapezoid fit. When the times wander from a fixed clock (at least 4 dips, scatter at least 3 times the errors, at least 5 sigma), the report card says so. Odd/even differences are then not counted against the signal. This is display only and does not change the score.
 - *Up to 5 signals per star*, and orbits up to 500 days (a third of the data span).
+- *Single dips look alike*: for signals with 6 dips or fewer, at least 3 single dips must look like the typical one, or a candidate becomes uncertain. Tested on 271 held-out few-dip signals; see `validation/DIPS_ALIKE.md`.
+- *Forward check*: every Monday, `scripts/forward_check.py` (GitHub Actions) compares our frozen calls on the open TOIs with NASA's latest TOI table and writes `docs/forward.json`, which the website shows.
+- *Links into the dashboard*: `https://transitvet.streamlit.app/?star=TIC+219508169` opens that star at once. The website's candidate list uses it.
+- *9 example stars* with saved runs, covering a timing-variation system, eclipsing binaries, a blend and open TOIs.
+- *Paper figures*: `paper/figures/`.
 - *Faster repeat runs*: the dashboard keeps the last 40 live runs on the server. A star someone already analysed with the same code and models opens at once.
 
 **Added 4 Nov 2026:**

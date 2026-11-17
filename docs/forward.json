@@ -1,0 +1,90 @@
+{
+ "frozen": "2026-11-17",
+ "checked": "2026-11-17",
+ "scored": 4408,
+ "resolved": 6,
+ "summary": {
+  "score >= 0.5": {
+   "n": 5,
+   "planets": 4,
+   "false_alarms": 1
+  },
+  "score < 0.5": {
+   "n": 1,
+   "planets": 0,
+   "false_alarms": 1
+  },
+  "strong (candidate + keep)": {
+   "n": 2,
+   "planets": 2,
+   "false_alarms": 0
+  },
+  "drop": {
+   "n": 1,
+   "planets": 0,
+   "false_alarms": 1
+  }
+ },
+ "rows": [
+  {
+   "toi": "3686.01",
+   "tic": 13533330,
+   "now": "CP",
+   "planet": true,
+   "score": 0.993,
+   "verdict": "candidate",
+   "check": "keep",
+   "exominer": 0.339
+  },
+  {
+   "toi": "6041.01",
+   "tic": 192415680,
+   "now": "CP",
+   "planet": true,
+   "score": 0.992,
+   "verdict": "uncertain",
+   "check": "keep",
+   "exominer": null
+  },
+  {
+   "toi": "1835.01",
+   "tic": 347332255,
+   "now": "CP",
+   "planet": true,
+   "score": 0.992,
+   "verdict": "candidate",
+   "check": "keep",
+   "exominer": 0.778
+  },
+  {
+   "toi": "3533.01",
+   "tic": 313408643,
+   "now": "FP",
+   "planet": false,
+   "score": 0.815,
+   "verdict": "candidate",
+   "check": "needs a human",
+   "exominer": 0.957
+  },
+  {
+   "toi": "4129.01",
+   "tic": 123357034,
+   "now": "CP",
+   "planet": true,
+   "score": 0.736,
+   "verdict": "candidate",
+   "check": "needs a human",
+   "exominer": 0.997
+  },
+  {
+   "toi": "5443.01",
+   "tic": 400515645,
+   "now": "FP",
+   "planet": false,
+   "score": 0.019,
+   "verdict": "false alarm",
+   "check": "drop",
+   "exominer": null
+  }
+ ]
+}

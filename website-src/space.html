@@ -501,6 +501,11 @@ footer .sig i { color: var(--star); font-style: normal }
       <p class="lede">These TESS Objects of Interest are still open on ExoFOP (PC or APC). We scored every one with the same models as the dashboard. They are candidates for follow-up, not confirmed planets.</p>
     </div>
     <div class="cand-stats" id="candStats"></div>
+    <div class="panel" id="fwd" style="margin-top:22px" hidden>
+      <h3>Forward check: were we right?</h3>
+      <p class="small" id="fwdLead"></p>
+      <div class="tbl"><table><thead><tr><th>Our call</th><th class="n">Since resolved</th><th class="n">Now planets</th><th class="n">Now false alarms</th></tr></thead><tbody id="fwdBody"></tbody></table></div>
+    </div>
     <div class="cand-bar" role="group" aria-label="Filter the list">
       <input type="search" id="candQ" placeholder="Search a TOI or TIC number" aria-label="Search a TOI or TIC number">
       <button type="button" data-f="strong" aria-pressed="true">Strong candidates</button>
@@ -513,7 +518,7 @@ footer .sig i { color: var(--star); font-style: normal }
       <tbody></tbody>
     </table></div>
     <p class="cand-bar"><button type="button" id="candMore">Show 50 more</button><span class="muted" id="candCount"></span></p>
-    <p class="src">"Strong" means the score is at least 0.5, at least 3 dips were seen, and the 95% check says keep. Size uses the star radius from the TESS Input Catalog. ExoMiner++ is NASA's published score for the same signal, when it has one; on the 2,502 signals both of us scored, the two land on the same side of 0.5 for 72% of them. Scored on 17 Nov 2026. The full table is in the code repository as <span class="mono">validation/unlabelled_tess_scores.csv</span>.</p>
+    <p class="src">"Strong" means the score is at least 0.5, at least 3 dips were seen, and the 95% check says keep. Size uses the star radius from the TESS Input Catalog. ExoMiner++ is NASA's published score for the same signal, when it has one; on the 2,502 signals both of us scored, the two land on the same side of 0.5 for 72% of them. Click a TIC number to analyse that star yourself in the live dashboard. Scored on 17 Nov 2026. The full table is in the code repository as <span class="mono">validation/unlabelled_tess_scores.csv</span>.</p>
   </div>
 </section>
 <script type="application/json" id="candData">__CANDS__</script>
@@ -943,7 +948,7 @@ let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() 
   }
   function draw() {
     const r = rows(), tb = sec.querySelector('tbody');
-    tb.innerHTML = r.slice(0, n).map(x => `<tr><td class="mono">${x[0]}${x[2] === 'APC' ? ' <span class="muted">APC</span>' : ''}</td><td class="mono">${x[1]}</td><td class="n">${fx(x[3], 3)}</td><td class="n">${fx(x[4], 1)}</td><td class="n">${x[5]}</td><td class="n">${fx(x[6], 3)}</td><td class="v-${x[7]}">${V[x[7]]}</td><td>${K[x[8]]}</td><td class="n">${fx(x[9], 2)}</td><td class="note">${esc(x[10])}</td></tr>`).join('');
+    tb.innerHTML = r.slice(0, n).map(x => `<tr><td class="mono">${x[0]}${x[2] === 'APC' ? ' <span class="muted">APC</span>' : ''}</td><td class="mono"><a href="https://transitvet.streamlit.app/?star=TIC+${x[1]}" target="_blank" rel="noopener" title="Analyse this star in the live dashboard">${x[1]}</a></td><td class="n">${fx(x[3], 3)}</td><td class="n">${fx(x[4], 1)}</td><td class="n">${x[5]}</td><td class="n">${fx(x[6], 3)}</td><td class="v-${x[7]}">${V[x[7]]}</td><td>${K[x[8]]}</td><td class="n">${fx(x[9], 2)}</td><td class="note">${esc(x[10])}</td></tr>`).join('');
     sec.querySelector('#candCount').textContent = `showing ${Math.min(n, r.length).toLocaleString()} of ${r.length.toLocaleString()}`;
     sec.querySelector('#candMore').style.display = n < r.length ? '' : 'none';
   }
@@ -958,6 +963,12 @@ let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() 
     sec.querySelector('#candMore').addEventListener('click', () => { n += 50; draw(); });
     sec.querySelectorAll('th[data-k]').forEach(th => th.addEventListener('click', () => { const k = +th.dataset.k; sd = sk === k ? -sd : (k === 0 ? 1 : -1); sk = k; draw(); }));
     draw();
+    fetch('forward.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(F => {
+      if (!F || !F.resolved) return;
+      sec.querySelector('#fwd').hidden = false;
+      sec.querySelector('#fwdLead').textContent = `Our calls are frozen as of ${F.frozen} (labels we trained on date from 1 Nov 2026). Every Monday a script checks NASA's TOI list. As of ${F.checked}, ${F.resolved} of the ${F.scored.toLocaleString()} signals have been resolved. These are too few to judge yet; the table fills in over the coming months.`;
+      sec.querySelector('#fwdBody').innerHTML = Object.entries(F.summary).map(([k, v]) => `<tr><td>${k}</td><td class="n">${v.n}</td><td class="n">${v.planets}</td><td class="n">${v.false_alarms}</td></tr>`).join('');
+    }).catch(() => {});
   }
   const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); init(); } }, { rootMargin: '600px' });
   io.observe(sec);

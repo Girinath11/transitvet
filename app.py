@@ -196,13 +196,26 @@ tab1, tab2, tab3 = st.tabs(['One star', 'Batch', 'About the models'])
 EXAMPLES = [('TIC 1333933', 'Known hot Jupiter (TOI-7719.01)', 'saved run, ~1 min walkthrough'),
             ('TIC 184952758', 'A dip that comes from a nearby star', 'saved run, ~1 min walkthrough'),
             ('TIC 261136679', 'Pi Mensae: a small planet, 7 years of data', 'saved run, ~1 min walkthrough'),
-            ('KIC 11442793', 'Kepler-90: a star with many planets', 'saved run, ~1 min walkthrough')]
+            ('KIC 11442793', 'Kepler-90: a star with many planets', 'saved run, ~1 min walkthrough'),
+            ('KIC 8394721', 'Kepler-79: planets that tug on each other (timing variations)', 'saved run, ~1 min walkthrough'),
+            ('KIC 6182849', 'False alarm: deep dip plus a second eclipse (Kepler)', 'saved run, ~1 min walkthrough'),
+            ('TIC 176831592', 'False alarm: dip plus a second eclipse (TESS, TOI-463)', 'saved run, ~1 min walkthrough'),
+            ('TIC 219508169', 'Still open: TOI-2016.01, top of our ranked list', 'saved run, ~1 min walkthrough'),
+            ('TIC 147923561', 'Still open: TOI-5715.01, about 1.3 Earth sizes', 'saved run, ~1 min walkthrough')]
 
 
 def _pick(t):
     st.session_state['target'] = t
     st.session_state['_go'] = True
 
+
+# a link like https://transitvet.streamlit.app/?star=TIC+219508169 opens that star at once (used by the website's candidate list)
+_qs = st.query_params.get('star')
+if _qs and st.session_state.get('_qs_done') != _qs:
+    _qs = ' '.join(_qs.replace('+', ' ').split())[:40]
+    if _qs.upper().startswith(('TIC ', 'KIC ')) and _qs.split()[-1].isdigit():
+        st.session_state['_qs_done'] = st.query_params.get('star')
+        _pick(_qs.upper())
 
 with tab1:
     c1, c2, c3 = st.columns([3, 1, 1], vertical_alignment='bottom')
@@ -212,7 +225,7 @@ with tab1:
     if 'res_one' not in st.session_state and not go:
         st.markdown(UI.WELCOME, unsafe_allow_html=True)
         st.caption('Try an example:')
-        ex = st.columns(len(EXAMPLES))
+        ex = st.columns(5) + st.columns(4)
         for col, (tid, what, dur) in zip(ex, EXAMPLES):
             col.button(f'{tid}', key=f'ex_{tid}', help=f'{what} ({dur})', on_click=_pick, args=(tid,), width='stretch')
             col.caption(f'{what} · {dur}')

@@ -166,7 +166,8 @@ def replay(view, blob, seconds=REPLAY_SECONDS):
 
 if __name__ == '__main__':
     import sys
-    targets = sys.argv[1:] or ['TIC 1333933', 'TIC 184952758', 'TIC 261136679', 'KIC 11442793']
+    targets = sys.argv[1:] or ['TIC 1333933', 'TIC 184952758', 'TIC 261136679', 'KIC 11442793', 'KIC 8394721', 'KIC 6182849',
+                               'TIC 176831592', 'TIC 219508169', 'TIC 147923561']
     for tg in targets:
         t = time.time()
         print(tg, '->', record(tg), f'{os.path.getsize(_path(tg)) / 1e6:.1f} MB', f'{time.time() - t:.0f} s', flush=True)

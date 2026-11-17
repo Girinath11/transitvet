@@ -252,6 +252,38 @@ def _half_period(tt, ff, sd, sig):
     return None
 
 
+def dip_depths(t, f, sig, min_in=3):
+    """Depth of each single dip: mean of the points in the middle 80% of the dip, against the median of the points
+    0.75-3 durations away from its centre, in the same orbit. Returns [(orbit number, depth ppm, depth / its error)]."""
+    P_, t0, d = sig['period'], sig['t0'], sig['duration']
+    e = np.round((t - t0) / P_); x = t - t0 - e * P_
+    out = []
+    for n in np.unique(e[np.abs(x) < d]):
+        m = e == n
+        inn, ring = m & (np.abs(x) < 0.4 * d), m & (np.abs(x) > 0.75 * d) & (np.abs(x) < 3 * d)
+        if inn.sum() < min_in or ring.sum() < 2 * min_in:
+            continue
+        base = np.median(f[ring]); sd = 1.4826 * np.median(np.abs(f[ring] - base))
+        if not sd > 0:
+            continue
+        dep = (base - np.mean(f[inn])) * 1e6
+        out.append((int(n), float(dep), float(dep / (sd * 1e6 / np.sqrt(inn.sum())))))
+    return out
+
+
+def dips_alike(dd):
+    """How many single dips look like the typical one: seen at 3 sigma or more and within 50% of the median depth."""
+    if not dd:
+        return 0
+    med = float(np.median([x[1] for x in dd]))
+    if med <= 0:
+        return 0
+    return int(sum(1 for _, dep, snr in dd if snr >= 3 and abs(dep - med) <= 0.5 * med))
+
+
+FEW_DIPS = 6          # the dips-alike rule only applies to signals with this many dips or fewer
+
+
 def transit_timing(t, f, sig, min_pts=4):
     """Time of every single dip, to see whether the dips arrive on a regular clock.
     Each dip is matched with a box of the signal's depth and duration slid in time (grid of 1/40 of a duration);
@@ -534,6 +566,11 @@ def verdict(p_main, others):
     return 'candidate' if side else 'false alarm'
 
 
+def few_dips_unlike(rec):
+    n = rec.get('n_transits', 99)
+    return rec.get('dips_alike') is not None and n is not None and n <= FEW_DIPS and rec['dips_alike'] < 3
+
+
 def pixel_warning(rec):
     lim = PIXEL_WARN.get(rec.get('mission_', 'kepler'))
     ps, po = rec.get('px_sigma', np.nan), rec.get('px_offset_arcsec', np.nan)
@@ -557,6 +594,9 @@ def flags(rec):
         out.append('very deep dip (> 3%): too deep for most planets')
     if rec.get('n_transits', 99) < 3:
         out.append('fewer than 3 dips seen: period is less certain')
+    if few_dips_unlike(rec):
+        out.append(f"only {rec['dips_alike']} of the single dips look like the typical one (seen at 3 sigma and within 50% of its depth): "
+                   'the signal may come from one or two odd events, not a repeating dip')
     rp = rec.get('rp_est_re', np.nan)
     if np.isfinite(rp) and rp > 2 * 11.2:
         out.append(f"estimated size {rp:.0f} Earth radii (> 2 Jupiters): too big for a planet, likely a star")
@@ -647,6 +687,10 @@ def run(segs, meta, scorer, progress=print, stage=None):
             r['ttv'] = transit_timing(t, f, s)
         except Exception:
             r['ttv'] = None
+        try:
+            r['dips'] = dip_depths(t, f, s); r['dips_alike'] = dips_alike(r['dips'])
+        except Exception:
+            r['dips'], r['dips_alike'] = [], None
         from .fit import fit_transit
         r['fit'] = fit_transit(t, f, s['period'], s['t0'], s['duration'], s['depth_ppm'], r['star_rad'],
                                star.get('star_logg', np.nan), meta['mission'])
@@ -683,8 +727,9 @@ def run(segs, meta, scorer, progress=print, stage=None):
         if tr and ((tr['call'] == 'keep' and r['verdict'] == 'false alarm') or (tr['call'] == 'drop' and r['verdict'] == 'candidate')):
             # the 95% check and the score point different ways: send it to a person (only widens the set, so the guarantee still holds)
             r['triage'] = dict(tr, call='needs a human', text='needs a human: the score and the 95% check disagree')
-        if r['verdict'] == 'candidate' and (r.get('n_transits', 99) < 3 or 'second_dip_phase' in r or pixel_warning(r)):
-            r['verdict'] = 'uncertain'   # too few dips to trust the period, eclipsing-binary sign, or the dip comes from a neighbour
+        if r['verdict'] == 'candidate' and (r.get('n_transits', 99) < 3 or 'second_dip_phase' in r or pixel_warning(r) or few_dips_unlike(r)):
+            r['verdict'] = 'uncertain'   # too few dips to trust the period, eclipsing-binary sign, the dip comes from a neighbour,
+                                         # or (6 dips or fewer) fewer than 3 single dips look like the typical one (validation/DIPS_ALIKE.md)
         out['signals'].append(r)
     out['seconds'] = time.time() - t_start
     stage('verdict', signals=out['signals'])
@@ -775,6 +820,11 @@ def report_card(rec):
         rms = float(np.sqrt(np.mean(np.square(tv_['oc_min']))))
         add('Dips arrive on a regular clock', None if wander else True,
             f"{tv_['n']} dips timed, scatter {rms:.0f} min ({tv_['scatter_ratio']:.1f}x the expected)" + (f', timing variations {tv_["sigma"]:.0f} sigma (often a sign of other planets)' if wander else ''))
+    if rec.get('dips'):
+        dd = rec['dips']
+        al = rec.get('dips_alike') or 0
+        add('Single dips look alike', True if al >= 3 else (None if rec.get('n_transits', 99) > FEW_DIPS else False),
+            f"{al} of {len(dd)} measured dips within 50% of the typical depth ({np.median([x[1] for x in dd]):.0f} ppm)")
     ss = f('secondary_sigma')
     add('No dip half an orbit later', None if not np.isfinite(ss) else ss <= 5, f'{ss:.1f} sigma' if np.isfinite(ss) else 'not measured')
     if 'second_dip_phase' in rec:
