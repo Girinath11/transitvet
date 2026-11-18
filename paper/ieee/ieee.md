@@ -1,4 +1,4 @@
-TITLE|TransitVet: Calibrated Vetting of Kepler and TESS Transit Signals with a 95% Coverage Check
+TITLE|Finding Exoplanet Candidates in Kepler and TESS Light Curves Using Machine Learning, with a Confidence Check and a Web Tool
 AUTHOR|Girinath A|Register No: URK23EC4018|Dept. of Electronics and Communication Engg.|Karunya Institute of Technology and Sciences|Coimbatore, Tamil Nadu, India|girinatha@karunya.edu.in
 AUTHOR|Akilan S|Register No: URK23EC1001|Dept. of Electronics and Communication Engg.|Karunya Institute of Technology and Sciences|Coimbatore, Tamil Nadu, India|akilans@karunya.edu.in
 AUTHOR|Misham Samuel Daystar|Register No: URK23EC4004|Dept. of Electronics and Communication Engg.|Karunya Institute of Technology and Sciences|Coimbatore, Tamil Nadu, India|mishamsamueldaystar@karunya.edu.in

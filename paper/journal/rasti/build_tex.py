@@ -169,7 +169,7 @@ tex = r"""% TransitVet manuscript, MNRAS / RASTI layout.
 \DeclareUnicodeCharacter{00B3}{\ensuremath{^3}}
 \DeclareUnicodeCharacter{2609}{\ensuremath{\odot}}
 
-\title[TransitVet: calibrated vetting of Kepler and TESS signals]{<<TITLE>>}
+\title[Finding exoplanet candidates with TransitVet]{<<TITLE>>}
 
 % Author list and affiliation from the team. [CHECK affiliation wording, ORCIDs and the corresponding e-mail.]
 \author[Girinath A et al.]{

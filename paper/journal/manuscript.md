@@ -1,5 +1,5 @@
 ---
-title: "TransitVet: an open, calibrated pipeline for vetting Kepler and TESS transit signals, with a 95 per cent coverage check and an injection-recovery test"
+title: "TransitVet: Finding Exoplanet Candidates in Kepler and TESS Light Curves Using Machine Learning, with a Confidence Check and a Web Tool"
 author:
   - "Girinath A, Akilan S, Misham Samuel Daystar, Sachin Sarlin K R S, and R. A. Rakhi"
   - "Department of Electronics and Communication Engineering, Karunya Institute of Technology and Sciences, Coimbatore, India [CHECK affiliation wording and emails]"
