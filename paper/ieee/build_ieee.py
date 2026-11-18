@@ -124,11 +124,16 @@ def latex():
             out.append(f'\\begin{{{env}}}[{pos}]\n\\caption{{{tex_inline(cap)}}}\n\\centering\\footnotesize\\setlength{{\\tabcolsep}}{{4pt}}\n'
                        f'\\begin{{tabular}}{{{spec}}}\n\\hline\n' + ' & '.join('\\textbf{' + tex_inline(h) + '}' for h in head) +
                        ' \\\\\n\\hline\n' + body + ' \\\\\n\\hline\n\\end{tabular}\n' + f'\\end{{{env}}}')
-    authors = []
+    blocks_ = []
     for a in META['authors']:
         name, *aff = a
-        authors.append('\\IEEEauthorblockN{' + tex_inline(name) + '}\n\\IEEEauthorblockA{' + ' \\\\\n'.join(
-            ('\\textit{' + tex_inline(x) + '}') if 'Dept.' in x or 'Institute' in x else tex_inline(x) for x in aff) + '}')
+        lines = [('\\textit{' + tex_inline(x) + '}') if 'Dept.' in x or 'Institute' in x else tex_inline(x) for x in aff]
+        blocks_.append('\\parbox[t]{0.32\\textwidth}{\\centering ' + tex_inline(name) + '\\\\[3pt]\n\\footnotesize ' +
+                       '\\\\\n'.join(lines) + '}')
+    row1 = '\\hspace{0.02\\textwidth}'.join(blocks_[:3])
+    row2 = '\\hspace{0.04\\textwidth}'.join(blocks_[3:])
+    authors_tex = ('\\IEEEauthorblockN{\\makebox[\\textwidth][c]{' + row1 + '}\\\\[10pt]\n'
+                   '\\makebox[\\textwidth][c]{' + row2 + '}}')
     refs = '\n'.join(f'\\bibitem{{r{i + 1}}} {ref_tex(r)}' for i, r in enumerate(META['refs']))
     return r"""\documentclass[conference,a4paper]{IEEEtran}
 \IEEEoverridecommandlockouts
@@ -137,11 +142,14 @@ def latex():
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
 \usepackage{url}
+\makeatletter
+\newcommand{\linebreakand}{\end{@IEEEauthorhalign}\hfill\mbox{}\par\mbox{}\hfill\begin{@IEEEauthorhalign}}
+\makeatother
 \begin{document}
 
 \title{""" + tex_inline(META['title']) + r"""}
 
-\author{""" + '\n\\and\n'.join(authors) + r"""}
+\author{""" + authors_tex + r"""}
 
 \maketitle
 
@@ -209,6 +217,7 @@ def build_docx(template, out):
         s = copy.deepcopy(sect)
         if ncols is not None:
             s.find(qn('w:cols')).set(qn('w:num'), str(ncols))
+            s.find(qn('w:cols')).set(qn('w:space'), '160')
         p._p.get_or_add_pPr().append(s)
 
     t = runs(para('papertitle'), META['title'])
@@ -223,7 +232,7 @@ def build_docx(template, out):
             r = p.add_run(name); r.font.size = Pt(11)
             for x in aff:
                 r = p.add_run(); r.add_break()
-                r = p.add_run(x); r.font.size = Pt(9)
+                r = p.add_run(x); r.font.size = Pt(8.5)
                 r.italic = ('Dept.' in x or 'Institute' in x)
         if g is groups[-1]:
             p.paragraph_format.space_after = Pt(14)

@@ -10,4 +10,4 @@ This is the college/IEEE conference version of the paper. It follows the layout 
 
 The longer journal version (MNRAS/RASTI layout) is in `../journal/rasti/`.
 
-**Fill in before submission:** each author's register number and e-mail, and the guide's designation (all marked [CHECK]). Section VI-F also has one [CHECK]: the cause of the host-star effect has not been tested.
+**Before submission:** confirm the final title. Section VI-F has one [CHECK]: the cause of the host-star effect has not been tested.
