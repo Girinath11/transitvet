@@ -1,5 +1,5 @@
 ---
-title: "TransitVet: Detection of Exoplanet Transit Signals in Kepler and TESS Light Curves Using Signal Processing and Machine Learning"
+title: "TransitVet: Detection and Classification of Exoplanet Transit Signals in Kepler and TESS Light Curves Using Signal Processing and Machine Learning"
 author:
   - "Girinath A, Akilan S, Misham Samuel Daystar, Sachin Sarlin K R S, and R. A. Rakhi"
   - "Department of Electronics and Communication Engineering, Karunya Institute of Technology and Sciences, Coimbatore, India [CHECK affiliation wording and emails]"
