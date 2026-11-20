@@ -10,6 +10,7 @@ Steps (each is a standard signal-processing step):
  7. verdict   candidate / false alarm / uncertain
 Outputs are planet CANDIDATES, never confirmed planets.
 """
+import re
 import io, json, os, time, warnings
 import numpy as np
 
@@ -105,8 +106,19 @@ def load_star(target, mission=None):
     return segs, dict(target=target, mission=mission, n_files=len(lcs), source='MAST via Lightkurve', _cen=cen)
 
 
+def star_from_name(name):
+    """'KIC 3847138.csv', 'kic_3847138_lc.csv', 'TIC-261136679.txt' -> ('KIC 3847138', 'kepler'); else (None, None).
+    Lets an uploaded file get the same star context (size, crowding, Gaia, catalogue match) as a star-ID run."""
+    m = re.search(r'\b(kic|tic)[\s_\-]*0*(\d{3,})', os.path.basename(name).lower())
+    if not m:
+        return None, None
+    return f'{m.group(1).upper()} {m.group(2)}', ('kepler' if m.group(1) == 'kic' else 'tess')
+
+
 def load_file(name, data, mission=None):
-    """Uploaded file: a Kepler/TESS light-curve FITS file, or a CSV/TXT with columns time, flux."""
+    """Uploaded file: a Kepler/TESS light-curve FITS file, or a CSV/TXT with columns time, flux.
+    If the file name holds a KIC or TIC number, that star's catalogue context is used and its mission wins."""
+    star_id, name_mission = star_from_name(name)
     name = name.lower()
     if name.endswith(('.fits', '.fit', '.fits.gz')):
         from astropy.io import fits
@@ -121,19 +133,23 @@ def load_file(name, data, mission=None):
             if 'MOM_CENTR1' in cols and 'MOM_CENTR2' in cols:
                 cen = _cen_segment(d['TIME'], d[fcol], d['MOM_CENTR1'], d['MOM_CENTR2'], q, m)
             obj = hdr.get('OBJECT', name)
+            kid = hdr.get('KEPLERID') or hdr.get('TICID')
+            if kid:
+                obj = f"{'KIC' if hdr.get('KEPLERID') else 'TIC'} {int(kid)}"
         return ([seg] if seg else []), dict(target=str(obj), mission=m, n_files=1, source=f'uploaded {name}', _cen=[cen] if cen else [])
     import pandas as pd
     df = pd.read_csv(io.BytesIO(data), sep=None, engine='python', comment='#')
     cols = {c.lower().strip(): c for c in df.columns}
     tcol = next((cols[c] for c in ('time', 'bjd', 'btjd', 'bkjd', 't') if c in cols), df.columns[0])
     fcol = next((cols[c] for c in ('pdcsap_flux', 'flux', 'f', 'sap_flux') if c in cols), df.columns[1])
-    m = mission or 'kepler'
+    m = name_mission or mission or 'kepler'
     t, f = df[tcol].values.astype(float), df[fcol].values.astype(float)
+    ok = np.isfinite(t) & np.isfinite(f); t, f = t[ok], f[ok]
     # split into segments at gaps > 2 days, so each is normalised on its own
     o = np.argsort(t); t, f = t[o], f[o]
     cuts = np.where(np.diff(t) > 2.0)[0] + 1
     segs = [s for s in (_clean_segment(a, b, None, m) for a, b in zip(np.split(t, cuts), np.split(f, cuts))) if s]
-    return segs, dict(target=os.path.splitext(name)[0], mission=m, n_files=1, source=f'uploaded {name}')
+    return segs, dict(target=star_id or os.path.splitext(name)[0], mission=m, n_files=1, source=f'uploaded {name}')
 
 
 # ------------------------------------------------------------------ 3-4. detrend and search

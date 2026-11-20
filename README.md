@@ -114,6 +114,8 @@ Held-out test (PR-AUC): Kepler 0.963 (Mamba-2 alone 0.934; the earlier set with 
 ## Batch
 Paste many star IDs, or upload several FITS/CSV files or a ZIP. You get one combined table ranked by score.
 
+**Try the upload:** `examples/upload/` has 10 ready CSV files (9 real Kepler/TESS stars and 1 with a fake planet) and an answer key. Put a KIC or TIC number in a file's name and the upload gets the same star checks as a star-ID run.
+
 ## Known limits
 - A nearby eclipsing star closer than about half a pixel (10 arcsec on TESS) cannot be separated by the pixel check, and a third of dips are too faint to measure in the pixels.
 - TESS has far fewer labelled examples; TESS scores are less reliable (E4/E5).

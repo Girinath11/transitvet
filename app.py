@@ -294,7 +294,7 @@ with tab1:
     st.divider()
     up = st.file_uploader('...or upload one light-curve file (Kepler/TESS FITS, or CSV with time and flux columns)',
                           type=['fits', 'fit', 'csv', 'txt'], key='one_up')
-    up_m = st.selectbox('Mission of the uploaded file (CSV only)', ['kepler', 'tess'], key='one_m')
+    up_m = st.selectbox('Mission of the uploaded file (CSV only; a KIC or TIC number in the file name sets it for you)', ['kepler', 'tess'], key='one_m')
     if up is not None and st.button('Analyse file'):
         try:
             show_result(analyse(P.load_file, up.name, up.getvalue(), up_m if up.name.lower().endswith(('csv', 'txt')) else None), 'file')
