@@ -143,6 +143,7 @@ Two further outputs are display only. A batman transit fit (Kreidberg 2015) give
 - **Seeds.** Neural models were trained with 5 seeds (3 for ablations and label-fraction runs). We report the mean ± standard deviation of single models and the score of the 5-model average.
 - **Metrics.** The main metric is the area under the precision-recall curve (PR-AUC, average precision). It is more informative than ROC-AUC when classes are unbalanced, as on Kepler, where 22 per cent of test signals are planet candidates. We also report counts at the tool's own rule (score ≥ 0.5), calibration error (ECE, 15 equal-width bins) and conformal coverage.
 - **Uncertainty.** Uncertainty on PR-AUC and on differences comes from 2,000 bootstrap resamples of test stars, not of signals.
+- **Cross-validation.** As an extra check, 5-fold cross-validation by star uses every labelled star once as a test star (Section 5.8). The main tables use the fixed split.
 
 # 5 Results
 
@@ -235,13 +236,26 @@ The comparison is not like for like. ExoMiner++ uses SPOC data-validation produc
 - **Attention.** In the last layer, the pretrained Transformer puts 21 per cent of its attention on the local view for planet candidates, against 38 per cent for false positives. Attention maps show where a model looks, not why it decides.
 - **Speed.** On four CPU cores, per-signal inference takes 7 µs for GB, 0.68 ms for the Transformer and 1.37 ms for the CNN. A whole-star run is dominated by download, detrending and the BLS search: about 2.5 minutes per TESS star and 6.6 minutes per Kepler star on one core (medians from a 50-star end-to-end test with an earlier tool version).
 
+## 5.8 Cross-validation over all labelled stars
+
+The test sets above hold 15 per cent of the Kepler stars and 40 per cent of the labelled TESS stars. To use every labelled star once as a test star, we also ran 5-fold cross-validation by star. Stars were shuffled with a fixed seed and cut into five folds. Each fold in turn was the test set; 15 per cent of the remaining stars were validation stars and the rest were training stars. Everything was refitted for each fold on these stars only. On Kepler this meant gradient boosting (5 seeds), masked pretraining and fine-tuning of the Transformer, and Mamba-2, with one seed for each neural model to keep the run to about 7 hours on 4 CPU cores. On TESS it meant gradient boosting with the Gaia numbers (5 seeds) and fine-tuning of both neural models (5 seeds each) from the Kepler-trained weights, which never saw a TESS star. The combiner and the 95 per cent check were refitted on each fold's validation stars. The scores of the five test folds were then pooled. Table 7 gives the result.
+
+**Table 7.** Five-fold cross-validation by star over all labelled signals. PR-AUC is computed on the pooled test-fold scores; the interval comes from 2,000 bootstrap resamples of stars. "Per fold" is the mean ± s.d. of the five fold PR-AUCs. Coverage is that of the 95 per cent check (α = 0.05).
+
+| Mission | Signals (stars) | Combined PR-AUC (95% interval) | Per fold | GB | Mamba-2 | Transformer | Planets with "planet" in set | False signals with "false alarm" in set |
+|---|---|---|---|---|---|---|---|---|
+| Kepler | 15,737 (9,865) | 0.966 (0.960–0.971) | 0.966 ± 0.004 | 0.950 | 0.926 | 0.921 | 95.0% | 94.5% |
+| TESS | 2,502 (2,357) | 0.957 (0.949–0.964) | 0.957 ± 0.004 | 0.951 | 0.860 | 0.846 | 96.0% | 95.2% |
+
+Pooled over all labelled stars, the combined score reaches a PR-AUC of 0.966 on Kepler and 0.957 on TESS. This is close to the held-out results (0.963 and 0.950), and the folds vary little (standard deviation 0.004 and 0.004), so the main results do not rest on one lucky split. As on the test sets, the combined score is above every single model, and gradient boosting is the strongest single model. Coverage is 94.5 per cent for Kepler false signals, a little under the 95 per cent target. Split conformal prediction promises 95 per cent on average over calibration sets, and with about 1,105 Kepler calibration signals per fold, a shortfall of under one point is about the spread expected by chance. Under the tool's rule, 3,783 Kepler signals are kept, 11,560 dropped and 394 sent to a person; on TESS the counts are 1,089, 773 and 640. The Kepler Mamba-2 and Transformer columns come from one seed per fold, so they sit slightly below the 5-model averages of Table 3.
+
 # 6 Injection-recovery test
 
 We added 125 synthetic planets to the raw light curves of 19 held-out test stars and ran the whole pipeline unchanged. The planets used a batman model with quadratic limb darkening, a circular orbit and an impact parameter from 0 to 0.8. The pipeline covered the search, checks, Gaia inputs, models, verdict and coverage check; the difference-image check was off to save time. Periods were drawn log-uniformly from 0.7 d to a third of the data span (at most 200 d). For 110 of the planets, the size was set so that the expected signal-to-noise ratio was drawn log-uniformly between 3 and 80. The expected ratio is the depth divided by the robust scatter of the flattened curve, times the square root of the number of in-transit points. The other 15 planets came from a first round with sizes drawn log-uniformly from 0.7 to 8 Earth radii. A synthetic planet counts as recovered when a signal matches its period (or half or double) within 1 per cent and its time of dip.
 
 We left out 31 planets with fewer than 3 dips in the data, which the search cannot find by design. We also left out 4 planets on a giant star (60 solar radii), where the injected depth corresponds to a star-sized companion and a false-alarm call is correct. That leaves 90 planets on 18 stars: 88 on 17 TESS stars and 2 on one Kepler star. Kepler runs took about 17 minutes each.
 
-**Table 7.** Recovery against expected signal-to-noise ratio.
+**Table 8.** Recovery against expected signal-to-noise ratio.
 
 | Expected SNR | Planets | Recovered | Recovered and called candidate |
 |---|---|---|---|

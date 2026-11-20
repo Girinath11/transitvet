@@ -562,6 +562,10 @@ least 5 sigma.
 \item
   \textbf{Uncertainty.} Uncertainty on PR-AUC and on differences comes
   from 2,000 bootstrap resamples of test stars, not of signals.
+\item
+  \textbf{Cross-validation.} As an extra check, 5-fold cross-validation
+  by star uses every labelled star once as a test star (Section 5.8).
+  The main tables use the fixed split.
 \end{itemize}
 
 \hypertarget{results}{%
@@ -882,6 +886,87 @@ speed}\label{errors-attention-and-speed}}
   (medians from a 50-star end-to-end test with an earlier tool version).
 \end{itemize}
 
+\hypertarget{cross-validation-over-all-labelled-stars}{%
+\subsection{5.8 Cross-validation over all labelled
+stars}\label{cross-validation-over-all-labelled-stars}}
+
+The test sets above hold 15 per cent of the Kepler stars and 40 per cent
+of the labelled TESS stars. To use every labelled star once as a test
+star, we also ran 5-fold cross-validation by star. Stars were shuffled
+with a fixed seed and cut into five folds. Each fold in turn was the
+test set; 15 per cent of the remaining stars were validation stars and
+the rest were training stars. Everything was refitted for each fold on
+these stars only. On Kepler this meant gradient boosting (5 seeds),
+masked pretraining and fine-tuning of the Transformer, and Mamba-2, with
+one seed for each neural model to keep the run to about 7 hours on 4 CPU
+cores. On TESS it meant gradient boosting with the Gaia numbers (5
+seeds) and fine-tuning of both neural models (5 seeds each) from the
+Kepler-trained weights, which never saw a TESS star. The combiner and
+the 95 per cent check were refitted on each fold's validation stars. The
+scores of the five test folds were then pooled. Table 7 gives the
+result.
+
+\textbf{Table 7.} Five-fold cross-validation by star over all labelled
+signals. PR-AUC is computed on the pooled test-fold scores; the interval
+comes from 2,000 bootstrap resamples of stars. ``Per fold'' is the mean
+± s.d. of the five fold PR-AUCs. Coverage is that of the 95 per cent
+check (α = 0.05).
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 16\tabcolsep) * \real{0.1111}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Mission
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Signals (stars)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Combined PR-AUC (95\% interval)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Per fold
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+GB
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Mamba-2
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Transformer
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Planets with ``planet'' in set
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+False signals with ``false alarm'' in set
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Kepler & 15,737 (9,865) & 0.966 (0.960--0.971) & 0.966 ± 0.004 & 0.950 &
+0.926 & 0.921 & 95.0\% & 94.5\% \\
+TESS & 2,502 (2,357) & 0.957 (0.949--0.964) & 0.957 ± 0.004 & 0.951 &
+0.860 & 0.846 & 96.0\% & 95.2\% \\
+\end{longtable}
+
+Pooled over all labelled stars, the combined score reaches a PR-AUC of
+0.966 on Kepler and 0.957 on TESS. This is close to the held-out results
+(0.963 and 0.950), and the folds vary little (standard deviation 0.004
+and 0.004), so the main results do not rest on one lucky split. As on
+the test sets, the combined score is above every single model, and
+gradient boosting is the strongest single model. Coverage is 94.5 per
+cent for Kepler false signals, a little under the 95 per cent target.
+Split conformal prediction promises 95 per cent on average over
+calibration sets, and with about 1,105 Kepler calibration signals per
+fold, a shortfall of under one point is about the spread expected by
+chance. Under the tool's rule, 3,783 Kepler signals are kept, 11,560
+dropped and 394 sent to a person; on TESS the counts are 1,089, 773 and
+640. The Kepler Mamba-2 and Transformer columns come from one seed per
+fold, so they sit slightly below the 5-model averages of Table 3.
+
 \hypertarget{injection-recovery-test}{%
 \section{6 Injection-recovery test}\label{injection-recovery-test}}
 
@@ -907,7 +992,7 @@ companion and a false-alarm call is correct. That leaves 90 planets on
 18 stars: 88 on 17 TESS stars and 2 on one Kepler star. Kepler runs took
 about 17 minutes each.
 
-\textbf{Table 7.} Recovery against expected signal-to-noise ratio.
+\textbf{Table 8.} Recovery against expected signal-to-noise ratio.
 
 \begin{longtable}[]{@{}llll@{}}
 \toprule\noalign{}

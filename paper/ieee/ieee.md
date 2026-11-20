@@ -153,9 +153,21 @@ FIG|fig_conformal.png|full|Left and centre: conformal-combiner scores of test pl
 
 ExoMiner++ [7] publishes scores for TESS 2-minute signals. We matched 542 of our 1,000 TESS test signals (347 planets, 195 false signals) by star and period. On these, TransitVet reaches a PR-AUC of 0.968 and ExoMiner++ 0.973; the difference of −0.005 has a bootstrap interval of −0.019 to +0.010, so the two are within the uncertainty. The comparison is not like for like: ExoMiner++ uses the mission's own pixel-level products, while TransitVet starts from light-curve files and catalogues and also scores its own detections.
 
+## Cross-Validation over All Labelled Stars
+
+The test sets above hold 15% of the Kepler stars and 40% of the labelled TESS stars. To use every labelled star once as a test star, we also ran 5-fold cross-validation by star. Stars were shuffled with a fixed seed and cut into five folds. Each fold in turn was the test set; 15% of the remaining stars were validation stars and the rest were training stars. Everything was refitted for each fold on these stars only. On Kepler this meant gradient boosting (5 seeds), masked pretraining and fine-tuning of the Transformer, and Mamba-2, with one seed for each neural model to keep the run to about 7 hours on 4 CPU cores. On TESS it meant gradient boosting with the Gaia numbers (5 seeds) and fine-tuning of both neural models (5 seeds each) from the Kepler-trained weights, which never saw a TESS star. The combiner and the 95% check were refitted on each fold's validation stars. The scores of the five test folds were then pooled. Table VI gives the result.
+
+TABLE|Five-Fold Cross-Validation by Star over All Labelled Signals (PR-AUC Pooled over Test Folds; Coverage of the 95% Check)
+| Mission | Signals (stars) | Combined PR-AUC (95% interval) | Per fold | GB | Mamba-2 | Transformer | Planet cov. | False cov. |
+|---|---|---|---|---|---|---|---|---|
+| Kepler | 15,737 (9,865) | 0.966 (0.960–0.971) | 0.966 ± 0.004 | 0.950 | 0.926 | 0.921 | 95.0% | 94.5% |
+| TESS | 2,502 (2,357) | 0.957 (0.949–0.964) | 0.957 ± 0.004 | 0.951 | 0.860 | 0.846 | 96.0% | 95.2% |
+
+Pooled over all labelled stars, the combined score reaches a PR-AUC of 0.966 on Kepler and 0.957 on TESS. This is close to the held-out results (0.963 and 0.950), and the folds vary little (standard deviation 0.004 and 0.004), so the main results do not rest on one lucky split. As on the test sets, the combined score is above every single model, and gradient boosting is the strongest single model. Coverage is 94.5% for Kepler false signals, a little under the 95% target. Split conformal prediction promises 95% on average over calibration sets, and with about 1,105 Kepler calibration signals per fold, a shortfall of under one point is about the spread expected by chance. Under the tool's rule, 3,783 Kepler signals are kept, 11,560 dropped and 394 sent to a person; on TESS the counts are 1,089, 773 and 640. The Kepler Mamba-2 and Transformer columns come from one seed per fold, so they sit slightly below the 5-model averages of Table III.
+
 ## Injection-Recovery Test
 
-To measure what the whole pipeline can find, we added synthetic planets to the raw light curves of held-out test stars, using a batman transit model [18], and ran everything unchanged. After leaving out planets with fewer than 3 dips in the data and planets on one giant star, 90 synthetic planets on 18 stars remained. Table VI and Fig. 5 show the result: the search finds half of the planets at an expected signal-to-noise ratio of about 10 and 90% at about 16, and above 15 it found 36 of 37.
+To measure what the whole pipeline can find, we added synthetic planets to the raw light curves of held-out test stars, using a batman transit model [18], and ran everything unchanged. After leaving out planets with fewer than 3 dips in the data and planets on one giant star, 90 synthetic planets on 18 stars remained. Table VII and Fig. 5 show the result: the search finds half of the planets at an expected signal-to-noise ratio of about 10 and 90% at about 16, and above 15 it found 36 of 37.
 
 TABLE|Injection-Recovery Result
 | Expected SNR | Planets | Recovered | Called candidate |
